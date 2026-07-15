@@ -14,13 +14,15 @@ LOCAL_INSTALL_BIN ?= /usr/local/bin
 
 # Include locations
 #  Dependencies (C/C++)
-CCFLAGS = -I$(DEPS_INSTALL_ZROOT)/include
-CXXFLAGS := -I$(DEPS_INSTALL_ZROOT)/include
+CCFLAGS = -I"$(DEPS_INSTALL_ZROOT)"/include
+CXXFLAGS := -I"$(DEPS_INSTALL_ZROOT)"/include
 #  Local includes (for generated headers from bison/flex)
-CXXFLAGS += -I$(ZROOT)/src
+CXXFLAGS += -I"$(ZROOT)"/src
 #  Common includes (C/C++)
-CCFLAGS += -I$(INCLUDE_ROOT) -I$(LOCAL_INCLUDE)
-CXXFLAGS += -I$(INCLUDE_ROOT) -I$(LOCAL_INCLUDE)
+CCFLAGS += -I"$(INCLUDE_ROOT)" -I"$(LOCAL_INCLUDE)"
+CXXFLAGS += -I"$(INCLUDE_ROOT)" -I"$(LOCAL_INCLUDE)"
+# Fix for the "missing openabe.h"
+CXXFLAGS += -I"$(ZROOT)"/src/include
 
 RELIC_LIB = -lrelic -lrelic_ec
 RELIC_LIB_STATIC = -lrelic_s -lrelic_s_ec
@@ -29,7 +31,7 @@ SSL_LIB = -lssl
 CRYPTO_LIB = -lcrypto
 RELIC_G =
 # commit: 1e3f62a3823f7e3db9d403f724fd9d66f5b04cf8 (as of 7/18/17)
-OPENSSL_VERSION := 1.1.1-dev
+OPENSSL_VERSION := 4.0.1
 
 # Set flags for C++ 11
 OLD_GPP = $(shell g++ --version | grep -q 4.6 && echo 1)
@@ -52,7 +54,7 @@ ifeq ($(OS), Windows_NT)
     # NOTE: relic build still broken for MINGW
     DEPS_PACKAGES = openssl
     WITH_BP := "with-bp"
-    OPENSSL_VERSION := 1.1.1-dev-bp
+    OPENSSL_VERSION := 4.0.1
     COMPILER_VARS := -G "MinGW Makefiles" -DSEED=WCGR
     CMAKE_VARS := -DCMAKE_MAKE_PROGRAM=/mingw64/bin/mingw32-make -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++.exe CMAKE_INCLUDE_PATH="/usr/local/include" CMAKE_LIBRARY_PATH="/usr/local/lib"
     SHLIB := dll
@@ -150,10 +152,10 @@ SHLIB_PATH = $(LDFLAGS)
 
 define COMMON_LIB_template
 $(1): $(1)($$($(1)_OBJS))
-	mkdir -p $(OABE_LIB_ROOT)
-	cp $$@ $(OABE_LIB_ROOT)
-	mkdir -p $(INCLUDE_ROOT)
-	-cp -r include/* $(INCLUDE_ROOT)
+	mkdir -p "$(OABE_LIB_ROOT)"
+	cp $$@ "$(OABE_LIB_ROOT)"
+	mkdir -p "$(INCLUDE_ROOT)"
+	-cp -r include/* "$(INCLUDE_ROOT)"
 endef
 
 # COMMON_LIBS, and the objects they use must be defined *before* this
