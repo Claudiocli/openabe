@@ -68,3 +68,8 @@ Testing/
 .cache/
 
 .vscode/
+# Dependencies and inclusions
+deps/openssl/openssl-*
+
+deps/root/
+*.tar.gz
