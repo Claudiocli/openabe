@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=0.5.0
+VERSION=0.7.0
 FORMAT=tar.gz
 LINK=https://github.com/relic-toolkit/relic
 RELIC=${1:-relic-toolkit-${VERSION}}

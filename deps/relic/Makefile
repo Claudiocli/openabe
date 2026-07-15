@@ -9,7 +9,7 @@
 
 include ../../Makefile.common
 
-VERSION=toolkit-0.5.0
+VERSION=0.7.0
 BP_LABEL=bp
 BP_TMP=$(shell mktemp -d tmp$(BP_LABEL)-XXXX)
 BP_HDR_PREFIX=_$(BP_LABEL)
@@ -52,7 +52,7 @@ relic-$(VERSION)/.built: relic-${VERSION}
 //#define ep2_mul' $(DEPS_INSTALL_ZROOT)/include/relic/relic_label.h && \
 	sed -i -e '/^#define VERSION/d' $(DEPS_INSTALL_ZROOT)/include/relic$(EC_HDR_PREFIX)/relic_conf.h && \
 	../run_install_clean.sh && \
-	touch ../$@
+	touch ../.built
 
 relic-$(VERSION): relic-$(VERSION).tar.gz
 	tar xf $^
