@@ -368,7 +368,7 @@ int ec_point_is_on_curve(ec_group_t group, ec_point_t p) {
   int ret = EC_POINT_is_on_curve(group, p, NULL);
   return ret;
 #else
-  if (ec_ep_is_valid(p))
+  if (ep_on_curve(p))
     return 1;
 #endif
   return 0;
@@ -538,7 +538,7 @@ void g1_sub_op(bp_group_t group, g1_ptr z, const g1_ptr x) {
       G1_ELEM_add(group, z, x, z, NULL);
   }
 #else
-  ep_sub_projc(z, x, z);
+  ep_sub(z, x, z);
   ep_norm(z, z);
 #endif
 
@@ -767,7 +767,7 @@ void ep_copy_const(ep_t r, const ep_t p) {
     fp_copy_const(r->x, p->x);
     fp_copy_const(r->y, p->y);
     fp_copy_const(r->z, p->z);
-    r->norm = p->norm;
+    r->coord = p->coord;
 }
 
 void fp_copy_const(fp_t c, const fp_t a) {
@@ -781,7 +781,7 @@ void ep2_copy_const(ep2_t r, const ep2_t p) {
     fp2_copy_const(r->x, p->x);
     fp2_copy_const(r->y, p->y);
     fp2_copy_const(r->z, p->z);
-    r->norm = p->norm;
+    r->coord = p->coord;
 }
 
 void fp2_copy_const(fp2_t c, const fp2_t a) {

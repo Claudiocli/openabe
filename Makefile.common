@@ -17,12 +17,12 @@ LOCAL_INSTALL_BIN ?= /usr/local/bin
 CCFLAGS = -I"$(DEPS_INSTALL_ZROOT)"/include
 CXXFLAGS := -I"$(DEPS_INSTALL_ZROOT)"/include
 #  Local includes (for generated headers from bison/flex)
-CXXFLAGS += -I"$(ZROOT)"/src
+CXXFLAGS += -I"$(ZROOT)/src"
 #  Common includes (C/C++)
 CCFLAGS += -I"$(INCLUDE_ROOT)" -I"$(LOCAL_INCLUDE)"
 CXXFLAGS += -I"$(INCLUDE_ROOT)" -I"$(LOCAL_INCLUDE)"
 # Fix for the "missing openabe.h"
-CXXFLAGS += -I"$(ZROOT)"/src/include
+CXXFLAGS += -I"$(ZROOT)/src/include"
 
 RELIC_LIB = -lrelic -lrelic_ec
 RELIC_LIB_STATIC = -lrelic_s -lrelic_s_ec
@@ -39,7 +39,7 @@ ifeq ($(OLD_GPP), 1)
     CXX11FLAGS = -std=c++0x
     CXXFLAGS += $(CXX11FLAGS)
 else
-    CXX11FLAGS = -std=c++11
+    CXX11FLAGS = -std=c++11 -include cstdint
     CXXFLAGS += $(CXX11FLAGS)
 endif
 
@@ -51,12 +51,10 @@ WITH_BP :=
 
 ifeq ($(OS), Windows_NT)
     RELIC_OS := WINDOWS
-    # NOTE: relic build still broken for MINGW
-    DEPS_PACKAGES = openssl
-    WITH_BP := "with-bp"
-    OPENSSL_VERSION := 4.0.1
+    MINGW_MAKE := /mingw64/bin/mingw32-make
+    DEPS_PACKAGES = openssl relic
     COMPILER_VARS := -G "MinGW Makefiles" -DSEED=WCGR
-    CMAKE_VARS := -DCMAKE_MAKE_PROGRAM=/mingw64/bin/mingw32-make -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++.exe CMAKE_INCLUDE_PATH="/usr/local/include" CMAKE_LIBRARY_PATH="/usr/local/lib"
+    CMAKE_VARS := -DCMAKE_MAKE_PROGRAM=$(MINGW_MAKE) -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++.exe -DCMAKE_INCLUDE_PATH="/usr/local/include" -DCMAKE_LIBRARY_PATH="/usr/local/lib"
     SHLIB := dll
     GTESTEXT := $(SHLIB)
     # No need to set -fPIC for windows as all code is position independent by default.
@@ -125,7 +123,7 @@ CXXFLAGS += -g -O2
 # CC="afl-clang" # for mac
 # CXX="afl-clang++"
 
-LDFLAGS += -L$(DEPS_INSTALL_ZROOT)/lib -L$(OABE_LIB_ROOT) -L$(LOCAL_LIB_ROOT)
+LDFLAGS += -L"$(DEPS_INSTALL_ZROOT)"/lib -L$(OABE_LIB_ROOT) -L$(LOCAL_LIB_ROOT)
 
 # Zeutro Math library config: RELIC vs OPENSSL
 # Look for environment variable ZML_LIB=with_openssl

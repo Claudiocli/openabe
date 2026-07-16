@@ -247,7 +247,7 @@ void ro_error(void) {
 namespace oabe {
 
 #if !defined(BP_WITH_OPENSSL)
-static void rng_trampoline(uint8_t *buf, int len, void *this_ptr) {
+static void rng_trampoline(uint8_t *buf, size_t len, void *this_ptr) {
   // cout << "calling our RNG!!!!" << endl;
   OpenABERNG *rng = static_cast<OpenABERNG *>(this_ptr);
   rng->getRandomBytes(buf, len);

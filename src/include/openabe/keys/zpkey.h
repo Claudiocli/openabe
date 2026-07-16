@@ -48,7 +48,7 @@ private:
 
 public:
   OpenABEPKey(bool isPrivate);
-  OpenABEPKey(const EC_KEY *ec_key, bool isPrivate, EC_GROUP *group = NULL);
+  OpenABEPKey(EVP_PKEY *evp_key, bool isPrivate);
   ~OpenABEPKey();
 
   EVP_PKEY *getPkey() { return this->pkey; }

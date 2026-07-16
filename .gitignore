@@ -70,6 +70,10 @@ Testing/
 .vscode/
 # Dependencies and inclusions
 deps/openssl/openssl-*
+deps/relic/relic*
+deps/relic/tmp*
+deps/relic/.built
+root/
 
 deps/root/
 *.tar.gz

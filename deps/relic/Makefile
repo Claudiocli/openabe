@@ -22,7 +22,7 @@ EC_HDR_PREFIX=_$(EC_LABEL)
 BN_CURVE=254
 EC_CURVE=256
 
-all: package relic-$(VERSION)/.built
+all: relic-$(VERSION)/.built
 
 # We remove the VERSION define from (the installed) relic_conf.h
 # because this conflicts with other libraries.  Actually, they
@@ -32,33 +32,27 @@ all: package relic-$(VERSION)/.built
 # We also undefine MIN and MAX before they are redefined.
 #
 #-DLABEL="$(BP_LABEL)"
-relic-$(VERSION)/.built: relic-${VERSION}
-	cd $(BP_TMP); \
-	$(CMAKE_VARS) COMP="-O2 -funroll-loops -fomit-frame-pointer -Wno-incompatible-pointer-types -Wno-unused-function -Wno-implicit-function-declaration -Wno-incompatible-pointer-types-discards-qualifiers" cmake $(COMPILER_VARS) -DCMAKE_INSTALL_PREFIX:PATH=$(DEPS_INSTALL_ZROOT) -DOPSYS=$(RELIC_OS) -DARCH="ARM" -DWSIZE=32 \
-	-DWITH="BN;DV;FP;FPX;EP;EPX;PP;PC;MD" -DCHECK=off -DVERBS=off -DDEBUG=off -DMULTI=PTHREAD -DBENCH=0 -DTESTS=10 -DARITH=easy -DFP_PRIME=$(BN_CURVE) -DBN_PRECI=$(BN_CURVE) \
-	-DFP_QNRES=on -DEP_METHD="PROJC;LWNAF;COMBS;INTER" -DFP_METHD="BASIC;COMBA;COMBA;MONTY;LOWER;SLIDE" -DFPX_METHD="INTEG;INTEG;LAZYR" -DPP_METHD="LAZYR;OATEP" \
-	-DSEED="ZERO" -DRAND="CALL" ../$<; \
-	make && \
-	make install && \
-	cd ../$(EC_TMP); \
-	$(CMAKE_VARS) COMP="-O2 -funroll-loops -fomit-frame-pointer -Wno-unused-function -Wno-implicit-function-declaration -Wno-incompatible-pointer-types-discards-qualifiers" cmake $(COMPILER_VARS) -DCMAKE_INSTALL_PREFIX:PATH=$(DEPS_INSTALL_ZROOT) -DOPSYS=$(RELIC_OS) -DARCH="ARM" -DWSIZE=32 \
-	-DWITH="BN;DV;FP;EP;MD" -DCHECK=off -DVERBS=off -DDEBUG=off -DMULTI=PTHREAD -DBENCH=0 -DTESTS=0 -DARITH=gmp -DFP_PRIME=$(EC_CURVE) \
-	-DFP_QNRES=off -DEP_METHD="PROJC;LWNAF;COMBS;INTER" -DFP_METHD="BASIC;COMBA;COMBA;MONTY;LOWER;SLIDE" -DFPX_METHD="INTEG;INTEG;LAZYR" -DPP_METHD="LAZYR;OATEP" \
-	-DSEED="ZERO" -DRAND="CALL" -DLABEL="$(EC_LABEL)" ../$<; \
-	make && \
-	make install && \
-	sed -i -e '/^#define VERSION/d' $(DEPS_INSTALL_ZROOT)/include/relic/relic_conf.h && \
+relic-$(VERSION)/.built: relic-$(VERSION)
+	cd $(BP_TMP) && \
+	COMP="-O2 -funroll-loops -fomit-frame-pointer -Wno-incompatible-pointer-types -Wno-unused-function -Wno-implicit-function-declaration -Wno-incompatible-pointer-types-discards-qualifiers" cmake $(COMPILER_VARS) $(CMAKE_VARS) -DCMAKE_INSTALL_PREFIX:PATH="$(DEPS_INSTALL_ZROOT)" -DOPSYS=$(RELIC_OS) -DARCH="X64" -DWSIZE=64 -DWITH="BN;DV;FP;FPX;EP;EPX;PP;PC;MD" -DCHECK=off -DVERBS=off -DDEBUG=off -DMULTI=PTHREAD -DBENCH=0 -DTESTS=0 -DARITH=easy -DFP_PRIME=$(BN_CURVE) -DBN_PRECI=$(BN_CURVE) -DFP_QNRES=on -DEP_METHD="PROJC;LWNAF;COMBS;INTER;SSWUM" -DFP_METHD="BASIC;COMBA;COMBA;MONTY;JMPDS;JMPDS;SLIDE" -DFPX_METHD="INTEG;INTEG;LAZYR" -DPP_METHD="LAZYR;OATEP" -DRAND="CALL" ../$<; \
+	$(MINGW_MAKE) && \
+	$(MINGW_MAKE) install && \
+	cd ../$(EC_TMP) && \
+	COMP="-O2 -funroll-loops -fomit-frame-pointer -Wno-unused-function -Wno-implicit-function-declaration -Wno-incompatible-pointer-types-discards-qualifiers" cmake $(COMPILER_VARS) $(CMAKE_VARS) -DCMAKE_INSTALL_PREFIX:PATH="$(DEPS_INSTALL_ZROOT)" -DOPSYS=$(RELIC_OS) -DARCH="X64" -DWSIZE=64 -DWITH="BN;DV;FP;EP;MD" -DCHECK=off -DVERBS=off -DDEBUG=off -DMULTI=PTHREAD -DBENCH=0 -DTESTS=0 -DARITH=gmp -DFP_PRIME=$(EC_CURVE) -DFP_QNRES=off -DEP_METHD="PROJC;LWNAF;COMBS;INTER;SSWUM" -DFP_METHD="BASIC;COMBA;COMBA;MONTY;JMPDS;JMPDS;SLIDE" -DFPX_METHD="INTEG;INTEG;LAZYR" -DPP_METHD="LAZYR;OATEP" -DRAND="CALL" -DLABEL="$(EC_LABEL)" ../$<; \
+	$(MINGW_MAKE) && \
+	$(MINGW_MAKE) install && \
+	sed -i -e '/^#define VERSION/d' "$(DEPS_INSTALL_ZROOT)"/include/relic/relic_conf.h && \
 	sed -i -e '/^#define ep2_mul/i \
-//#define ep2_mul' $(DEPS_INSTALL_ZROOT)/include/relic/relic_label.h && \
-	sed -i -e '/^#define VERSION/d' $(DEPS_INSTALL_ZROOT)/include/relic$(EC_HDR_PREFIX)/relic_conf.h && \
+//#define ep2_mul' "$(DEPS_INSTALL_ZROOT)"/include/relic/relic_label.h && \
+	sed -i -e '/^#define VERSION/d' "$(DEPS_INSTALL_ZROOT)"/include/relic$(EC_HDR_PREFIX)/relic_conf.h && \
 	../run_install_clean.sh && \
 	touch ../.built
 
+relic-$(VERSION).tar.gz:
+	./download_relic.sh relic-$(VERSION)
+
 relic-$(VERSION): relic-$(VERSION).tar.gz
 	tar xf $^
-
-package:
-	./download_relic.sh relic-$(VERSION)
 
 clean:
 	rm -rf relic-$(VERSION) tmp*
