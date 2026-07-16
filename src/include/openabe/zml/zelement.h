@@ -44,8 +44,8 @@
 #endif
 
 #if !defined(BP_WITH_OPENSSL)
- #include <relic/relic.h>
- #include <relic_ec/relic.h>
+#include <relic_ec/relic.h>
+#include <relic/relic.h>
 #endif
 
 /*************************** BN Definitions *********************/
@@ -157,6 +157,19 @@ typedef void* ec_group_t;
 /* END of RELIC macro definitions */
 #endif
 
+// Fix for relic refactor (renamed alla pi with RLC_)
+#ifndef CMP_EQ
+#define CMP_EQ RLC_EQ
+#define CMP_NE RLC_NE
+#define CMP_LT RLC_LT
+#define CMP_GT RLC_GT
+#define STS_OK RLC_OK
+#define BN_POS RLC_POS
+#define BN_NEG RLC_NEG
+#define EP_DTYPE RLC_EP_DTYPE
+#define FP_DIGS RLC_FP_DIGS
+#endif
+
 // init/clean internal structures
 void zml_init();
 void zml_clean();
@@ -252,16 +265,16 @@ typedef GT_ELEM* gt_ptr;
         fp12_null(g); \
         fp12_new(g);
 
-#define g1_copy_const    CAT(G1_LOWER, copy_const)
-#define g2_copy_const    CAT(G2_LOWER, copy_const)
-#define gt_copy_const    CAT(GT_LOWER, copy_const)
-#define g1_set_rand      CAT(G1_LOWER, set_rand)
-#define g2_set_rand      CAT(G2_LOWER, set_rand)
-#define gt_set_rand      CAT(GT_LOWER, set_rand)
-#define g1_write_ostream CAT(G1_LOWER, write_ostream)
-#define g2_write_ostream CAT(G2_LOWER, write_ostream)
-#define gt_write_ostream CAT(GT_LOWER, write_ostream)
-#define gt_is_zero       CAT(GT_LOWER, is_zero)
+#define g1_copy_const    RLC_CAT(RLC_G1_LOWER, copy_const)
+#define g2_copy_const    RLC_CAT(RLC_G2_LOWER, copy_const)
+#define gt_copy_const    RLC_CAT(RLC_GT_LOWER, copy_const)
+#define g1_set_rand      RLC_CAT(RLC_G1_LOWER, set_rand)
+#define g2_set_rand      RLC_CAT(RLC_G2_LOWER, set_rand)
+#define gt_set_rand      RLC_CAT(RLC_GT_LOWER, set_rand)
+#define g1_write_ostream RLC_CAT(RLC_G1_LOWER, write_ostream)
+#define g2_write_ostream RLC_CAT(RLC_G2_LOWER, write_ostream)
+#define gt_write_ostream RLC_CAT(RLC_GT_LOWER, write_ostream)
+#define gt_is_zero       RLC_CAT(RLC_GT_LOWER, is_zero)
 
 void bn_copy_const(bn_t c, const bn_t a);
 void ep_copy_const(ep_t r, const ep_t p);

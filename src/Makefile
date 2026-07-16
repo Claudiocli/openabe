@@ -5,7 +5,7 @@ include ../Makefile.common
 
 CC ?= gcc
 
-OABE_INCLUDE_DIR := $(INCLUDE_ROOT)/openabe
+OABE_INCLUDE_DIR := "$(INCLUDE_ROOT)/openabe"
 CXX11FLAGS += $(CXXFLAGS)
 
 RELICLIBS = -lrelic_s 

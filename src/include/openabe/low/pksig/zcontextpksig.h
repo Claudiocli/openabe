@@ -40,7 +40,7 @@ namespace oabe {
 
 class OpenABEContextPKSIG : public OpenABEContext {
 protected:
-  EC_GROUP *group;
+  std::string curveName;
   bool validateParams(const std::string &paramsID) { return true; };
   bool validatePkey(EVP_PKEY* pkey, bool expectPrivate);
 
