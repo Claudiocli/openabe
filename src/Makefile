@@ -7,6 +7,7 @@ CC ?= gcc
 
 OABE_INCLUDE_DIR := "$(INCLUDE_ROOT)/openabe"
 CXX11FLAGS += $(CXXFLAGS)
+CXX11FLAGS += -Wno-overloaded-virtual
 
 RELICLIBS = -lrelic_s 
 #$(DEPS_INSTALL_ROOT)/lib/librelic_s.a
@@ -71,14 +72,14 @@ header:
 $(OABELIB): $(LIBRARYH) $(OABE_OBJ_TARGETS)
 	$(AR) rcs $@ $(OABE_OBJ_FILES)
 	$(CXX) $(SHFLAGS) -o $(OABE_SHLIB) $(OABE_OBJ_FILES) $(SHLIB_PATH) $(OABELDSHLIBS)
-	mkdir -p $(OABE_LIB_ROOT)
-	cp $@ $(OABE_LIB_ROOT)
-	cp $(OABE_SHLIB) $(OABE_LIB_ROOT)
+	mkdir -p "$(OABE_LIB_ROOT)"
+	cp $@ "$(OABE_LIB_ROOT)"
+	cp "$(OABE_SHLIB)" "$(OABE_LIB_ROOT)"
 
 # provides only AEAD impl for integration with libzclient
 $(ZSYMLIB): $(OABELIB)
 	$(AR) rcs $(ZSYMLIB) $(ZSYM_OBJS)
-	cp $@ $(OABE_LIB_ROOT)
+	cp $@ "$(OABE_LIB_ROOT)"
 
 test:
 	./test_libopenabe || exit 1

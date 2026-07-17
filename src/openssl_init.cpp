@@ -39,6 +39,7 @@
 #include <openssl/rand.h>
 #include <openssl/ssl.h>
 #include <pthread.h>
+#include <stdexcept>
 
 #if defined(SSL_LIB_INIT)
 
@@ -99,8 +100,7 @@ void openSslInitialize() {
     // static locking
     mutexes.reset(new mutex[CRYPTO_num_locks()]);
     if (mutexes == nullptr) {
-        throw runtime_error("openSslInitialize() failed, "
-                            "out of memory while creating mutex array");
+        throw runtime_error("openSslInitialize() failed, out of memory while creating mutex array");
     }
     CRYPTO_set_locking_callback(lockingCallback);
     // dynamic locking

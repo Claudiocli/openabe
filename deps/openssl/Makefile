@@ -13,7 +13,7 @@ DEST_INCLUDEDIR := "$(DEPS_INSTALL_ZROOT)"/include
 openssl-$(VERSION).tar.gz:
 	./download_openssl.sh $(WITH_BP)
 
-openssl-$(VERSION)/.built: openssl-$(VERSION)
+openssl-$(VERSION)/.built: | openssl-$(VERSION)
 	cd $<; \
 	./$(OPENSSL_CONFIG) --prefix="$(DEPS_INSTALL_ZROOT)" && \
 	make && \

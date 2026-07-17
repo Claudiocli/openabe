@@ -52,9 +52,9 @@ if [[ $OS_NAME == "Linux" ]]; then
 elif [[ $OS_NAME == "MINGW64_NT-10.0" ]]; then
    # mingw64 (win 10)
    export ZML_LIB=with_openssl
-   export BISON=/usr/bin/bison
    export OS_FAMILY="windows"
 else
    export OS_FAMILY=`uname -s | tr '[:upper:]' '[:lower:]'`
 fi
+   export BISON=/usr/bin/bison
 

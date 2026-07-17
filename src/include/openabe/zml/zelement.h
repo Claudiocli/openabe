@@ -44,11 +44,41 @@
 #endif
 
 #if !defined(BP_WITH_OPENSSL)
-#include <relic_ec/relic.h>
 #include <relic/relic.h>
+#include <relic_ec/relic.h>
 #endif
 
 /*************************** BN Definitions *********************/
+#if !defined(BP_WITH_OPENSSL)
+#ifdef __cplusplus
+extern "C" {
+#endif
+/* Dichiarazioni manuali per le funzioni della build "ec" di RELIC
+ * (LABEL=ec). Non possiamo ottenerle da <relic_ec/relic.h> perché
+ * condivide le stesse header guard di <relic/relic.h> già incluso
+ * sopra: la seconda inclusione viene saltata per intero. I simboli
+ * qui sotto esistono comunque, compilati con questi nomi esatti,
+ * dentro librelic_ec.a (grazie a -DLABEL="ec" in fase di build). */
+int    ec_core_init(void);
+int    ec_core_clean(void);
+void   ec_ep_param_set(int param);
+void   ec_ep_curve_get_ord(bn_t n);
+void   ec_ep_set_infty(ep_t p);
+int    ec_ep_is_infty(const ep_t p);
+void   ec_ep_norm(ep_t r, const ep_t p);
+void   ec_ep_mul_lwnaf(ep_t r, const ep_t p, const bn_t k);
+int    ec_ep_cmp(const ep_t p, const ep_t q);
+void   ec_fp_prime_back(bn_t c, const fp_t a);
+void   ec_ep_curve_get_gen(ep_t g);
+size_t ec_ep_size_bin(const ep_t a, int pack);
+void   ec_ep_read_bin(ep_t a, const uint8_t *bin, size_t len);
+void   ec_fp_zero(fp_t a);
+void   ec_fp_set_dig(fp_t c, dig_t a);
+void   ec_ep_write_bin(uint8_t *bin, size_t len, const ep_t a, int pack);
+#ifdef __cplusplus
+}
+#endif
+#endif
 #define TRUE   1
 #define FALSE  0
 

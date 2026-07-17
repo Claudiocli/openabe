@@ -206,7 +206,7 @@ bool OpenABEPKey::bioToString(string &s, BIO *bio) {
     s.append(buf, end);  
   }  
   
-  if (BIO_eof(bio)) {  
+  if ((int)BIO_ctrl(bio, BIO_CTRL_EOF, 0, NULL)) {
     result = true;  
   }  
   return result;  

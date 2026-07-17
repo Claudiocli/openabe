@@ -47,7 +47,10 @@ ext_modules = [Extension("pyopenabe",
              extra_objects=_extra_objects,
              include_dirs=[ZROOT_DIR + "/deps/root/include", ZROOT_DIR + "/root/include"],
              library_dirs=[ZROOT_DIR + "/deps/root/lib", ZROOT_DIR + "/root/lib"],
-             extra_compile_args=["-std=c++11", "-Wno-unused-function", "-DGTEST_USE_OWN_TR1_TUPLE=1",
+            #  extra_compile_args=["-std=c++11", "-Wno-unused-function", "-DGTEST_USE_OWN_TR1_TUPLE=1",
+            #                      "-Wno-deprecated", "-pthread"] + _extra_compile_args
+            #  )]
+             extra_compile_args=["-std=c++17", "-Wno-unused-function", "-DGTEST_USE_OWN_TR1_TUPLE=1",
                                  "-Wno-deprecated", "-pthread"] + _extra_compile_args
              )]
 
