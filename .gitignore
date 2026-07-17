@@ -75,5 +75,7 @@ deps/relic/tmp*
 deps/relic/.built
 root/
 
+outpt
+
 deps/root/
 *.tar.gz

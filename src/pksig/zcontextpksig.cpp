@@ -96,7 +96,7 @@ OpenABEContextPKSIG::keygen(const std::string &pkID, const std::string &skID) {
     shared_ptr<OpenABEPKey> pubKey = nullptr, privKey = nullptr;  
   
     try {  
-        ASSERT(!this->curveName.empty());  
+        ASSERT(!this->curveName.empty(), OpenABE_ERROR_KEYGEN_FAILED);  
   
         // Create a key-generation context for EC keys  
         ctx = EVP_PKEY_CTX_new_from_name(nullptr, "EC", nullptr);  
@@ -426,4 +426,4 @@ OpenABEContextSchemePKSIG::verify(const std::string &pkID, OpenABEByteString *me
     return result;  
 }  
   
-}Z
+}
