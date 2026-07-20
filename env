@@ -44,6 +44,13 @@ export ZROOT
 export DEPS_INSTALL_ZROOT
 export LD_LIBRARY_PATH=${DEPS_INSTALL_ZROOT}/lib:${OABE_LIBS_ROOT}/lib:${LD_LIBRARY_PATH}
 
+# On Windows (MSYS2/MinGW64) DLLs are resolved via PATH, not LD_LIBRARY_PATH
+case "`uname -s`" in
+  MINGW*|MSYS*)
+    export PATH=${DEPS_INSTALL_ZROOT}/bin:${DEPS_INSTALL_ZROOT}/lib:${OABE_LIBS_ROOT}/lib:${PATH}
+    ;;
+esac
+
 OS_NAME=`uname -s`
 if [[ $OS_NAME == "Linux" ]]; then
    # get the family name if a Linux system

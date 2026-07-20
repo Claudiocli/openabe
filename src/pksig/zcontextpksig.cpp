@@ -48,20 +48,23 @@ OpenABEContextPKSIG::~OpenABEContextPKSIG() {
 OpenABE_ERROR  
 OpenABEContextPKSIG::initializeCurve(const std::string groupParams) {  
     try {  
-        if (this->curveName.empty()) {  
-            // Previously called generateECCurveParameters(&this->group, groupParams)  
-            // which created an EC_GROUP. In OpenSSL 4.0 we just store the curve  
-            // name string and pass it to EVP_PKEY_CTX at key-generation time.  
-            //  
-            // NOTE: groupParams must be an OpenSSL-recognised curve name such as  
-            // "P-256", "P-384", "P-521", "prime256v1", "secp384r1", etc.  
-            // If openabe used different names (e.g. "NIST_P256"), add a mapping  
-            // here before assigning to this->curveName.  
-            if (groupParams.empty()) {  
-                throw OpenABE_ERROR_INVALID_GROUP_PARAMS;  
-            }  
-            this->curveName = groupParams;  
-        }  
+        if (this->curveName.empty()) {
+            // Previously called generateECCurveParameters(&this->group, groupParams)
+            // which created an EC_GROUP. In OpenSSL 4.0 we just store the curve
+            // name string and pass it to EVP_PKEY_CTX at key-generation time.
+            //
+            // OpenABE uses its own names ("NIST_P256", ...): map them to the
+            // OpenSSL short name via the NID (e.g. "prime256v1").
+            if (groupParams.empty()) {
+                throw OpenABE_ERROR_INVALID_GROUP_PARAMS;
+            }
+            int nid = OpenABE_convertStringToNID(groupParams);
+            const char *sn = OBJ_nid2sn(nid);
+            if (sn == nullptr) {
+                throw OpenABE_ERROR_INVALID_GROUP_PARAMS;
+            }
+            this->curveName = sn;
+        }
     } catch(OpenABE_ERROR& error) {  
         return error;  
     }  

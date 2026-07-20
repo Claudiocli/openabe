@@ -65,6 +65,8 @@ void   ec_ep_param_set(int param);
 void   ec_ep_curve_get_ord(bn_t n);
 void   ec_ep_set_infty(ep_t p);
 int    ec_ep_is_infty(const ep_t p);
+int    ec_ep_on_curve(const ep_t p);
+void   ec_ep_add_projc(ep_t r, const ep_t p, const ep_t q);
 void   ec_ep_norm(ep_t r, const ep_t p);
 void   ec_ep_mul_lwnaf(ep_t r, const ep_t p, const bn_t k);
 int    ec_ep_cmp(const ep_t p, const ep_t q);

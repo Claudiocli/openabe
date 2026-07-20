@@ -68,6 +68,7 @@ Testing/
 .cache/
 
 .vscode/
+.claude/
 # Dependencies and inclusions
 deps/openssl/openssl-*
 deps/relic/relic*
@@ -76,6 +77,8 @@ deps/relic/.built
 root/
 
 outpt
+test_result
 
 deps/root/
 *.tar.gz
+/bin/

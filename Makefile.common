@@ -50,6 +50,13 @@ ADD_CFLAGS :=
 OS_CXXFLAGS :=
 WITH_BP := 
 
+# Fallback: detect MSYS2/MinGW even when the OS env var is not set
+ifeq ($(OS),)
+  ifneq (,$(findstring MINGW,$(shell uname -s)))
+    OS := Windows_NT
+  endif
+endif
+
 ifeq ($(OS), Windows_NT)
     RELIC_OS := WINDOWS
     MINGW_MAKE := /mingw64/bin/mingw32-make
@@ -124,7 +131,7 @@ CXXFLAGS += -g -O2
 # CC="afl-clang" # for mac
 # CXX="afl-clang++"
 
-LDFLAGS += -L"$(DEPS_INSTALL_ZROOT)/lib" -L"$(OABE_LIB_ROOT)" -L"$(LOCAL_LIB_ROOT)"
+LDFLAGS += -L"$(DEPS_INSTALL_ZROOT)/lib" -L"$(DEPS_INSTALL_ZROOT)/lib64" -L"$(OABE_LIB_ROOT)" -L"$(LOCAL_LIB_ROOT)"
 
 # Zeutro Math library config: RELIC vs OPENSSL
 # Look for environment variable ZML_LIB=with_openssl
@@ -134,6 +141,7 @@ ifeq ($(ZML_LIB), with_openssl)
   OPENSSL_ZML += -DBP_WITH_OPENSSL
   CXXFLAGS += $(OPENSSL_ZML)
   CCFLAGS += -g -O2 $(OPENSSL_ZML)
+  OABELDSHLIBS = $(RELIC_LIB)
 else
   # relic-only build for math ops
   CXXFLAGS += $(OPENSSL_ZML)

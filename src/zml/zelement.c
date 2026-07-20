@@ -368,7 +368,9 @@ int ec_point_is_on_curve(ec_group_t group, ec_point_t p) {
   int ret = EC_POINT_is_on_curve(group, p, NULL);
   return ret;
 #else
-  if (ep_on_curve(p))
+  /* must use the ec_-prefixed symbol from librelic_ec: the unprefixed
+   * ep_on_curve belongs to the BN254 pairing build (different prime) */
+  if (ec_ep_on_curve(p))
     return 1;
 #endif
   return 0;
@@ -379,7 +381,9 @@ void ec_point_add(ec_group_t g, ec_point_t r, const ec_point_t x,
 #if defined(EC_WITH_OPENSSL)
   EC_POINT_add(g, r, x, y, NULL);
 #else
-  ep_add(r, x, y);
+  /* ep_add is a macro for ep_add_projc (EP_METHD=PROJC); call the
+   * ec_-prefixed version from librelic_ec */
+  ec_ep_add_projc(r, x, y);
   ec_ep_norm(r, r);
 #endif
 }
