@@ -93,10 +93,7 @@ static void dynlockDestroy(struct CRYPTO_dynlock_value* lock,
 }
 
 void openSslInitialize() {
-#if defined(SSL_LIB_INIT)
-    SSL_library_init();
-    SSL_load_error_strings();
-#endif
+    OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS | OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL);
     // static locking
     mutexes.reset(new mutex[CRYPTO_num_locks()]);
     if (mutexes == nullptr) {

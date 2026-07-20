@@ -11,11 +11,11 @@ include ../../Makefile.common
 
 VERSION=0.7.0
 BP_LABEL=bp
-BP_TMP=$(shell mktemp -d tmp$(BP_LABEL)-XXXX)
+BP_TMP=tmp$(BP_LABEL)
 BP_HDR_PREFIX=_$(BP_LABEL)
 
 EC_LABEL=ec
-EC_TMP=$(shell mktemp -d tmp$(EC_LABEL)-XXXX)
+EC_TMP=tmp$(EC_LABEL)
 EC_HDR_PREFIX=_$(EC_LABEL)
 
 # Options: BN254 or BN382 (ARITH=x64-asm-382)
@@ -33,6 +33,7 @@ all: relic-$(VERSION)/.built
 #
 #-DLABEL="$(BP_LABEL)"
 relic-$(VERSION)/.built: | relic-$(VERSION)
+	mkdir -p $(BP_TMP) $(EC_TMP)
 	cd $(BP_TMP) && \
 	COMP="-O2 -funroll-loops -fomit-frame-pointer -Wno-incompatible-pointer-types -Wno-unused-function -Wno-implicit-function-declaration -Wno-incompatible-pointer-types-discards-qualifiers" cmake $(COMPILER_VARS) $(CMAKE_VARS) -DCMAKE_INSTALL_PREFIX:PATH="$(DEPS_INSTALL_ZROOT)" -DOPSYS=$(RELIC_OS) -DARCH="X64" -DWSIZE=64 -DWITH="BN;DV;FP;FPX;EP;EPX;PP;PC;MD" -DCHECK=off -DVERBS=off -DDEBUG=off -DMULTI=PTHREAD -DBENCH=0 -DTESTS=0 -DARITH=easy -DFP_PRIME=$(BN_CURVE) -DBN_PRECI=$(BN_CURVE) -DFP_QNRES=on -DEP_METHD="PROJC;LWNAF;COMBS;INTER;SSWUM" -DFP_METHD="BASIC;COMBA;COMBA;MONTY;JMPDS;JMPDS;SLIDE" -DFPX_METHD="INTEG;INTEG;LAZYR" -DPP_METHD="LAZYR;OATEP" -DRAND="CALL" ../relic-$(VERSION); \
 	$(MINGW_MAKE) && \
@@ -45,8 +46,12 @@ relic-$(VERSION)/.built: | relic-$(VERSION)
 	sed -i -e '/^#define ep2_mul/i \
 //#define ep2_mul' "$(DEPS_INSTALL_ZROOT)/include/relic/relic_label.h" && \
 	sed -i -e '/^#define VERSION/d' "$(DEPS_INSTALL_ZROOT)/include/relic$(EC_HDR_PREFIX)/relic_conf.h" && \
-	../run_install_clean.sh && \
-	touch ../.built
+	cd .. && \
+	mkdir -p "$(DEPS_INSTALL_ZROOT)/bin" && \
+	{ test ! -f "$(BP_TMP)/lib/librelic.dll" || cp "$(BP_TMP)/lib/librelic.dll" "$(DEPS_INSTALL_ZROOT)/bin/"; } && \
+	{ test ! -f "$(EC_TMP)/lib/librelic_ec.dll" || cp "$(EC_TMP)/lib/librelic_ec.dll" "$(DEPS_INSTALL_ZROOT)/bin/"; } && \
+	./run_install_clean.sh && \
+	touch "relic-$(VERSION)/.built"
 
 relic-$(VERSION).tar.gz:
 	./download_relic.sh relic-$(VERSION)
