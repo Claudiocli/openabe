@@ -4,23 +4,25 @@
 # extracted from: https://github.com/IBM/openabe/blob/master/src/Makefile
 # and minor modifications following the issue solved in: https://github.com/relic-toolkit/relic/issues/211
 
-
 .PHONY: all clean
 
 include ../../Makefile.common
 
-VERSION=0.7.0
-BP_LABEL=bp
-BP_TMP=tmp$(BP_LABEL)
-BP_HDR_PREFIX=_$(BP_LABEL)
+VERSION = 0.7.0
+BP_LABEL = bp
+BP_TMP = tmp$(BP_LABEL)
+BP_HDR_PREFIX = _$(BP_LABEL)
 
-EC_LABEL=ec
-EC_TMP=tmp$(EC_LABEL)
-EC_HDR_PREFIX=_$(EC_LABEL)
+EC_LABEL = ec
+EC_TMP = tmp$(EC_LABEL)
+EC_HDR_PREFIX = _$(EC_LABEL)
 
 # Options: BN254 or BN382 (ARITH=x64-asm-382)
-BN_CURVE=254
-EC_CURVE=256
+# BN_CURVE and EC_CURVE both round up to RLC_FP_DIGS digit count under WSIZE=64 and the code's
+# hand-written ec_ep_* prototypes rely on that. WSIZE *and* the below should *not* be touched
+# without confirmation of correct functioning after doing do
+BN_CURVE = 254
+EC_CURVE = 256
 
 all: relic-$(VERSION)/.built
 
@@ -35,16 +37,16 @@ all: relic-$(VERSION)/.built
 relic-$(VERSION)/.built: | relic-$(VERSION)
 	mkdir -p $(BP_TMP) $(EC_TMP)
 	cd $(BP_TMP) && \
-	COMP="-O2 -funroll-loops -fomit-frame-pointer -Wno-incompatible-pointer-types -Wno-unused-function -Wno-implicit-function-declaration -Wno-incompatible-pointer-types-discards-qualifiers" cmake $(COMPILER_VARS) $(CMAKE_VARS) -DCMAKE_INSTALL_PREFIX:PATH="$(DEPS_INSTALL_ZROOT)" -DOPSYS=$(RELIC_OS) -DARCH="X64" -DWSIZE=64 -DWITH="BN;DV;FP;FPX;EP;EPX;PP;PC;MD" -DCHECK=off -DVERBS=off -DDEBUG=off -DMULTI=PTHREAD -DBENCH=0 -DTESTS=0 -DARITH=easy -DFP_PRIME=$(BN_CURVE) -DBN_PRECI=$(BN_CURVE) -DFP_QNRES=on -DEP_METHD="PROJC;LWNAF;COMBS;INTER;SSWUM" -DFP_METHD="BASIC;COMBA;COMBA;MONTY;JMPDS;JMPDS;SLIDE" -DFPX_METHD="INTEG;INTEG;LAZYR" -DPP_METHD="LAZYR;OATEP" -DRAND="CALL" ../relic-$(VERSION); \
+	COMP="-O2 -funroll-loops -fomit-frame-pointer -Wno-incompatible-pointer-types -Wno-unused-function -Wno-implicit-function-declaration -Wno-incompatible-pointer-types-discards-qualifiers -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fstack-protector-strong -Wformat -Werror=format-security" cmake $(COMPILER_VARS) $(CMAKE_VARS) -DCMAKE_INSTALL_PREFIX:PATH="$(DEPS_INSTALL_ZROOT)" -DOPSYS=$(RELIC_OS) -DARCH="X64" -DWSIZE=64 -DWITH="BN;DV;FP;FPX;EP;EPX;PP;PC;MD" -DCHECK=off -DVERBS=off -DDEBUG=off -DMULTI=PTHREAD -DBENCH=0 -DTESTS=0 -DARITH=easy -DFP_PRIME=$(BN_CURVE) -DBN_PRECI=$(BN_CURVE) -DFP_QNRES=on -DEP_METHD="PROJC;LWNAF;COMBS;INTER;SSWUM" -DFP_METHD="BASIC;COMBA;COMBA;MONTY;JMPDS;JMPDS;SLIDE" -DFPX_METHD="INTEG;INTEG;LAZYR" -DPP_METHD="LAZYR;OATEP" -DRAND="CALL" ../relic-$(VERSION); \
 	$(MINGW_MAKE) && \
 	$(MINGW_MAKE) install && \
 	cd ../$(EC_TMP) && \
-	COMP="-O2 -funroll-loops -fomit-frame-pointer -Wno-unused-function -Wno-implicit-function-declaration -Wno-incompatible-pointer-types-discards-qualifiers" cmake $(COMPILER_VARS) $(CMAKE_VARS) -DCMAKE_INSTALL_PREFIX:PATH="$(DEPS_INSTALL_ZROOT)" -DOPSYS=$(RELIC_OS) -DARCH="X64" -DWSIZE=64 -DWITH="BN;DV;FP;EP;MD" -DCHECK=off -DVERBS=off -DDEBUG=off -DMULTI=PTHREAD -DBENCH=0 -DTESTS=0 -DARITH=gmp -DFP_PRIME=$(EC_CURVE) -DFP_QNRES=off -DEP_METHD="PROJC;LWNAF;COMBS;INTER;SSWUM" -DFP_METHD="BASIC;COMBA;COMBA;MONTY;JMPDS;JMPDS;SLIDE" -DFPX_METHD="INTEG;INTEG;LAZYR" -DPP_METHD="LAZYR;OATEP" -DRAND="CALL" -DLABEL="$(EC_LABEL)" ../relic-$(VERSION); \
+	COMP="-O2 -funroll-loops -fomit-frame-pointer -Wno-unused-function -Wno-implicit-function-declaration -Wno-incompatible-pointer-types-discards-qualifiers -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fstack-protector-strong -Wformat -Werror=format-security" cmake $(COMPILER_VARS) $(CMAKE_VARS) -DCMAKE_INSTALL_PREFIX:PATH="$(DEPS_INSTALL_ZROOT)" -DOPSYS=$(RELIC_OS) -DARCH="X64" -DWSIZE=64 -DWITH="BN;DV;FP;EP;MD" -DCHECK=off -DVERBS=off -DDEBUG=off -DMULTI=PTHREAD -DBENCH=0 -DTESTS=0 -DARITH=gmp -DFP_PRIME=$(EC_CURVE) -DFP_QNRES=off -DEP_METHD="PROJC;LWNAF;COMBS;INTER;SSWUM" -DFP_METHD="BASIC;COMBA;COMBA;MONTY;JMPDS;JMPDS;SLIDE" -DFPX_METHD="INTEG;INTEG;LAZYR" -DPP_METHD="LAZYR;OATEP" -DRAND="CALL" -DLABEL="$(EC_LABEL)" ../relic-$(VERSION); \
 	$(MINGW_MAKE) && \
 	$(MINGW_MAKE) install && \
 	sed -i -e '/^#define VERSION/d' "$(DEPS_INSTALL_ZROOT)"/include/relic/relic_conf.h && \
 	sed -i -e '/^#define ep2_mul/i \
-//#define ep2_mul' "$(DEPS_INSTALL_ZROOT)/include/relic/relic_label.h" && \
+	//#define ep2_mul' "$(DEPS_INSTALL_ZROOT)/include/relic/relic_label.h" && \
 	sed -i -e '/^#define VERSION/d' "$(DEPS_INSTALL_ZROOT)/include/relic$(EC_HDR_PREFIX)/relic_conf.h" && \
 	cd .. && \
 	mkdir -p "$(DEPS_INSTALL_ZROOT)/bin" && \
@@ -58,9 +60,14 @@ relic-$(VERSION).tar.gz:
 
 relic-$(VERSION): relic-$(VERSION).tar.gz
 	tar xf $^
+	# relic_core.h declares rand_call length as int, but it and we pass size_t; until upstream
+	# fixes this we patch ourselves
+	sed -i.bak 's/void (\*rand_call)(uint8_t \*, int, void \*);/void (*rand_call)(uint8_t *, size_t, void *);/' \
+		relic-$(VERSION)/include/relic_core.h
+	rm -f relic-$(VERSION)/include/relic_core.h.bak
 
 clean:
 	rm -rf relic-$(VERSION) tmp*
 
 distclean:
-	rm -rf relic-$(VERSION)* tmp* 
+	rm -rf relic-$(VERSION)* tmp*

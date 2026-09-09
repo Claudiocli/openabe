@@ -1,84 +1,145 @@
-# Prerequisites
-*.d
+# --------------------------------------------------------------------
+# OpenABE build outputs
+# --------------------------------------------------------------------
 
-# Compiled Object files
-*.slo
-*.lo
+# Project build and install directories
+/build/
+/build-*/
+ /root/
+/bin/
+/out/
+/output/
+
+# OpenABE generated binaries
+src/bench_libopenabe
+src/profile_libopenabe
+src/test_*
+src/*.so
+src/*.dylib
+src/*.a
+
+cli/oabe_setup
+cli/oabe_keygen
+cli/oabe_enc
+cli/oabe_dec
+cli/*.o
+cli/input.txt
+
+examples/*.o
+examples/*~
+
+
+# --------------------------------------------------------------------
+# C/C++ compilation artifacts
+# --------------------------------------------------------------------
+
 *.o
 *.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Linker files
-*.ilk
-
-# Debugger Files
-*.pdb
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-*.so.*
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
+*.lo
 *.la
 *.a
-*.lib
-
-# Executables
+*.so
+*.so.*
+*.dylib
+*.dll
 *.exe
 *.out
 *.app
 
-# Build directories
-build/
-Build/
-build-*/
+# Dependency files
+*.d
 
-# CMake generated files
+# Precompiled headers
+*.gch
+*.pch
+
+# Debug and profiling files
+*.dSYM/
+*.pdb
+*.ilk
+*.dwo
+
+
+# --------------------------------------------------------------------
+# CMake and other build-system output
+# --------------------------------------------------------------------
+
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
-# Makefile
 install_manifest.txt
 compile_commands.json
+Makefile.old
 
-# Temporary files
-*.tmp
-*.log
-*.bak
-*.swp
 
-# vcpkg
-vcpkg_installed/
+# --------------------------------------------------------------------
+# Bundled dependency build output
+# --------------------------------------------------------------------
 
-# debug information files
-*.dwo
-
-# test output & cache
-Testing/
-.cache/
-
-.vscode/
-.claude/
-# Dependencies and inclusions
+deps/root/
 deps/openssl/openssl-*
 deps/relic/relic*
 deps/relic/tmp*
 deps/relic/.built
-root/
+deps/*.tar.gz
+vcpkg_installed/
 
-outpt
+
+# --------------------------------------------------------------------
+# Tests and generated runtime files
+# --------------------------------------------------------------------
+
+Testing/
+.cache/
+*.log
+*.tmp
 test_result
+outpt
 
-deps/root/
-*.tar.gz
-/bin/
+
+# --------------------------------------------------------------------
+# Python bindings
+# --------------------------------------------------------------------
+
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+env/
+
+
+# --------------------------------------------------------------------
+# Documentation-generated output
+# --------------------------------------------------------------------
+
+docs/_build/
+docs/build/
+
+
+# --------------------------------------------------------------------
+# Editor and operating-system files
+# --------------------------------------------------------------------
+
+.vscode/
+.idea/
+.claude/
+
+*.swp
+*.swo
+*~
+*.bak
+
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+.direnv
+.envrc
