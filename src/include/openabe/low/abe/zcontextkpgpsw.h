@@ -36,6 +36,8 @@
 #ifndef __ZCONTEXTKPGPSW_H__
 #define __ZCONTEXTKPGPSW_H__
 
+#include <cstdint>
+
 ///
 /// @class  OpenABEContextKPGPSW
 ///

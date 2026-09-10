@@ -34,6 +34,8 @@
 #ifndef __ZDRIVER_H__
 #define __ZDRIVER_H__
 
+#include <cstdint>
+
 #include <iostream>
 #include <memory>
 #include <string>

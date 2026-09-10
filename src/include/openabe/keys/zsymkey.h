@@ -35,6 +35,8 @@
 #ifndef __ZSYMKEY_H__
 #define __ZSYMKEY_H__
 
+#include <cstdint>
+
 #include <openabe/openabe.h>
 #include <openssl/aes.h>
 #include <openssl/rand.h>

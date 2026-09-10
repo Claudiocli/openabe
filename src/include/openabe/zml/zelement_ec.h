@@ -34,6 +34,8 @@
 #ifndef __ZELEMENT_EC_H__
 #define __ZELEMENT_EC_H__
 
+#include <cstdint>
+
 #include <iostream>
 #include <memory>
 

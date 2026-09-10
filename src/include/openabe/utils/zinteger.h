@@ -34,6 +34,8 @@
 #ifndef __ZINTEGER_H__
 #define __ZINTEGER_H__
 
+#include <cstdint>
+
 #ifndef openabe_ZObject_h
 #include "zobject.h"
 #endif

@@ -34,6 +34,8 @@
 #ifndef __ZKEY_H__
 #define __ZKEY_H__
 
+#include <cstdint>
+
 #include <map>
 
 typedef enum OpenABEKeyType_ {

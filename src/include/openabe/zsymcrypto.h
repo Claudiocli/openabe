@@ -34,6 +34,8 @@
 #ifndef __ZSYMCRYPTO__
 #define __ZSYMCRYPTO__
 
+#include <cstdint>
+
 #include <memory>
 #include <string>
 #include <openssl/aes.h>

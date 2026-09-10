@@ -35,6 +35,8 @@
 #ifndef __ZLSSS_H__
 #define __ZLSSS_H__
 
+#include <cstdint>
+
 #include <stack>
 #include <vector>
 

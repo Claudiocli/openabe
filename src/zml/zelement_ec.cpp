@@ -80,7 +80,7 @@ int ec_convert_to_bytestring(const ec_group_t group, oabe::OpenABEByteString &s,
   return (int)len;
 #else
   size_t len = ec_point_elem_len(p);
-  uint8_t buf[len + 1];
+  uint8_t buf[MAX_BUFFER_SIZE];
   ec_point_elem_out(p, buf, len);
   s.appendArray(buf, len);
   return (int)len;
@@ -274,8 +274,11 @@ void ZP_t::setRandom(OpenABERNG *rng) {
     // 1. get some number of bytes
     int length = zml_bignum_countbytes(this->order);
     // 2. call bignum_fromBin on the bytes obtained
-    uint8_t buf[length];
-    memset(buf, 0, length);
+    // A VLA based on `length` corrupts stack frame
+    // (at least under clang -O2/aarch64 w/ clang)
+    // be wary considering VLA are non-standard
+    uint8_t buf[MAX_BUFFER_SIZE];
+    memset(buf, 0, MAX_BUFFER_SIZE);
     rng->getRandomBytes(buf, length);
     zml_bignum_fromBin(this->m_ZP, buf, length);
     zml_bignum_mod(this->m_ZP, this->order);
@@ -371,7 +374,7 @@ string ZP_t::getBytesAsString() {
 OpenABEByteString ZP_t::getByteString() {
   int length = zml_bignum_countbytes(this->m_ZP);
 
-  uint8_t data[length];
+  uint8_t data[MAX_BUFFER_SIZE];
   memset(data, 0, length);
   zml_bignum_toBin(this->m_ZP, data, length);
 
@@ -384,7 +387,7 @@ OpenABEByteString ZP_t::getByteString() {
 void ZP_t::getByteString(OpenABEByteString &z) const {
   int length = zml_bignum_countbytes(this->m_ZP);
 
-  uint8_t data[length];
+  uint8_t data[MAX_BUFFER_SIZE];
   memset(data, 0, length);
   zml_bignum_toBin(this->m_ZP, data, length);
 

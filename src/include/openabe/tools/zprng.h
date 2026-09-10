@@ -34,6 +34,8 @@
 #ifndef __ZPRNG_H__
 #define __ZPRNG_H__
 
+#include <cstdint>
+
 #include <openssl/aes.h>
 #include <openssl/rand.h>
 #include <mutex>

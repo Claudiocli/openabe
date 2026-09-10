@@ -138,7 +138,7 @@ int ctr_drbg_seed_entropy_len(OpenABECtrDrbg& ctx,
 //}
 
 static int block_cipher_df(uint8_t *output, const uint8_t *data, size_t data_len) {
-    int max_buf_len = OpenABE_CTR_DRBG_MAX_SEED_INPUT + OpenABE_CTR_DRBG_BLOCKSIZE + 16;
+    constexpr int max_buf_len = OpenABE_CTR_DRBG_MAX_SEED_INPUT + OpenABE_CTR_DRBG_BLOCKSIZE + 16;
     uint8_t buf[max_buf_len];
     uint8_t tmp[OpenABE_CTR_DRBG_SEEDLEN];
     uint8_t key[OpenABE_CTR_DRBG_KEYSIZE_BYTES];

@@ -59,6 +59,11 @@
 
  /*** BEGIN EXAMPLE - Change the example grammar's tokens below ***/
 
+/* %union's uintVal fields must use uint32_t */
+%code requires {
+#include <cstdint>
+}
+
 %union {
     std::string*		stringVal;
     class OpenABETreeNode*	treeNode;

@@ -35,6 +35,8 @@
 #ifndef __ZPOLICY_H__
 #define __ZPOLICY_H__
 
+#include <cstdint>
+
 #include <iostream>
 #include <memory>
 #include <sstream>

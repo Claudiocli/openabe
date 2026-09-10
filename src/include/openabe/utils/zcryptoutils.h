@@ -34,6 +34,8 @@
 #ifndef __ZCRYPTOUTILS_H__
 #define __ZCRYPTOUTILS_H__
 
+#include <cstdint>
+
 namespace oabe {
 
 /// @typedef    OpenABEHashFunctionType

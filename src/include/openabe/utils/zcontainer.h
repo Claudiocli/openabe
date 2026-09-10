@@ -35,6 +35,8 @@
 #ifndef __ZCONTAINER_H__
 #define __ZCONTAINER_H__
 
+#include <cstdint>
+
 #include <map>
 
 namespace oabe {

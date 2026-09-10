@@ -34,6 +34,8 @@
 #ifndef __ZCONTEXTCPWATERS_H__
 #define __ZCONTEXTCPWATERS_H__
 
+#include <cstdint>
+
 ///
 /// @class  OpenABEContextCPWaters
 ///
