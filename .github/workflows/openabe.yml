@@ -122,8 +122,8 @@ jobs:
             mingw-w64-x86_64-gmp
             mingw-w64-x86_64-boost
             mingw-w64-x86_64-gtest
-            mingw-w64-x86_64-bison
-            mingw-w64-x86_64-flex
+            bison
+            flex
             python
             python-pip
 
