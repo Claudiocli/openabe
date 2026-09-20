@@ -9,7 +9,7 @@ all: $(DIRS)
 	mkdir -p root/bin
 ifndef NO_DEPS
 	for d in $(DIRS); do \
-		make -C $$d; \
+		make -C $$d || exit 1; \
 	done
 endif
 

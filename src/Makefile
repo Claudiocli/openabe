@@ -19,14 +19,14 @@ OABE_KEYS = keys/zkdf.o keys/zkey.o keys/zpkey.o keys/zkeystore.o keys/zsymkey.o
 OABE_LOW = ske/zcontextske.o pke/zcontextpke.o pksig/zcontextpksig.o \
           abe/zcontextabe.o abe/zcontextcca.o abe/zcontextcpwaters.o abe/zcontextkpgpsw.o
 OABE_TOOLS = tools/zlsss.o tools/zprng.o
-OABE_ZML = zml/zgroup.o zml/zpairing.o zml/zelliptic.o zml/zelement.o zml/zelement_ec.o zml/zelement_bp.o
+OABE_ZML = zml/zgroup.o zml/zpairing.o zml/zelliptic.o zml/zelement.o zml/zelement_ec_relic.o zml/zelement_ec.o zml/zelement_bp.o
 OABE_UTILS = utils/zkeymgr.o utils/zcryptoutils.o utils/zcontainer.o utils/zbenchmark.o utils/zerror.o utils/zcontainer.o \
             utils/zciphertext.o utils/zpolicy.o utils/zattributelist.o utils/zdriver.o utils/zfunctioninput.o
 
 OABE_OBJ_TARGETS = zobject.o openabe.o zcontext.o zcrypto_box.o zsymcrypto.o zparser.o zscanner.o \
                   $(OABE_ZML) $(OABE_KEYS) $(OABE_LOW) $(OABE_TOOLS) $(OABE_UTILS) openssl_init.o $(OS_OBJS)
 
-OABE_OBJ_FILES = zobject.o openabe.o zgroup.o zlsss.o zerror.o zpairing.o zelliptic.o zelement.o zelement_ec.o zelement_bp.o zcontainer.o zciphertext.o \
+OABE_OBJ_FILES = zobject.o openabe.o zgroup.o zlsss.o zerror.o zpairing.o zelliptic.o zelement.o zelement_ec_relic.o zelement_ec.o zelement_bp.o zcontainer.o zciphertext.o \
 	     zkey.o zpkey.o zkeystore.o zfunctioninput.o zcontext.o zpolicy.o zsymkey.o zprng.o zattributelist.o \
 	     zcontextske.o zcontextpke.o zcontextpksig.o zcontextabe.o zcontextcpwaters.o zcontextkpgpsw.o \
 	     zcontextcca.o zkdf.o zkeymgr.o zcryptoutils.o zcrypto_box.o zbenchmark.o zparser.o zscanner.o zdriver.o zsymcrypto.o \
@@ -54,6 +54,11 @@ all: $(OABELIB) $(ZSYMLIB) $(PROGRAMS)
 
 zml/zelement.o:
 	$(CC) $(CCFLAGS) -c zml/zelement.c -o zelement.o
+
+# This compiled against the "ec" RELIC (`-DLABEL=ec`)
+zml/zelement_ec_relic.o:
+	$(CC) $(CCFLAGS) -DLABEL=ec -I"$(DEPS_INSTALL_ZROOT)"/include/relic_ec \
+		-c zml/zelement_ec_relic.c -o zelement_ec_relic.o
 
 zparser.o: zparser.yy
 	$(BISON) -d -v zparser.yy

@@ -27,14 +27,14 @@
 void zml_init() {
 #if !defined(BP_WITH_OPENSSL)
   core_init();
-  ec_core_init();
+  ec_relic_core_init();
 #endif
 }
 
 void zml_clean() {
 #if !defined(BP_WITH_OPENSSL)
   core_clean();
-  ec_core_clean();
+  ec_relic_core_clean();
 #endif
 }
 
@@ -271,14 +271,19 @@ int zml_bignum_mod_inv(bignum_t a, const bignum_t b, const bignum_t o) {
   BN_CTX_free(ctx);
   return 1;
 #else
-  bn_t s;
+  // bn_gcd_ext's cofactor must not alias inputs: it reads a and b, writes d. If
+  // you write into b while it is still being read (e.x. ZP::multInverse), you
+  // get not-the-inverse out
+  bn_t s, d;
   bn_inits(s);
-  // computes (1 / b) mod o
-  bn_gcd_ext(s, a, NULL, b, o);
+  bn_inits(d);
+  bn_gcd_ext(s, d, NULL, b, o);
   // check if negative
-  if (bn_sign(a) == BN_NEG) {
-    bn_add(a, a, o);
+  if (bn_sign(d) == BN_NEG) {
+    bn_add(d, d, o);
   }
+  bn_copy(a, d);
+  bn_free(d);
   bn_free(s);
   return 1;
 #endif
@@ -303,14 +308,11 @@ int ec_group_init(ec_group_t *group, uint8_t id) {
 #else /* RELIC -- group is always NULL b/c parameters are statically defined   \
        */
   case OpenABE_NIST_P256_ID:
-    ec_ep_param_set(NIST_P256);
-    break;
+    return ec_relic_param_set(256);
   case OpenABE_NIST_P384_ID:
-    ec_ep_param_set(NIST_P384);
-    break;
+    return ec_relic_param_set(384);
   case OpenABE_NIST_P521_ID:
-    ec_ep_param_set(NIST_P521);
-    break;
+    return ec_relic_param_set(521);
 #endif
   default:
     return -1;
@@ -322,15 +324,13 @@ void ec_get_order(ec_group_t group, bignum_t order) {
 #if defined(EC_WITH_OPENSSL)
   EC_GROUP_get_order(group, order, NULL);
 #else
-  // EC group structure is defined as static vars in RELIC and parameters need
-  // to match; check sibling conference in zelement.h about this function
-  ec_bn_scratch_st ec_order;
-  memset(&ec_order, 0, sizeof(ec_order));
-  ec_ep_curve_get_ord(&ec_order);
-  size_t ec_order_len = ec_bn_size(&ec_order);
-  uint8_t ec_order_bytes[128];
-  ec_bn_write_bin(ec_order_bytes, ec_order_len, &ec_order);
-  bn_read_bin(order, ec_order_bytes, ec_order_len);
+  // EC group parameters are static vars inside the "ec" build, so there is no
+  // object to query. The crossover is big-endian bytes since the RELIC types
+  // will differ
+  uint8_t ec_order_bytes[EC_RELIC_MAX_BYTES];
+  size_t ec_order_len =
+      ec_relic_order_bin(ec_order_bytes, sizeof(ec_order_bytes));
+          bn_read_bin(order, ec_order_bytes, ec_order_len);
 #endif
 }
 
@@ -338,8 +338,7 @@ void ec_point_init(ec_group_t group, ec_point_t *e) {
 #if defined(EC_WITH_OPENSSL)
   *e = EC_POINT_new(group);
 #else
-  ep_null(*e);
-  ep_new(*e);
+  *e = ec_relic_point_new();
 #endif
 }
 
@@ -347,7 +346,7 @@ void ec_point_copy(ec_point_t to, const ec_point_t from) {
 #if defined(EC_WITH_OPENSSL)
   EC_POINT_copy(to, from);
 #else
-  ep_copy_const(to, from);
+  ec_relic_point_copy(to, from);
 #endif
 }
 
@@ -355,7 +354,7 @@ void ec_point_set_inf(ec_group_t group, ec_point_t p) {
 #if defined(EC_WITH_OPENSSL)
   EC_POINT_set_to_infinity(group, p);
 #else
-  ec_ep_set_infty(p);
+  ec_relic_point_set_inf(p);
 #endif
 }
 
@@ -364,7 +363,7 @@ int ec_point_is_inf(ec_group_t group, ec_point_t p) {
   return (EC_POINT_is_at_infinity(group, p) == 1);
 #else
   // 1 if the point is at infinity, 0 otherise.
-  return ec_ep_is_infty(p);
+  return ec_relic_point_is_inf(p);
 #endif
 }
 
@@ -373,9 +372,7 @@ int ec_point_is_on_curve(ec_group_t group, ec_point_t p) {
   int ret = EC_POINT_is_on_curve(group, p, NULL);
   return ret;
 #else
-  /* must use the ec_-prefixed symbol from librelic_ec: the unprefixed
-   * ep_on_curve belongs to the BN254 pairing build (different prime) */
-  if (ec_ep_on_curve(p))
+  if (ec_relic_point_is_on_curve(p))
     return 1;
 #endif
   return 0;
@@ -386,10 +383,7 @@ void ec_point_add(ec_group_t g, ec_point_t r, const ec_point_t x,
 #if defined(EC_WITH_OPENSSL)
   EC_POINT_add(g, r, x, y, NULL);
 #else
-  /* ep_add is a macro for ep_add_projc (EP_METHD=PROJC); call the
-   * ec_-prefixed version from librelic_ec */
-  ec_ep_add_projc(r, x, y);
-  ec_ep_norm(r, r);
+  ec_relic_point_add(r, x, y);
 #endif
 }
 
@@ -398,8 +392,13 @@ void ec_point_mul(ec_group_t g, ec_point_t r, const ec_point_t x,
 #if defined(EC_WITH_OPENSSL)
   EC_POINT_mul(g, r, NULL, x, y, NULL);
 #else
-  // ep_mul(r, x, y);
-  ec_ep_mul_lwnaf(r, x, y);
+  // Scalar crosses as big-endian bytes
+  uint8_t scalar[EC_RELIC_MAX_BYTES];
+  size_t scalar_len = bn_size_bin(y);
+  if (scalar_len > sizeof(scalar))
+    return;
+  bn_write_bin(scalar, scalar_len, y);
+  ec_relic_point_mul(r, x, scalar, scalar_len);
 #endif
 }
 
@@ -407,7 +406,7 @@ int ec_point_cmp(ec_group_t group, const ec_point_t a, const ec_point_t b) {
 #if defined(EC_WITH_OPENSSL)
   return EC_POINT_cmp(group, a, b, NULL);
 #else
-  return ec_ep_cmp(a, b);
+  return ec_relic_point_cmp(a, b);
 #endif
 }
 
@@ -416,8 +415,14 @@ void ec_get_coordinates(ec_group_t group, bignum_t x, bignum_t y,
 #if defined(EC_WITH_OPENSSL)
   EC_POINT_get_affine_coordinates_GFp(group, p, x, y, NULL);
 #else
-  ec_fp_prime_back(x, p->x);
-  ec_fp_prime_back(y, p->y);
+  uint8_t xbuf[EC_RELIC_MAX_BYTES], ybuf[EC_RELIC_MAX_BYTES];
+  size_t field_len = ec_relic_field_bytes();
+  if (field_len > sizeof(xbuf))
+    return;
+  if (ec_relic_point_coord_bin(xbuf, ybuf, field_len, p) != 0)
+    return;
+  bn_read_bin(x, xbuf, field_len);
+  bn_read_bin(y, ybuf, field_len);
 #endif
   return;
 }
@@ -426,23 +431,21 @@ void ec_get_generator(ec_group_t group, ec_point_t p) {
 #if defined(EC_WITH_OPENSSL)
   EC_POINT_copy(p, EC_GROUP_get0_generator(group));
 #else
-  ec_ep_curve_get_gen(p);
+  ec_relic_generator(p);
 #endif
 }
 
 #if !defined(EC_WITH_OPENSSL)
 size_t ec_point_elem_len(const ec_point_t g) {
-  return ec_ep_size_bin(g, COMPRESS);
+  return ec_relic_point_size_bin(g, COMPRESS);
 }
 
 void ec_point_elem_in(ec_point_t g, uint8_t *in, size_t len) {
-  ec_ep_read_bin(g, in, (int)len);
-  ec_fp_zero(g->z);
-  ec_fp_set_dig(g->z, 1);
+  ec_relic_point_read_bin(g, in, len);
 }
 
 void ec_point_elem_out(const ec_point_t g, uint8_t *out, size_t len) {
-  ec_ep_write_bin(out, len, g, COMPRESS);
+  ec_relic_point_write_bin(out, len, g, COMPRESS);
 }
 #endif
 

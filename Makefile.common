@@ -98,9 +98,9 @@ else
        ADD_CFLAGS += -Wno-implicit-function-declaration
 	   # OpenSSF Compiler Hardened Guide
 	   # https://best.openssf.org/Compiler-Hardening-Guides/
-	   CXXFLAGS += -D_GLIBCXX_ASSERTIONS -fstack-clash-protection
-	   CCFLAGS += -fstack_clash_protection
-	   LDFLAGS += Wl,-z,relro -Wl,-z,now -Wl,-z,noexecstack
+       CXXFLAGS += -D_GLIBCXX_ASSERTIONS -fstack-clash-protection
+       CCFLAGS += -fstack-clash-protection
+       LDFLAGS += -Wl,-z,relro -Wl,-z,now -Wl,-z,noexecstack
     endif
     ifeq ($(OS_NAME), Darwin)
        RELIC_OS = MACOSX

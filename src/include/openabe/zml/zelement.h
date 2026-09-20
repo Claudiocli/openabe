@@ -43,69 +43,19 @@
 #include <openssl/bp.h>
 #endif
 
+/* Only the bp (pairing) headers are included here. ec *cannot* be parsed
+ * because RELIC renames types and functions, turning ep_t and bn_t into ec
+ * build types. zelement_ec_relic.c is the compilation unit compiled against ec
+ * headers */
 #if !defined(BP_WITH_OPENSSL)
 #include <relic/relic.h>
-#include <relic_ec/relic.h>
+#endif
+
+#if !defined(EC_WITH_OPENSSL)
+#include <openabe/zml/zelement_ec_relic.h>
 #endif
 
 /*************************** BN Definitions *********************/
-// The original repository built RELIC twice; once to use the BN-254 curve for
-// ABE schemes, and another time to instead use the NIST curve for non-ABE
-// (PK/OPHD) schemes. Unfortunately, RELIC has standard include guards that mean
-// these two builds would not, in fact, be two builds when linked.
-
-// RELIC has a `include/relic_label.h` with documentation to handle this case,
-// and the defined `LABEL` is asked to be used instead to detect which RELIC
-// you're talking about. For safety, a macro goes through each type/function
-// exposed and prepends the label to functions (e.x. `ep_t` to `ec_ep_t`). A
-// naive renaming of guard will, therefore, handedly mangle the functions you've
-// renamed while letting you silently call the non-LABELed functions without
-// realizing.
-
-// As currently written, all the functions here are manually transcribed instead
-// of using RELIC's exposed LABEL. It is a future improvement to adopt it.
-#if !defined(BP_WITH_OPENSSL)
-#ifdef __cplusplus
-extern "C" {
-#endif
-/* <relic_ec/relic.h>'s header guards collide with <relic/relic.h> despite the
- * renaming attempt; RELIC's `relic_label.h` renames `ep_t/bn_t/` etc. with
- * macros which is silent and makes things appear to work but in fact every
- * `ep_t`, regardless of where in the codebase it is, is using the original */
-int ec_core_init(void);
-int ec_core_clean(void);
-void ec_ep_param_set(int param);
-/* `ec_ep_curve_get_ord` takes in `bn_t`, but the ec `bn_t` (BN_PRECI=1024) is
- * not the same as above; `bn_t`'s size depends on BN_PRECI and not FP_PRIME, so
- * we give it a correctly sized type here. See `ec_ep_curve_get_ord` in
- * `zelement.c` */
-typedef struct {
-  size_t alloc;
-  size_t used;
-  int sign;
-  uint64_t dp[34];
-} ec_bn_scratch_st;
-void ec_ep_curve_get_ord(ec_bn_scratch_st *n);
-size_t ec_bn_size_bin(const ec_bn_scratch_st *a);
-void ec_bn_write_bin(uint8_t *bin, size_t len, const ec_bn_scratch_st *a);
-void ec_ep_set_infty(ep_t p);
-int ec_ep_is_infty(const ep_t p);
-int ec_ep_on_curve(const ep_t p);
-void ec_ep_add_projc(ep_t r, const ep_t p, const ep_t q);
-void ec_ep_norm(ep_t r, const ep_t p);
-void ec_ep_mul_lwnaf(ep_t r, const ep_t p, const bn_t k);
-int ec_ep_cmp(const ep_t p, const ep_t q);
-void ec_fp_prime_back(bn_t c, const fp_t a);
-void ec_ep_curve_get_gen(ep_t g);
-size_t ec_ep_size_bin(const ep_t a, int pack);
-void ec_ep_read_bin(ep_t a, const uint8_t *bin, size_t len);
-void ec_fp_zero(fp_t a);
-void ec_fp_set_dig(fp_t c, dig_t a);
-void ec_ep_write_bin(uint8_t *bin, size_t len, const ep_t a, int pack);
-#ifdef __cplusplus
-}
-#endif
-#endif
 #define TRUE 1
 #define FALSE 0
 
@@ -199,19 +149,18 @@ typedef EC_GROUP *ec_group_t;
  * then we use RELIC EC operations by default */
 
 /* BEGIN RELIC macro definitions */
-typedef ep_t ec_point_t;
+/* ec_point_t is an opaque heap handle owned by zelement_ec_relic.c, same as
+ * EC_WITH_OPENSSL above, but it is not a RELIC type for the reasons detailed
+ * above */
+typedef ec_relic_point_t ec_point_t;
 typedef void *ec_group_t;
 
-#define ep_inits(g)                                                            \
-  ep_null(g);                                                                  \
-  ep_new(g);
+#define ec_point_free(e) ec_relic_point_free(e)
+#define ec_group_free(g) g = NULL
 
-#define ec_point_free(e) ep_free(e)
-#define ec_group_free(g) g = NULL;
-
-#define ec_point_set_null(e) /* do nothing here */
-#define is_ec_point_null(e) false
-#define ec_get_ref(a) &a
+#define ec_point_set_null(e) e = NULL
+#define is_ec_point_null(e) (e == NULL)
+#define ec_get_ref(a) a
 
 /* END of RELIC macro definitions */
 #endif
