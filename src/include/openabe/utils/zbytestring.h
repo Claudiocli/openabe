@@ -36,6 +36,8 @@
 #ifndef __ZBYTESTRING_H__
 #define __ZBYTESTRING_H__
 
+#include <cstdint>
+
 #include <cstring>
 #include <vector>
 #include <ostream>
@@ -160,7 +162,7 @@ public:
 
   std::string toHex() const {
     std::stringstream ss;
-    int hex_len = 2;
+    constexpr int hex_len = 2;
     char hex[hex_len+1];
     std::memset(hex, 0, hex_len+1);
 
@@ -174,7 +176,7 @@ public:
 
   std::string toLowerHex() const {
     std::stringstream ss;
-    int hex_len = 2;
+    constexpr int hex_len = 2;
     char hex[hex_len+1];
     std::memset(hex, 0, hex_len+1);
 

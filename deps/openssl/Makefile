@@ -3,7 +3,7 @@
 include ../../Makefile.common
 
 # defined in Makefile.common
-VERSION=$(OPENSSL_VERSION)
+VERSION = $(OPENSSL_VERSION)
 
 all: openssl-$(VERSION)/.built
 

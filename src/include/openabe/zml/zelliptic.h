@@ -34,6 +34,8 @@
 #ifndef __ZELLIPTIC_H__
 #define __ZELLIPTIC_H__
 
+#include <cstdint>
+
 /// \class	OpenABEEllipticCurve
 /// \brief	Generic container for NIST elliptic-curve functionality.
 namespace oabe {

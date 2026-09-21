@@ -34,6 +34,8 @@
 #ifndef __ZPAIRING_H__
 #define __ZPAIRING_H__
 
+#include <cstdint>
+
 /// \class	OpenABEPairing
 /// \brief	Generic container for pairing functionality.
 namespace oabe {

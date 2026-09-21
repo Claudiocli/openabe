@@ -35,6 +35,8 @@
 #ifndef __ZCIPHERTEXT_H__
 #define __ZCIPHERTEXT_H__
 
+#include <cstdint>
+
 #include <map>
 
 /// \class	ZCiphertext

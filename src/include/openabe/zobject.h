@@ -35,6 +35,8 @@
 #ifndef openabe_ZObject_h
 #define openabe_ZObject_h
 
+#include <cstdint>
+
 /// \class	ZPublicParams
 /// \brief	Generic container for scheme public parameters. This class is is subclassed
 ///			by variants for specific schemes.

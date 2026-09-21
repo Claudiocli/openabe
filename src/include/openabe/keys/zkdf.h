@@ -34,6 +34,8 @@
 #ifndef __ZKDF_H__
 #define __ZKDF_H__
 
+#include <cstdint>
+
 #undef HMAC
 #include <openssl/hmac.h>
 #include <openssl/evp.h>

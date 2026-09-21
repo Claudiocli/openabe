@@ -12,10 +12,10 @@ DEST_INCLUDEDIR := "$(DEPS_INSTALL_ZROOT)/include"
 package:
 	./download_gtest.sh $(VERSION)
 
-googletest-release-$(VERSION)/.built: | googletest-release-$(VERSION)
+googletest-release-$(VERSION)/.built: googletest-release-$(VERSION)
 	cd $<; \
 	mkdir -p build && cd build/ && \
-	cmake -DCMAKE_INSTALL_PREFIX:PATH="$(DEPS_INSTALL_ZROOT)" ../googletest/ && \
+	cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_INSTALL_PREFIX:PATH="$(DEPS_INSTALL_ZROOT)" ../googletest/ && \
 	make install && \
 	touch ../.built
 

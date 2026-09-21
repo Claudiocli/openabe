@@ -34,6 +34,8 @@
 #ifndef __ZSCANNER_H__
 #define __ZSCANNER_H__
 
+#include <cstdint>
+
 // Flex expects the signature of yylex to be defined in the macro YY_DECL, and
 // the C++ parser expects it to be declared. We can factor both as follows.
 

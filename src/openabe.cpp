@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <openabe/openabe.h>
 #include <openabe/openssl_init.h>

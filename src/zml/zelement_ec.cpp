@@ -1,21 +1,21 @@
-/// 
+///
 /// Copyright (c) 2018 Zeutro, LLC. All rights reserved.
-/// 
+///
 /// This file is part of Zeutro's OpenABE.
-/// 
+///
 /// OpenABE is free software: you can redistribute it and/or modify
 /// it under the terms of the GNU Affero General Public License as published by
 /// the Free Software Foundation, either version 3 of the License, or
 /// (at your option) any later version.
-/// 
+///
 /// OpenABE is distributed in the hope that it will be useful,
 /// but WITHOUT ANY WARRANTY; without even the implied warranty of
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 /// GNU Affero General Public License for more details.
-/// 
+///
 /// You should have received a copy of the GNU Affero General Public
 /// License along with OpenABE. If not, see <http://www.gnu.org/licenses/>.
-/// 
+///
 /// You can be released from the requirements of the GNU Affero General
 /// Public License and obtain additional features by purchasing a
 /// commercial license. Buying such a license is mandatory if you
@@ -32,13 +32,13 @@
 /// \author J. Ayo Akinyele
 ///
 
+#include <fstream>
+#include <iostream>
+#include <openabe/openabe.h>
+#include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <string>
-#include <openabe/openabe.h>
 
 extern "C" {
 #include <openabe/zml/zelement.h>
@@ -80,7 +80,7 @@ int ec_convert_to_bytestring(const ec_group_t group, oabe::OpenABEByteString &s,
   return (int)len;
 #else
   size_t len = ec_point_elem_len(p);
-  uint8_t buf[len + 1];
+  uint8_t buf[MAX_BUFFER_SIZE];
   ec_point_elem_out(p, buf, len);
   s.appendArray(buf, len);
   return (int)len;
@@ -134,8 +134,8 @@ ZP_t::ZP_t(const ZP_t &w) {
 }
 
 ZP_t::~ZP_t() {
-    zml_bignum_free(this->m_ZP);
-    zml_bignum_free(this->order);
+  zml_bignum_free(this->m_ZP);
+  zml_bignum_free(this->order);
 }
 
 ZP_t::ZP_t(char *str) {
@@ -274,8 +274,11 @@ void ZP_t::setRandom(OpenABERNG *rng) {
     // 1. get some number of bytes
     int length = zml_bignum_countbytes(this->order);
     // 2. call bignum_fromBin on the bytes obtained
-    uint8_t buf[length];
-    memset(buf, 0, length);
+    // A VLA based on `length` corrupts stack frame
+    // (at least under clang -O2/aarch64 w/ clang)
+    // be wary considering VLA are non-standard
+    uint8_t buf[MAX_BUFFER_SIZE];
+    memset(buf, 0, MAX_BUFFER_SIZE);
     rng->getRandomBytes(buf, length);
     zml_bignum_fromBin(this->m_ZP, buf, length);
     zml_bignum_mod(this->m_ZP, this->order);
@@ -337,10 +340,11 @@ void ZP_t::deserialize(OpenABEByteString &input) {
     if (input.at(0) == OpenABE_ELEMENT_ZP_t && inputSize > hdrLen) {
       uint16_t len = 0;
       // read 2 bytes from right to left
-      len |= input.at(2);             // Moves to 0x00FF
-      len |= (input.at(1) << 8);      // Moves to 0xFF00
+      len |= input.at(2);        // Moves to 0x00FF
+      len |= (input.at(1) << 8); // Moves to 0xFF00
       // cout << "len: " << len << ", input size: " << input.size() << endl;
-      ASSERT(input.size() == (len + hdrLen), OpenABE_ERROR_SERIALIZATION_FAILED);
+      ASSERT(input.size() == (len + hdrLen),
+             OpenABE_ERROR_SERIALIZATION_FAILED);
 
       uint8_t *bstr = (input.getInternalPtr() + hdrLen);
       zml_bignum_fromBin(this->m_ZP, bstr, len);
@@ -371,7 +375,7 @@ string ZP_t::getBytesAsString() {
 OpenABEByteString ZP_t::getByteString() {
   int length = zml_bignum_countbytes(this->m_ZP);
 
-  uint8_t data[length];
+  uint8_t data[MAX_BUFFER_SIZE];
   memset(data, 0, length);
   zml_bignum_toBin(this->m_ZP, data, length);
 
@@ -384,7 +388,7 @@ OpenABEByteString ZP_t::getByteString() {
 void ZP_t::getByteString(OpenABEByteString &z) const {
   int length = zml_bignum_countbytes(this->m_ZP);
 
-  uint8_t data[length];
+  uint8_t data[MAX_BUFFER_SIZE];
   memset(data, 0, length);
   zml_bignum_toBin(this->m_ZP, data, length);
 
@@ -442,10 +446,16 @@ G_t::G_t(const G_t &w) {
 
 G_t &G_t::operator=(const G_t &w) {
   if (isInit == true) {
-    ec_point_copy(this->m_G, w.m_G);
     if (w.ecgroup != nullptr) {
       this->ecgroup = w.ecgroup;
     }
+    if (this->ecgroup == nullptr) {
+      throw OpenABE_ERROR_INVALID_GROUP_PARAMS;
+    }
+    if (is_ec_point_null(this->m_G)) {
+      ec_point_init(GET_GROUP(this->ecgroup), &this->m_G);
+    }
+    ec_point_copy(this->m_G, w.m_G);
   } else
     ro_error();
   return *this;
@@ -454,6 +464,7 @@ G_t &G_t::operator=(const G_t &w) {
 G_t::~G_t() {
   if (this->isInit) {
     ec_point_free(this->m_G);
+    ec_point_set_null(this->m_G);
     this->isInit = false;
   }
 }
@@ -510,9 +521,10 @@ void G_t::deserialize(OpenABEByteString &input) {
     if (input.at(0) == OpenABE_ELEMENT_G_t && inputSize > hdrLen) {
       uint16_t len = 0;
       // read 2 bytes from right to left
-      len |= input.at(2);                // Moves to 0x00FF
-      len |= (input.at(1) << 8);         // Moves to 0xFF00
-      ASSERT(input.size() == (len + hdrLen), OpenABE_ERROR_SERIALIZATION_FAILED);
+      len |= input.at(2);        // Moves to 0x00FF
+      len |= (input.at(1) << 8); // Moves to 0xFF00
+      ASSERT(input.size() == (len + hdrLen),
+             OpenABE_ERROR_SERIALIZATION_FAILED);
 
       uint8_t *pointstr = (input.getInternalPtr() + hdrLen);
       if (is_ec_point_null(this->m_G)) {
@@ -533,4 +545,4 @@ bool G_t::isEqual(ZObject *z) const {
   return false;
 }
 
-}
+} // namespace oabe

@@ -36,6 +36,8 @@
 #ifndef __ZCONTEXTPKE_H__
 #define __ZCONTEXTPKE_H__
 
+#include <cstdint>
+
 ///
 /// @class  OpenABEContextPKE
 ///

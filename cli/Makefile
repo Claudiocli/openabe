@@ -2,7 +2,7 @@ include ../src/Makefile.inc
 include ../Makefile.common
 
 CUR_DIR = .
-OBJS    = common.o
+OBJS = common.o
 BINOBJS = oabe_setup oabe_keygen oabe_enc oabe_dec
 OABE_LIB = $(OABE_LIB_ROOT)/$(OABELIB)
 
@@ -34,6 +34,6 @@ oabe_dec: $(OBJS)
 	$(CC) $(CCFLAGS) -c $<
 
 %.o: %.cpp
-	$(CXX) -I../ $(CXXFLAGS) -c $<
+	$(CXX) $(CXXFLAGS) -c $<
 
 %.h:

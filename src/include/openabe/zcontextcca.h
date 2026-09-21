@@ -34,6 +34,8 @@
 #ifndef __ZCONTEXTCCA_H__
 #define __ZCONTEXTCCA_H__
 
+#include <cstdint>
+
 ///
 /// @class  OpenABEContextCCA
 ///

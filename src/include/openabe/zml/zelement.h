@@ -1,21 +1,21 @@
-/// 
+///
 /// Copyright (c) 2018 Zeutro, LLC. All rights reserved.
-/// 
+///
 /// This file is part of Zeutro's OpenABE.
-/// 
+///
 /// OpenABE is free software: you can redistribute it and/or modify
 /// it under the terms of the GNU Affero General Public License as published by
 /// the Free Software Foundation, either version 3 of the License, or
 /// (at your option) any later version.
-/// 
+///
 /// OpenABE is distributed in the hope that it will be useful,
 /// but WITHOUT ANY WARRANTY; without even the implied warranty of
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 /// GNU Affero General Public License for more details.
-/// 
+///
 /// You should have received a copy of the GNU Affero General Public
 /// License along with OpenABE. If not, see <http://www.gnu.org/licenses/>.
-/// 
+///
 /// You can be released from the requirements of the GNU Affero General
 /// Public License and obtain additional features by purchasing a
 /// commercial license. Buying such a license is mandatory if you
@@ -43,76 +43,51 @@
 #include <openssl/bp.h>
 #endif
 
+/* Only the bp (pairing) headers are included here. ec *cannot* be parsed
+ * because RELIC renames types and functions, turning ep_t and bn_t into ec
+ * build types. zelement_ec_relic.c is the compilation unit compiled against ec
+ * headers */
 #if !defined(BP_WITH_OPENSSL)
 #include <relic/relic.h>
-#include <relic_ec/relic.h>
+#endif
+
+#if !defined(EC_WITH_OPENSSL)
+#include <openabe/zml/zelement_ec_relic.h>
 #endif
 
 /*************************** BN Definitions *********************/
-#if !defined(BP_WITH_OPENSSL)
-#ifdef __cplusplus
-extern "C" {
-#endif
-/* Dichiarazioni manuali per le funzioni della build "ec" di RELIC
- * (LABEL=ec). Non possiamo ottenerle da <relic_ec/relic.h> perché
- * condivide le stesse header guard di <relic/relic.h> già incluso
- * sopra: la seconda inclusione viene saltata per intero. I simboli
- * qui sotto esistono comunque, compilati con questi nomi esatti,
- * dentro librelic_ec.a (grazie a -DLABEL="ec" in fase di build). */
-int    ec_core_init(void);
-int    ec_core_clean(void);
-void   ec_ep_param_set(int param);
-void   ec_ep_curve_get_ord(bn_t n);
-void   ec_ep_set_infty(ep_t p);
-int    ec_ep_is_infty(const ep_t p);
-int    ec_ep_on_curve(const ep_t p);
-void   ec_ep_add_projc(ep_t r, const ep_t p, const ep_t q);
-void   ec_ep_norm(ep_t r, const ep_t p);
-void   ec_ep_mul_lwnaf(ep_t r, const ep_t p, const bn_t k);
-int    ec_ep_cmp(const ep_t p, const ep_t q);
-void   ec_fp_prime_back(bn_t c, const fp_t a);
-void   ec_ep_curve_get_gen(ep_t g);
-size_t ec_ep_size_bin(const ep_t a, int pack);
-void   ec_ep_read_bin(ep_t a, const uint8_t *bin, size_t len);
-void   ec_fp_zero(fp_t a);
-void   ec_fp_set_dig(fp_t c, dig_t a);
-void   ec_ep_write_bin(uint8_t *bin, size_t len, const ep_t a, int pack);
-#ifdef __cplusplus
-}
-#endif
-#endif
-#define TRUE   1
-#define FALSE  0
+#define TRUE 1
+#define FALSE 0
 
 #if defined(BN_WITH_OPENSSL)
 
 /* BEGIN OpenSSL macro definitions */
 
-typedef BIGNUM* bignum_t;
+typedef BIGNUM *bignum_t;
 
-#define zml_bignum_free(b)                BN_free(b)
-#define zml_bignum_safe_free(b)           OPENSSL_free(b)
+#define zml_bignum_free(b) BN_free(b)
+#define zml_bignum_safe_free(b) OPENSSL_free(b)
 
-#define zml_bignum_fromHex(b, str, len)   BN_hex2bn(&b, str)
-#define zml_bignum_fromBin(b, ustr, len)  BN_bin2bn(ustr, len, b)
-#define zml_bignum_toBin(b, str, len)     BN_bn2bin(b, str)
-#define zml_bignum_setuint(b, x)          BN_set_word(b, x)
+#define zml_bignum_fromHex(b, str, len) BN_hex2bn(&b, str)
+#define zml_bignum_fromBin(b, ustr, len) BN_bin2bn(ustr, len, b)
+#define zml_bignum_toBin(b, str, len) BN_bn2bin(b, str)
+#define zml_bignum_setuint(b, x) BN_set_word(b, x)
 
 // returns 1 if true, otherwise 0
-#define zml_bignum_is_zero(b)             BN_is_zero(b)
-#define zml_bignum_is_one(b)              BN_is_one(b)
+#define zml_bignum_is_zero(b) BN_is_zero(b)
+#define zml_bignum_is_one(b) BN_is_one(b)
 
 /** BN_is_negative returns 1 if the BIGNUM is negative
  * \param  a  pointer to the BIGNUM object
  * \return 1 if a < 0 and 0 otherwise
  */
-#define BN_POSITIVE      0
-#define BN_NEGATIVE      1
+#define BN_POSITIVE 0
+#define BN_NEGATIVE 1
 
-#define BN_CMP_LT       -1
-#define BN_CMP_EQ        0
-#define BN_CMP_GT        1
-#define G_CMP_EQ         BN_CMP_EQ
+#define BN_CMP_LT -1
+#define BN_CMP_EQ 0
+#define BN_CMP_GT 1
+#define G_CMP_EQ BN_CMP_EQ
 
 /* END OpenSSL macro definitions */
 
@@ -122,25 +97,27 @@ typedef BIGNUM* bignum_t;
 
 typedef bn_t bignum_t;
 
-#define zml_bignum_free(b)            bn_free(b)
-#define zml_bignum_safe_free(b)       if(b != NULL) free(b)
+#define zml_bignum_free(b) bn_free(b)
+#define zml_bignum_safe_free(b)                                                \
+  if (b != NULL)                                                               \
+  free(b)
 
-#define zml_bignum_fromHex(b, str, len)   bn_read_str(b, str, len, 16)
-#define zml_bignum_fromBin(b, ustr, len)  bn_read_bin(b, ustr, len)
-#define zml_bignum_toBin(b, str, len)     bn_write_bin(str, len, b)
+#define zml_bignum_fromHex(b, str, len) bn_read_str(b, str, len, 16)
+#define zml_bignum_fromBin(b, ustr, len) bn_read_bin(b, ustr, len)
+#define zml_bignum_toBin(b, str, len) bn_write_bin(str, len, b)
 
-#define zml_bignum_setuint(b, x)          bn_set_dig(b, x)
+#define zml_bignum_setuint(b, x) bn_set_dig(b, x)
 // returns 1 if true, otherwise 0
-#define zml_bignum_is_zero(b)             bn_is_zero(b)
-#define zml_bignum_is_one(b)              bn_is_one(b)
+#define zml_bignum_is_zero(b) bn_is_zero(b)
+#define zml_bignum_is_one(b) bn_is_one(b)
 
-#define BN_CMP_LT                     CMP_LT
-#define BN_CMP_EQ                     CMP_EQ
-#define BN_CMP_GT                     CMP_GT
+#define BN_CMP_LT CMP_LT
+#define BN_CMP_EQ CMP_EQ
+#define BN_CMP_GT CMP_GT
 
-#define BN_POSITIVE                   BN_POS
-#define BN_NEGATIVE                   BN_NEG
-#define G_CMP_EQ                      CMP_EQ
+#define BN_POSITIVE BN_POS
+#define BN_NEGATIVE BN_NEG
+#define G_CMP_EQ CMP_EQ
 
 int bn_is_one(const bn_t a);
 /* END of RELIC macro definitions */
@@ -155,36 +132,35 @@ void zml_bignum_rand(bignum_t a, bignum_t o);
 
 /* BEGIN OpenSSL macro definitions */
 
-typedef EC_POINT* ec_point_t;
-typedef EC_GROUP* ec_group_t;
+typedef EC_POINT *ec_point_t;
+typedef EC_GROUP *ec_group_t;
 
 /* Elliptic curve operations */
-#define ec_point_free(e)        EC_POINT_clear_free(e)
-#define ec_group_free(g)        EC_GROUP_free(g)
+#define ec_point_free(e) EC_POINT_clear_free(e)
+#define ec_group_free(g) EC_GROUP_free(g)
 
-#define ec_point_set_null(e)    e = nullptr
-#define is_ec_point_null(e)     e == nullptr
-#define ec_get_ref(a)           a
+#define ec_point_set_null(e) e = nullptr
+#define is_ec_point_null(e) e == nullptr
+#define ec_get_ref(a) a
 /* END of OpenSSL macro definitions */
 
 #else
 /* if EC_WITH_OPENSSL not specifically defined,
  * then we use RELIC EC operations by default */
 
- /* BEGIN RELIC macro definitions */
-typedef ep_t ec_point_t;
-typedef void* ec_group_t;
+/* BEGIN RELIC macro definitions */
+/* ec_point_t is an opaque heap handle owned by zelement_ec_relic.c, same as
+ * EC_WITH_OPENSSL above, but it is not a RELIC type for the reasons detailed
+ * above */
+typedef ec_relic_point_t ec_point_t;
+typedef void *ec_group_t;
 
-#define ep_inits(g) \
-        ep_null(g); \
-        ep_new(g);
+#define ec_point_free(e) ec_relic_point_free(e)
+#define ec_group_free(g) g = NULL
 
-#define ec_point_free(e)        ep_free(e)
-#define ec_group_free(g)        g = NULL;
-
-#define ec_point_set_null(e)    /* do nothing here */
-#define is_ec_point_null(e)     false
-#define ec_get_ref(a)           &a
+#define ec_point_set_null(e) e = NULL
+#define is_ec_point_null(e) (e == NULL)
+#define ec_get_ref(a) a
 
 /* END of RELIC macro definitions */
 #endif
@@ -216,18 +192,24 @@ int zml_bignum_countbytes(const bignum_t a);
 int zml_bignum_mod_inv(bignum_t a, const bignum_t b, const bignum_t o);
 void zml_bignum_mod(bignum_t x, const bignum_t o);
 void zml_bignum_negate(bignum_t b, const bignum_t o);
-void zml_bignum_add(bignum_t r, const bignum_t x, const bignum_t y, const bignum_t o);
+void zml_bignum_add(bignum_t r, const bignum_t x, const bignum_t y,
+                    const bignum_t o);
 void zml_bignum_sub(bignum_t r, const bignum_t x, const bignum_t y);
-void zml_bignum_sub_order(bignum_t r, const bignum_t x, const bignum_t y, const bignum_t o);
-void zml_bignum_mul(bignum_t r, const bignum_t x, const bignum_t y, const bignum_t o);
-void zml_bignum_div(bignum_t r, const bignum_t x, const bignum_t y, const bignum_t o);
-void zml_bignum_exp(bignum_t r, const bignum_t x, const bignum_t y, const bignum_t o);
+void zml_bignum_sub_order(bignum_t r, const bignum_t x, const bignum_t y,
+                          const bignum_t o);
+void zml_bignum_mul(bignum_t r, const bignum_t x, const bignum_t y,
+                    const bignum_t o);
+void zml_bignum_div(bignum_t r, const bignum_t x, const bignum_t y,
+                    const bignum_t o);
+void zml_bignum_exp(bignum_t r, const bignum_t x, const bignum_t y,
+                    const bignum_t o);
 
 // logical operators for bignums
 void zml_bignum_lshift(bignum_t r, const bignum_t a, int n);
 void zml_bignum_rshift(bignum_t r, const bignum_t a, int n);
 
-// NOTE: must free the memory that is returned from bignum_toHex and bignum_toDec using bignum_safe_free
+// NOTE: must free the memory that is returned from bignum_toHex and
+// bignum_toDec using bignum_safe_free
 char *zml_bignum_toHex(const bignum_t b, int *length);
 char *zml_bignum_toDec(const bignum_t b, int *length);
 
@@ -237,14 +219,17 @@ void ec_get_order(ec_group_t group, bignum_t order);
 void ec_point_init(ec_group_t group, ec_point_t *e);
 void ec_point_copy(ec_point_t to, const ec_point_t from);
 void ec_point_set_inf(ec_group_t group, ec_point_t p);
-int  ec_point_cmp(ec_group_t group, const ec_point_t a, const ec_point_t b);
-int  ec_point_is_inf(ec_group_t group, ec_point_t p);
+int ec_point_cmp(ec_group_t group, const ec_point_t a, const ec_point_t b);
+int ec_point_is_inf(ec_group_t group, ec_point_t p);
 void ec_get_generator(ec_group_t group, ec_point_t p);
-void ec_get_coordinates(ec_group_t group, bignum_t x, bignum_t y, const ec_point_t p);
+void ec_get_coordinates(ec_group_t group, bignum_t x, bignum_t y,
+                        const ec_point_t p);
 int ec_convert_to_point(ec_group_t group, ec_point_t p, uint8_t *xstr, int len);
-int  ec_point_is_on_curve(ec_group_t group, ec_point_t p);
-void ec_point_add(ec_group_t g, ec_point_t r, const ec_point_t x, const ec_point_t y);
-void ec_point_mul(ec_group_t g, ec_point_t r, const ec_point_t x, const bignum_t y);
+int ec_point_is_on_curve(ec_group_t group, ec_point_t p);
+void ec_point_add(ec_group_t g, ec_point_t r, const ec_point_t x,
+                  const ec_point_t y);
+void ec_point_mul(ec_group_t g, ec_point_t r, const ec_point_t x,
+                  const bignum_t y);
 
 size_t ec_point_elem_len(const ec_point_t g);
 void ec_point_elem_in(ec_point_t g, uint8_t *in, size_t len);
@@ -256,17 +241,17 @@ void ec_point_elem_out(const ec_point_t g, uint8_t *out, size_t len);
 
 /* BEGIN OpenSSL macro definitions */
 
-typedef BP_GROUP* bp_group_t;
+typedef BP_GROUP *bp_group_t;
 #define bp_group_free(g) BP_GROUP_free(g);
 
-typedef G1_ELEM* g1_ptr;
-typedef G2_ELEM* g2_ptr;
-typedef GT_ELEM* gt_ptr;
+typedef G1_ELEM *g1_ptr;
+typedef G2_ELEM *g2_ptr;
+typedef GT_ELEM *gt_ptr;
 
-#define g_set_null(g)   g = nullptr;
-#define g1_copy_const   G1_ELEM_copy
-#define g2_copy_const   G2_ELEM_copy
-#define gt_copy_const   GT_ELEM_copy
+#define g_set_null(g) g = nullptr;
+#define g1_copy_const G1_ELEM_copy
+#define g2_copy_const G2_ELEM_copy
+#define gt_copy_const GT_ELEM_copy
 
 #define g1_element_free G1_ELEM_clear_free
 #define g2_element_free G2_ELEM_clear_free
@@ -278,35 +263,35 @@ typedef GT_ELEM* gt_ptr;
 /* if BP_WITH_OPENSSL not specifically defined,
  * then we use RELIC EC operations by default */
 
- /* BEGIN RELIC macro definitions */
+/* BEGIN RELIC macro definitions */
 
 // ZTK-specific macros for RELIC
-#define bn_inits(b) \
-        bn_null(b); \
-        bn_new(b);
+#define bn_inits(b)                                                            \
+  bn_null(b);                                                                  \
+  bn_new(b);
 
-#define g1_inits(g) \
-        ep_null(g); \
-        ep_new(g);
+#define g1_inits(g)                                                            \
+  ep_null(g);                                                                  \
+  ep_new(g);
 
-#define ep2_inits(g) \
-        ep2_null(g); \
-        ep2_new(g);
+#define ep2_inits(g)                                                           \
+  ep2_null(g);                                                                 \
+  ep2_new(g);
 
-#define fp12_inits(g) \
-        fp12_null(g); \
-        fp12_new(g);
+#define fp12_inits(g)                                                          \
+  fp12_null(g);                                                                \
+  fp12_new(g);
 
-#define g1_copy_const    RLC_CAT(RLC_G1_LOWER, copy_const)
-#define g2_copy_const    RLC_CAT(RLC_G2_LOWER, copy_const)
-#define gt_copy_const    RLC_CAT(RLC_GT_LOWER, copy_const)
-#define g1_set_rand      RLC_CAT(RLC_G1_LOWER, set_rand)
-#define g2_set_rand      RLC_CAT(RLC_G2_LOWER, set_rand)
-#define gt_set_rand      RLC_CAT(RLC_GT_LOWER, set_rand)
+#define g1_copy_const RLC_CAT(RLC_G1_LOWER, copy_const)
+#define g2_copy_const RLC_CAT(RLC_G2_LOWER, copy_const)
+#define gt_copy_const RLC_CAT(RLC_GT_LOWER, copy_const)
+#define g1_set_rand RLC_CAT(RLC_G1_LOWER, set_rand)
+#define g2_set_rand RLC_CAT(RLC_G2_LOWER, set_rand)
+#define gt_set_rand RLC_CAT(RLC_GT_LOWER, set_rand)
 #define g1_write_ostream RLC_CAT(RLC_G1_LOWER, write_ostream)
 #define g2_write_ostream RLC_CAT(RLC_G2_LOWER, write_ostream)
 #define gt_write_ostream RLC_CAT(RLC_GT_LOWER, write_ostream)
-#define gt_is_zero       RLC_CAT(RLC_GT_LOWER, is_zero)
+#define gt_is_zero RLC_CAT(RLC_GT_LOWER, is_zero)
 
 void bn_copy_const(bn_t c, const bn_t a);
 void ep_copy_const(ep_t r, const ep_t p);
@@ -327,19 +312,19 @@ int fp2_cmp_const(fp2_t a, const fp2_t b);
 int fp_cmp_const(fp_t a, const fp_t b);
 int fp_cmpn_low_const(dig_t *a, const dig_t *b);
 
-typedef void* bp_group_t;
-#define bp_group_free(g)   g = nullptr;
+typedef void *bp_group_t;
+#define bp_group_free(g) g = nullptr;
 
 typedef ep_t g1_ptr;
 typedef ep2_t g2_ptr;
 typedef fp12_t gt_ptr;
 
 #define g_set_null(g)
-#define g1_element_free   g1_free
-#define g2_element_free   g2_free
-#define gt_element_free   gt_free
+#define g1_element_free g1_free
+#define g2_element_free g2_free
+#define gt_element_free gt_free
 
-#define is_elem_null(e)   FALSE
+#define is_elem_null(e) FALSE
 /* END of RELIC macro definitions */
 #endif
 

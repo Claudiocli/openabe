@@ -34,6 +34,8 @@
 #ifndef __ZCONTEXTABE_H__
 #define __ZCONTEXTABE_H__
 
+#include <cstdint>
+
 ///
 /// @class  OpenABEContextABE
 ///

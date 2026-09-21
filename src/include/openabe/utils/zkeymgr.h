@@ -34,6 +34,8 @@
 #ifndef __ZKEYMGR_H__
 #define __ZKEYMGR_H__
 
+#include <cstdint>
+
 #include <map>
 #include <vector>
 #include <mutex>

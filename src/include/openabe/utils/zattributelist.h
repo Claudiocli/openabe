@@ -34,6 +34,8 @@
 #ifndef __ZATTRIBUTELIST_H__
 #define __ZATTRIBUTELIST_H__
 
+#include <cstdint>
+
 #define EQUALS       '='
 #define NUM_HASH     '#'
 #define WHITESPACE   ' '

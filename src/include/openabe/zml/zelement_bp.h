@@ -34,6 +34,8 @@
 #ifndef __ZELEMENT_BP_H__
 #define __ZELEMENT_BP_H__
 
+#include <cstdint>
+
 #if defined(BP_WITH_OPENSSL)
 #define BN_WITH_OPENSSL
 #define EC_WITH_OPENSSL
