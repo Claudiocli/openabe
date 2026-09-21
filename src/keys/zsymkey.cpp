@@ -1,21 +1,21 @@
-/// 
+///
 /// Copyright (c) 2018 Zeutro, LLC. All rights reserved.
-/// 
+///
 /// This file is part of Zeutro's OpenABE.
-/// 
+///
 /// OpenABE is free software: you can redistribute it and/or modify
 /// it under the terms of the GNU Affero General Public License as published by
 /// the Free Software Foundation, either version 3 of the License, or
 /// (at your option) any later version.
-/// 
+///
 /// OpenABE is distributed in the hope that it will be useful,
 /// but WITHOUT ANY WARRANTY; without even the implied warranty of
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 /// GNU Affero General Public License for more details.
-/// 
+///
 /// You should have received a copy of the GNU Affero General Public
 /// License along with OpenABE. If not, see <http://www.gnu.org/licenses/>.
-/// 
+///
 /// You can be released from the requirements of the GNU Affero General
 /// Public License and obtain additional features by purchasing a
 /// commercial license. Buying such a license is mandatory if you
@@ -34,14 +34,14 @@
 
 #define __OpenABESYMKEY_CPP__
 
+#include <cmath>
+#include <fstream>
+#include <iostream>
+#include <openabe/openabe.h>
+#include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
-#include <iostream>
-#include <fstream>
 #include <string>
-#include <sstream>
-#include <cmath>
-#include <openabe/openabe.h>
 
 using namespace std;
 
@@ -60,8 +60,8 @@ OpenABESymKey::OpenABESymKey() : OpenABEKey() {}
  *
  */
 OpenABESymKey::~OpenABESymKey() {
-    // Zeroize contents of key buffer
-    this->m_keyData.zeroize();
+  // Zeroize contents of key buffer
+  this->m_keyData.zeroize();
 }
 
 OpenABE_ERROR OpenABESymKey::loadKeyFromBytes(OpenABEByteString &input) {
@@ -92,7 +92,7 @@ string OpenABESymKey::toString() { return this->m_keyData.toHex(); }
  */
 
 bool OpenABESymKey::hashToSymmetricKey(GT &input, uint32_t keyLen,
-                                   OpenABEHashFunctionType hashType) {
+                                       OpenABEHashFunctionType hashType) {
   this->m_keyData.clear();
   // Hash the element into the key
   return OpenABEUtilsHashToString(input, keyLen, this->m_keyData, hashType);
@@ -279,7 +279,8 @@ OpenABESymKeyAuthEncStream::~OpenABESymKeyAuthEncStream() {
     EVP_CIPHER_CTX_free(this->ctx);
 }
 
-void OpenABESymKeyAuthEncStream::initAddAuthData(uint8_t *aad, uint32_t aad_len) {
+void OpenABESymKeyAuthEncStream::initAddAuthData(uint8_t *aad,
+                                                 uint32_t aad_len) {
   if (this->init_enc_set || this->init_dec_set) {
     if (aad == NULL) {
       // fill AAD buffer with 0's
@@ -345,8 +346,9 @@ OpenABE_ERROR OpenABESymKeyAuthEncStream::encryptInit(OpenABEByteString *iv) {
   return result;
 }
 
-OpenABE_ERROR OpenABESymKeyAuthEncStream::encryptUpdate(OpenABEByteString *plaintextBlock,
-                                                OpenABEByteString *ciphertext) {
+OpenABE_ERROR
+OpenABESymKeyAuthEncStream::encryptUpdate(OpenABEByteString *plaintextBlock,
+                                          OpenABEByteString *ciphertext) {
   OpenABE_ERROR result = OpenABE_NOERROR;
   if (this->init_enc_set) {
     /* encrypt plaintext */
@@ -374,15 +376,17 @@ OpenABE_ERROR OpenABESymKeyAuthEncStream::encryptUpdate(OpenABEByteString *plain
   return result;
 }
 
-OpenABE_ERROR OpenABESymKeyAuthEncStream::encryptFinalize(OpenABEByteString *ciphertext,
-                                                  OpenABEByteString *tag) {
+OpenABE_ERROR
+OpenABESymKeyAuthEncStream::encryptFinalize(OpenABEByteString *ciphertext,
+                                            OpenABEByteString *tag) {
   OpenABE_ERROR result = OpenABE_NOERROR;
 
   if (this->init_enc_set && this->updateEncCount > 0) {
     /* finalize: computes authentication tag*/
     uint8_t *ct_ptr = ciphertext->getInternalPtr();
     /* make sure 'ct' size is the same as our internal size counter */
-    ASSERT(ciphertext->size() == this->total_ct_len, OpenABE_ERROR_INVALID_INPUT);
+    ASSERT(ciphertext->size() == this->total_ct_len,
+           OpenABE_ERROR_INVALID_INPUT);
     /* now we can finalize encryption */
     EVP_EncryptFinal_ex(this->ctx, ct_ptr, (int *)&this->total_ct_len);
     // For AES-GCM, the 'len' should be '0' because there is no extra bytes used
@@ -414,7 +418,7 @@ OpenABE_ERROR OpenABESymKeyAuthEncStream::encryptFinalize(OpenABEByteString *cip
 }
 
 OpenABE_ERROR OpenABESymKeyAuthEncStream::decryptInit(OpenABEByteString *iv,
-                                              OpenABEByteString *tag) {
+                                                      OpenABEByteString *tag) {
   OpenABE_ERROR result = OpenABE_NOERROR;
   try {
     if (!this->init_dec_set) {
@@ -453,8 +457,9 @@ OpenABE_ERROR OpenABESymKeyAuthEncStream::decryptInit(OpenABEByteString *iv,
   return result;
 }
 
-OpenABE_ERROR OpenABESymKeyAuthEncStream::decryptUpdate(OpenABEByteString *ciphertextBlock,
-                                                OpenABEByteString *plaintext) {
+OpenABE_ERROR
+OpenABESymKeyAuthEncStream::decryptUpdate(OpenABEByteString *ciphertextBlock,
+                                          OpenABEByteString *plaintext) {
   OpenABE_ERROR result = OpenABE_NOERROR;
 
   try {
@@ -482,7 +487,8 @@ OpenABE_ERROR OpenABESymKeyAuthEncStream::decryptUpdate(OpenABEByteString *ciphe
   return result;
 }
 
-OpenABE_ERROR OpenABESymKeyAuthEncStream::decryptFinalize(OpenABEByteString *plaintext) {
+OpenABE_ERROR
+OpenABESymKeyAuthEncStream::decryptFinalize(OpenABEByteString *plaintext) {
   OpenABE_ERROR result = OpenABE_NOERROR;
 
   try {
@@ -519,4 +525,4 @@ OpenABE_ERROR OpenABESymKeyAuthEncStream::decryptFinalize(OpenABEByteString *pla
   return result;
 }
 
-}
+} // namespace oabe

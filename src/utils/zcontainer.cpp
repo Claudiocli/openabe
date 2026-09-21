@@ -1,21 +1,21 @@
-/// 
+///
 /// Copyright (c) 2018 Zeutro, LLC. All rights reserved.
-/// 
+///
 /// This file is part of Zeutro's OpenABE.
-/// 
+///
 /// OpenABE is free software: you can redistribute it and/or modify
 /// it under the terms of the GNU Affero General Public License as published by
 /// the Free Software Foundation, either version 3 of the License, or
 /// (at your option) any later version.
-/// 
+///
 /// OpenABE is distributed in the hope that it will be useful,
 /// but WITHOUT ANY WARRANTY; without even the implied warranty of
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 /// GNU Affero General Public License for more details.
-/// 
+///
 /// You should have received a copy of the GNU Affero General Public
 /// License along with OpenABE. If not, see <http://www.gnu.org/licenses/>.
-/// 
+///
 /// You can be released from the requirements of the GNU Affero General
 /// Public License and obtain additional features by purchasing a
 /// commercial license. Buying such a license is mandatory if you
@@ -34,12 +34,12 @@
 #define __OpenABECONTAINER_CPP__
 
 #include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <openabe/openabe.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <iostream>
-#include <fstream>
 #include <string>
-#include <openabe/openabe.h>
 
 using namespace std;
 
@@ -53,9 +53,7 @@ namespace oabe {
  *
  */
 
-OpenABEContainer::OpenABEContainer() : ZObject() { 
-  this->group = nullptr; 
-}
+OpenABEContainer::OpenABEContainer() : ZObject() { this->group = nullptr; }
 
 OpenABEContainer::OpenABEContainer(std::shared_ptr<ZGroup> group) : ZObject() {
   this->group = group;
@@ -81,7 +79,8 @@ OpenABEContainer::~OpenABEContainer() {
  * @param Object containing the component
  */
 
-void OpenABEContainer::setComponent(const string &name, const ZObject *component) {
+void OpenABEContainer::setComponent(const string &name,
+                                    const ZObject *component) {
   ZObject *copy = component->clone();
 
   this->val[name] = copy;
@@ -105,8 +104,7 @@ ZObject *OpenABEContainer::getComponent(const string &name) {
   return result;
 }
 
-OpenABE_ERROR
-OpenABEContainer::deleteComponent(const string name) {
+OpenABE_ERROR OpenABEContainer::deleteComponent(const string name) {
   map<string, ZObject *>::iterator iter1 = this->val.find(name);
   if (iter1 != this->val.end()) {
     this->val.erase(iter1);
@@ -144,7 +142,8 @@ void OpenABEContainer::serialize(OpenABEByteString &result) const {
   }
 }
 
-void OpenABEContainer::deserializeElement(std::string key, OpenABEByteString &value) {
+void OpenABEContainer::deserializeElement(std::string key,
+                                          OpenABEByteString &value) {
   if (value.size() == 0) {
     throw OpenABE_ERROR_INVALID_INPUT;
   }
@@ -209,7 +208,7 @@ void OpenABEContainer::deserializeElement(std::string key, OpenABEByteString &va
       g->deserialize(value);
       this->setComponent(key, g.get());
     }
-  } else { 
+  } else {
     cout << "Invalid Input type: " << type << endl;
     throw OpenABE_INVALID_INPUT_TYPE;
   }
@@ -248,8 +247,10 @@ std::vector<std::string> OpenABEContainer::getKeys() {
 
 bool operator==(const OpenABEContainer &c1, const OpenABEContainer &c2) {
   // check that the 'keys' of the containers are equal
-  std::vector<std::string> keyList1 = const_cast<OpenABEContainer &>(c1).getKeys();
-  std::vector<std::string> keyList2 = const_cast<OpenABEContainer &>(c2).getKeys();
+  std::vector<std::string> keyList1 =
+      const_cast<OpenABEContainer &>(c1).getKeys();
+  std::vector<std::string> keyList2 =
+      const_cast<OpenABEContainer &>(c2).getKeys();
   std::vector<std::string> keyList3(keyList1.size() + keyList2.size());
   std::vector<std::string>::iterator iter =
       std::set_difference(keyList1.begin(), keyList1.end(), keyList2.begin(),
@@ -275,4 +276,4 @@ bool operator==(const OpenABEContainer &c1, const OpenABEContainer &c2) {
     return false;
   return true;
 }
-}
+} // namespace oabe

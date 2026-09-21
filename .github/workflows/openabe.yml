@@ -14,22 +14,23 @@ permissions:
 jobs:
   linux:
     name: Linux - GCC build and tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-26.04
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
+          sudo apt-get install -y --no-install-recommends \
             build-essential \
             gcc \
             g++ \
             make \
             bison \
             flex \
+            libfl-dev \
             pkg-config \
             libgmp-dev \
             libssl-dev \
@@ -38,7 +39,9 @@ jobs:
             libgtest-dev \
             python3 \
             python3-pip \
+            python3-dev \
             python3-venv \
+            ca-certificates \
             git \
             wget \
             unzip \
@@ -52,7 +55,7 @@ jobs:
           # GITHUB_PATH takes bare directory entires
           echo "$ZROOT/src" >> "$GITHUB_PATH"
           echo "$ZROOT/cli" >> "$GITHUB_PATH"
-          echo "$ZROOT/examples" >> $GITHUB_PATH"
+          echo "$ZROOT/examples" >> "$GITHUB_PATH"
 
       - name: Build OpenABE and all tools
         shell: bash
@@ -101,7 +104,9 @@ jobs:
           set -e
           source ./env
 
-          pip3 install --no-cache-dir -r bindings/python/requirements.txt
+          python3 -m venv "$RUNNER_TEMP/venv"
+          source "$RUNNER_TEMP/venv/bin/activate"
+          pip install --no-cache-dir -r bindings/python/requirements.txt setuptools
 
           cd bindings/python
           python3 setup.py build_ext --inplace

@@ -1,21 +1,21 @@
-/// 
+///
 /// Copyright (c) 2018 Zeutro, LLC. All rights reserved.
-/// 
+///
 /// This file is part of Zeutro's OpenABE.
-/// 
+///
 /// OpenABE is free software: you can redistribute it and/or modify
 /// it under the terms of the GNU Affero General Public License as published by
 /// the Free Software Foundation, either version 3 of the License, or
 /// (at your option) any later version.
-/// 
+///
 /// OpenABE is distributed in the hope that it will be useful,
 /// but WITHOUT ANY WARRANTY; without even the implied warranty of
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 /// GNU Affero General Public License for more details.
-/// 
+///
 /// You should have received a copy of the GNU Affero General Public
 /// License along with OpenABE. If not, see <http://www.gnu.org/licenses/>.
-/// 
+///
 /// You can be released from the requirements of the GNU Affero General
 /// Public License and obtain additional features by purchasing a
 /// commercial license. Buying such a license is mandatory if you
@@ -32,11 +32,11 @@
 /// \author J. Ayo Akinyele
 ///
 
-#include <fstream>
-#include <sstream>
-#include <iostream>
 #include <bitset>
+#include <fstream>
+#include <iostream>
 #include <math.h>
+#include <sstream>
 #include <time.h>
 
 #include <openabe/utils/zdriver.h>
@@ -54,7 +54,7 @@
 #include <openabe/utils/zattributelist.h>
 #endif
 
-const size_t DAY_IN_SECS = 60*60*24;
+const size_t DAY_IN_SECS = 60 * 60 * 24;
 
 using namespace std;
 
@@ -150,12 +150,16 @@ void Driver::set_attrlist(std::vector<std::string> *attr_list) {
 }
 
 // handler for LEAF '=' number
-vector<string> *Driver::attr_num(const std::string &c, OpenABEUInteger *number) {
+vector<string> *Driver::attr_num(const std::string &c,
+                                 OpenABEUInteger *number) {
   vector<string> *attrs = new vector<string>();
   if (this->attr_count[c] >= 1) {
-      if (this->debug)
-          cerr << "'" << c << "' already specified as an attribute. Excluding from attribute list." << endl;
-      return attrs;
+    if (this->debug)
+      cerr << "'" << c
+           << "' already specified as an attribute. Excluding from attribute "
+              "list."
+           << endl;
+    return attrs;
   }
   assign_stmt(*attrs, c, *number);
 
@@ -167,7 +171,8 @@ vector<string> *Driver::attr_num(const std::string &c, OpenABEUInteger *number) 
 
 vector<string> *Driver::set_date_in_attrlist(const std::string &prefix,
                                              const std::string &month,
-                                             OpenABEUInteger *m, OpenABEUInteger *d,
+                                             OpenABEUInteger *m,
+                                             OpenABEUInteger *d,
                                              OpenABEUInteger *y) {
   uint32_t s_days = validate_date(prefix, m, d, y);
   stringstream ss;
@@ -176,10 +181,10 @@ vector<string> *Driver::set_date_in_attrlist(const std::string &prefix,
   OpenABEUInteger ui(s_days, 32);
   vector<string> *attrs = new vector<string>();
   if (this->date_prefix.count(prefix) == 0) {
-      const string attr = prefix + COLON + TIME_KEYWORD;
-      assign_stmt(*attrs, attr, ui);
-      orig_attributes.push_back(ss.str());
-      this->date_prefix.insert(prefix);
+    const string attr = prefix + COLON + TIME_KEYWORD;
+    assign_stmt(*attrs, attr, ui);
+    orig_attributes.push_back(ss.str());
+    this->date_prefix.insert(prefix);
   }
   return attrs;
 }
@@ -253,7 +258,8 @@ OpenABETreeNode *Driver::leaf_node(const std::string &c) {
   return new OpenABETreeNode(attribute, prefix, index);
 }
 
-OpenABETreeNode *Driver::kof2_tree(int k, OpenABETreeNode *l, OpenABETreeNode *r) {
+OpenABETreeNode *Driver::kof2_tree(int k, OpenABETreeNode *l,
+                                   OpenABETreeNode *r) {
   OpenABETreeNode *rootNode = new OpenABETreeNode();
   zGateType node_type;
 
@@ -280,8 +286,9 @@ OpenABETreeNode *Driver::kof2_tree(int k, OpenABETreeNode *l, OpenABETreeNode *r
   return rootNode;
 }
 
-OpenABETreeNode *Driver::kofn_tree(uint32_t threshold_k,
-                               std::vector<OpenABETreeNode *> &attributeList) {
+OpenABETreeNode *
+Driver::kofn_tree(uint32_t threshold_k,
+                  std::vector<OpenABETreeNode *> &attributeList) {
   OpenABETreeNode *rootNode = new OpenABETreeNode();
   zGateType node_type;
   size_t k;
@@ -308,7 +315,8 @@ OpenABETreeNode *Driver::kofn_tree(uint32_t threshold_k,
   rootNode->setThresholdValue(threshold_k);
   if (this->debug)
     std::cout << "Constructing " << OpenABETreeNode_ToString(node_type)
-              << " type.\n" << std::endl;
+              << " type.\n"
+              << std::endl;
   return rootNode;
 }
 
@@ -335,24 +343,24 @@ bool checkValidBit(uint32_t value, uint32_t bits) {
     // uint32_t max_value = pow(2, bits)-1;
     uint32_t max_value = 0;
     switch (bits) {
-        case 4:
-           max_value = max_4bits;
-           break;
-        case 8:
-           max_value = max_8bits;
-           break;
-        case 16:
-           max_value = max_16bits;
-           break;
-        case 32:
-           max_value = max_32bits;
-           break;
-        // case 64: max_value = max_64bits;
-        //         break;
-        default:
-           std::cerr << "checkValidBit: missing bits in switch statement"
-                     << std::endl;
-           break;
+    case 4:
+      max_value = max_4bits;
+      break;
+    case 8:
+      max_value = max_8bits;
+      break;
+    case 16:
+      max_value = max_16bits;
+      break;
+    case 32:
+      max_value = max_32bits;
+      break;
+    // case 64: max_value = max_64bits;
+    //         break;
+    default:
+      std::cerr << "checkValidBit: missing bits in switch statement"
+                << std::endl;
+      break;
     }
     if (value > max_value) {
       std::cerr << "cannot represent all of '" << value << "' using " << bits
@@ -365,7 +373,7 @@ bool checkValidBit(uint32_t value, uint32_t bits) {
 }
 
 OpenABETreeNode *Driver::bit_marker_list(bool flex, bool gt, std::string attr,
-                                     int bits, uint32_t value) {
+                                         int bits, uint32_t value) {
   OpenABETreeNode *p = NULL;
   int i;
 
@@ -389,7 +397,8 @@ OpenABETreeNode *Driver::bit_marker_list(bool flex, bool gt, std::string attr,
   return p;
 }
 
-OpenABETreeNode *Driver::flexint_leader(bool gt, std::string attr, uint32_t value) {
+OpenABETreeNode *Driver::flexint_leader(bool gt, std::string attr,
+                                        uint32_t value) {
   // printf("called flexint_leader: gt=%d, attr=%s, value=%d\n", gt, attr,
   // value);
   int k;
@@ -415,7 +424,7 @@ OpenABETreeNode *Driver::flexint_leader(bool gt, std::string attr, uint32_t valu
 }
 
 OpenABETreeNode *Driver::cmp_policy(OpenABEUInteger *number, bool gt,
-                                std::string attr) {
+                                    std::string attr) {
   OpenABETreeNode *p = NULL;
 
   /* create the subtree */
@@ -424,16 +433,14 @@ OpenABETreeNode *Driver::cmp_policy(OpenABEUInteger *number, bool gt,
   uint32_t value = number->getVal();
   //                                        (value >= ((uint64_t)1 << 32) ? 64
   //                                          :
-  p = this->bit_marker_list(
-      flex, gt, attr,
-      bits ? bits : (value >= ((uint32_t)1 << 16)
-                         ? 32
-                         : value >= ((uint32_t)1 << 8)
-                               ? 16
-                               : value >= ((uint32_t)1 << 4)
-                                     ? 8
-                                     : value >= ((uint32_t)1 << 2) ? 4 : 2),
-      value);
+  p = this->bit_marker_list(flex, gt, attr,
+                            bits ? bits
+                                 : (value >= ((uint32_t)1 << 16)  ? 32
+                                    : value >= ((uint32_t)1 << 8) ? 16
+                                    : value >= ((uint32_t)1 << 4) ? 8
+                                    : value >= ((uint32_t)1 << 2) ? 4
+                                                                  : 2),
+                            value);
   return p;
 }
 
@@ -458,7 +465,8 @@ std::string bit_marker(bool flex, std::string base, int bit, int val,
   return s;
 }
 
-OpenABETreeNode *Driver::eq_policy(const std::string &c, OpenABEUInteger *number) {
+OpenABETreeNode *Driver::eq_policy(const std::string &c,
+                                   OpenABEUInteger *number) {
   OpenABETreeNode *p = NULL;
   int bits = number->getBits();
   bool flex = bits ? false : true;
@@ -473,33 +481,39 @@ OpenABETreeNode *Driver::eq_policy(const std::string &c, OpenABEUInteger *number
 
   for (int i = last - 1; i > 0; i--) {
     // std::cout << num[i-1];
-    p = this->kof2_tree(2, p, this->leaf_node(bit_marker(
-                                  flex, c, i - 1, num[i - 1], bit_count)));
+    p = this->kof2_tree(
+        2, p,
+        this->leaf_node(bit_marker(flex, c, i - 1, num[i - 1], bit_count)));
   }
   // std::cout << std::endl;
   return p;
 }
 
-OpenABETreeNode *Driver::lt_policy(const std::string &attr, OpenABEUInteger *number) {
+OpenABETreeNode *Driver::lt_policy(const std::string &attr,
+                                   OpenABEUInteger *number) {
   return this->cmp_policy(number, false, attr);
 }
 
-OpenABETreeNode *Driver::gt_policy(const std::string &attr, OpenABEUInteger *number) {
+OpenABETreeNode *Driver::gt_policy(const std::string &attr,
+                                   OpenABEUInteger *number) {
   return this->cmp_policy(number, true, attr);
 }
 
-OpenABETreeNode *Driver::le_policy(const std::string &attr, OpenABEUInteger *number) {
+OpenABETreeNode *Driver::le_policy(const std::string &attr,
+                                   OpenABEUInteger *number) {
   *number += 1;
   return this->cmp_policy(number, false, attr);
 }
 
-OpenABETreeNode *Driver::ge_policy(const std::string &attr, OpenABEUInteger *number) {
+OpenABETreeNode *Driver::ge_policy(const std::string &attr,
+                                   OpenABEUInteger *number) {
   *number -= 1;
   return this->cmp_policy(number, true, attr);
 }
 
-OpenABETreeNode *Driver::range_policy(const std::string &c, OpenABEUInteger *min_num,
-                                  OpenABEUInteger *max_num) {
+OpenABETreeNode *Driver::range_policy(const std::string &c,
+                                      OpenABEUInteger *min_num,
+                                      OpenABEUInteger *max_num) {
   if (min_num->getVal() > max_num->getVal()) {
     throw OpenABE_ERROR_INVALID_RANGE_NUMBERS;
   } else if (min_num->getBits() != max_num->getBits()) {
@@ -517,8 +531,8 @@ OpenABETreeNode *Driver::range_policy(const std::string &c, OpenABEUInteger *min
 }
 
 OpenABETreeNode *Driver::range_incl_policy(const std::string &c,
-                                       OpenABEUInteger *min_num,
-                                       OpenABEUInteger *max_num) {
+                                           OpenABEUInteger *min_num,
+                                           OpenABEUInteger *max_num) {
   if (min_num->getVal() > max_num->getVal()) {
     throw OpenABE_ERROR_INVALID_RANGE_NUMBERS;
   } else if (min_num->getBits() != max_num->getBits()) {
@@ -601,7 +615,7 @@ uint32_t validate_date(const std::string &prefix, OpenABEUInteger *m,
   //    cout << "Year: " << y->getVal() << endl;
   if (prefix == MONTH_KEYWORD || prefix == DAY_KEYWORD ||
       prefix == YEAR_KEYWORD) {
-        throw OpenABE_ERROR_INVALID_PREFIX_SPECIFIED;
+    throw OpenABE_ERROR_INVALID_PREFIX_SPECIFIED;
   }
 
   if (!(m->isFlexInt() && d->isFlexInt() && y->isFlexInt())) {
@@ -655,8 +669,9 @@ void validate_range_date(const std::string &prefix, OpenABEUInteger *m,
 }
 
 OpenABETreeNode *Driver::set_date_in_policy(const std::string &prefix,
-                                        OpenABEUInteger *m, OpenABEUInteger *d,
-                                        OpenABEUInteger *y) {
+                                            OpenABEUInteger *m,
+                                            OpenABEUInteger *d,
+                                            OpenABEUInteger *y) {
   // date = {Month} {Day}, {Year}
   uint32_t s = validate_date(prefix, m, d, y);
   string attr = "";
@@ -671,8 +686,9 @@ OpenABETreeNode *Driver::set_date_in_policy(const std::string &prefix,
 }
 
 OpenABETreeNode *Driver::gt_date_in_policy(const std::string &prefix,
-                                       OpenABEUInteger *m, OpenABEUInteger *d,
-                                       OpenABEUInteger *y) {
+                                           OpenABEUInteger *m,
+                                           OpenABEUInteger *d,
+                                           OpenABEUInteger *y) {
   // date > {Month} {Day}, {Year}
   uint32_t s = validate_date(prefix, m, d, y);
   string attr = "";
@@ -687,8 +703,9 @@ OpenABETreeNode *Driver::gt_date_in_policy(const std::string &prefix,
 }
 
 OpenABETreeNode *Driver::ge_date_in_policy(const std::string &prefix,
-                                       OpenABEUInteger *m, OpenABEUInteger *d,
-                                       OpenABEUInteger *y) {
+                                           OpenABEUInteger *m,
+                                           OpenABEUInteger *d,
+                                           OpenABEUInteger *y) {
   // date >= {Month} {Day}, {Year}
   uint32_t s = validate_date(prefix, m, d, y);
   string attr = "";
@@ -703,8 +720,9 @@ OpenABETreeNode *Driver::ge_date_in_policy(const std::string &prefix,
 }
 
 OpenABETreeNode *Driver::lt_date_in_policy(const std::string &prefix,
-                                       OpenABEUInteger *m, OpenABEUInteger *d,
-                                       OpenABEUInteger *y) {
+                                           OpenABEUInteger *m,
+                                           OpenABEUInteger *d,
+                                           OpenABEUInteger *y) {
   // date < {Month} {Day}, {Year}
   uint32_t s = validate_date(prefix, m, d, y);
   string attr = "";
@@ -719,8 +737,9 @@ OpenABETreeNode *Driver::lt_date_in_policy(const std::string &prefix,
 }
 
 OpenABETreeNode *Driver::le_date_in_policy(const std::string &prefix,
-                                       OpenABEUInteger *m, OpenABEUInteger *d,
-                                       OpenABEUInteger *y) {
+                                           OpenABEUInteger *m,
+                                           OpenABEUInteger *d,
+                                           OpenABEUInteger *y) {
   // date < {Month} {Day}, {Year}
   uint32_t s = validate_date(prefix, m, d, y);
   string attr = "";
@@ -735,8 +754,10 @@ OpenABETreeNode *Driver::le_date_in_policy(const std::string &prefix,
 }
 
 OpenABETreeNode *Driver::range_date_in_policy(const std::string &prefix,
-                                          OpenABEUInteger *m, OpenABEUInteger *min_d,
-                                          OpenABEUInteger *max_d, OpenABEUInteger *y) {
+                                              OpenABEUInteger *m,
+                                              OpenABEUInteger *min_d,
+                                              OpenABEUInteger *max_d,
+                                              OpenABEUInteger *y) {
   if (min_d->getVal() > max_d->getVal()) {
     throw OpenABE_ERROR_INVALID_RANGE_NUMBERS;
   }
@@ -838,4 +859,4 @@ pair<string, string> check_attribute(const string &c) {
   return make_pair(prefix, attribute);
 }
 
-} 
+} // namespace oabe

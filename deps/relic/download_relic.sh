@@ -10,19 +10,19 @@ git clone ${LINK} ${RELIC}.git
 cd ${RELIC}.git
 
 if [[ ! -f ${RELIC}.${FORMAT} ]]; then
-   echo "Create archive of source (without git files)"
-   git archive --output ../${RELIC}.test.${FORMAT} HEAD 
+	echo "Create archive of source (without git files)"
+	git archive --output ../${RELIC}.test.${FORMAT} HEAD
 
-   echo "Create final tarball: ${RELIC}.${FORMAT}"
-   cd ..
-   mkdir ${RELIC}
-   cd ${RELIC}
-   tar -xf ../${RELIC}.test.${FORMAT}
+	echo "Create final tarball: ${RELIC}.${FORMAT}"
+	cd ..
+	mkdir ${RELIC}
+	cd ${RELIC}
+	tar -xf ../${RELIC}.test.${FORMAT}
 
-   cd ..
-   tar -czf ${RELIC}.${FORMAT} ${RELIC}
-   rm ${RELIC}.test.${FORMAT}
-   rm -rf ${RELIC}
+	cd ..
+	tar -czf ${RELIC}.${FORMAT} ${RELIC}
+	rm ${RELIC}.test.${FORMAT}
+	rm -rf ${RELIC}
 else
-   echo "[!] ${RELIC}.tar.gz already exists." 
+	echo "[!] ${RELIC}.tar.gz already exists."
 fi

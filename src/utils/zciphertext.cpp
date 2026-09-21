@@ -1,21 +1,21 @@
-/// 
+///
 /// Copyright (c) 2018 Zeutro, LLC. All rights reserved.
-/// 
+///
 /// This file is part of Zeutro's OpenABE.
-/// 
+///
 /// OpenABE is free software: you can redistribute it and/or modify
 /// it under the terms of the GNU Affero General Public License as published by
 /// the Free Software Foundation, either version 3 of the License, or
 /// (at your option) any later version.
-/// 
+///
 /// OpenABE is distributed in the hope that it will be useful,
 /// but WITHOUT ANY WARRANTY; without even the implied warranty of
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 /// GNU Affero General Public License for more details.
-/// 
+///
 /// You should have received a copy of the GNU Affero General Public
 /// License along with OpenABE. If not, see <http://www.gnu.org/licenses/>.
-/// 
+///
 /// You can be released from the requirements of the GNU Affero General
 /// Public License and obtain additional features by purchasing a
 /// commercial license. Buying such a license is mandatory if you
@@ -33,12 +33,12 @@
 
 #define __OpenABECONTAINER_CPP__
 
+#include <fstream>
+#include <iostream>
+#include <openabe/openabe.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <iostream>
-#include <fstream>
 #include <string>
-#include <openabe/openabe.h>
 
 using namespace std;
 
@@ -68,7 +68,8 @@ OpenABECiphertext::OpenABECiphertext(std::shared_ptr<ZGroup> group)
   this->uid_set_extern = false;
 }
 
-OpenABECiphertext::OpenABECiphertext(const OpenABEByteString &uid) : OpenABEContainer() {
+OpenABECiphertext::OpenABECiphertext(const OpenABEByteString &uid)
+    : OpenABEContainer() {
   this->curveID = OpenABE_NONE_ID;
   this->algorithmID = OpenABE_SCHEME_NONE;
   this->libraryVersion = OpenABE_LIBRARY_VERSION;
@@ -89,7 +90,8 @@ OpenABECiphertext::OpenABECiphertext(const OpenABEByteString &uid) : OpenABECont
 OpenABECiphertext::~OpenABECiphertext() {}
 
 /*!
- * Export routine for the OpenABECiphertext class (includes header and container elements).
+ * Export routine for the OpenABECiphertext class (includes header and container
+ * elements).
  *
  */
 void OpenABECiphertext::exportToBytes(OpenABEByteString &output) {
@@ -107,7 +109,8 @@ void OpenABECiphertext::exportToBytes(OpenABEByteString &output) {
 }
 
 /*!
- * Import routine for the OpenABECiphertext class (includes header and container elements).
+ * Import routine for the OpenABECiphertext class (includes header and container
+ * elements).
  *
  */
 void OpenABECiphertext::loadFromBytes(OpenABEByteString &input) {
@@ -146,7 +149,8 @@ void OpenABECiphertext::loadFromBytes(OpenABEByteString &input) {
 }
 
 /*!
- * Export routine for the OpenABECiphertext class (sames as before but without header).
+ * Export routine for the OpenABECiphertext class (sames as before but without
+ * header).
  *
  */
 void OpenABECiphertext::exportToBytesWithoutHeader(OpenABEByteString &output) {
@@ -161,7 +165,8 @@ void OpenABECiphertext::exportToBytesWithoutHeader(OpenABEByteString &output) {
 }
 
 /*!
- * Import routine for the OpenABECiphertext class (same as before but without header).
+ * Import routine for the OpenABECiphertext class (same as before but without
+ * header).
  *
  */
 void OpenABECiphertext::loadFromBytesWithoutHeader(OpenABEByteString &input) {
@@ -179,8 +184,8 @@ void OpenABECiphertext::loadFromBytesWithoutHeader(OpenABEByteString &input) {
  * Obtain the serialized form of the OpenABEKey header.
  *
  */
-void OpenABECiphertext::setHeader(OpenABECurveID curveID, OpenABE_SCHEME scheme_type,
-                              OpenABERNG *rng) {
+void OpenABECiphertext::setHeader(OpenABECurveID curveID,
+                                  OpenABE_SCHEME scheme_type, OpenABERNG *rng) {
   /* set the header of the ciphertext */
   this->curveID = curveID;
   this->algorithmID = scheme_type;
@@ -192,8 +197,9 @@ void OpenABECiphertext::setHeader(OpenABECurveID curveID, OpenABE_SCHEME scheme_
   }
 }
 
-void OpenABECiphertext::setHeader(OpenABECurveID curveID, OpenABE_SCHEME scheme_type,
-                              OpenABEByteString &uid) {
+void OpenABECiphertext::setHeader(OpenABECurveID curveID,
+                                  OpenABE_SCHEME scheme_type,
+                                  OpenABEByteString &uid) {
   /* set the header of the ciphertext */
   this->curveID = curveID;
   this->algorithmID = scheme_type;
@@ -214,4 +220,4 @@ void OpenABECiphertext::getHeader(OpenABEByteString &header) {
   header += this->uid;
 }
 
-}
+} // namespace oabe

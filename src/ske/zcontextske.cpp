@@ -1,21 +1,21 @@
-/// 
+///
 /// Copyright (c) 2018 Zeutro, LLC. All rights reserved.
-/// 
+///
 /// This file is part of Zeutro's OpenABE.
-/// 
+///
 /// OpenABE is free software: you can redistribute it and/or modify
 /// it under the terms of the GNU Affero General Public License as published by
 /// the Free Software Foundation, either version 3 of the License, or
 /// (at your option) any later version.
-/// 
+///
 /// OpenABE is distributed in the hope that it will be useful,
 /// but WITHOUT ANY WARRANTY; without even the implied warranty of
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 /// GNU Affero General Public License for more details.
-/// 
+///
 /// You should have received a copy of the GNU Affero General Public
 /// License along with OpenABE. If not, see <http://www.gnu.org/licenses/>.
-/// 
+///
 /// You can be released from the requirements of the GNU Affero General
 /// Public License and obtain additional features by purchasing a
 /// commercial license. Buying such a license is mandatory if you
@@ -31,13 +31,13 @@
 /// \author J. Ayo Akinyele
 ///
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
 #include <fstream>
-#include <string>
+#include <iostream>
 #include <memory>
 #include <openabe/openabe.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
 
 using namespace std;
 
@@ -54,8 +54,9 @@ namespace oabe {
  * @param[in]	A reference to a OpenABESymKey object.
  * @return  An error code or OpenABE_NOERROR.
  */
-OpenABE_ERROR OpenABE_storeSymmetricKey(OpenABEKeystore *gKeystore, const std::string keyID,
-                                const shared_ptr<OpenABESymKey> &skey) {
+OpenABE_ERROR OpenABE_storeSymmetricKey(OpenABEKeystore *gKeystore,
+                                        const std::string keyID,
+                                        const shared_ptr<OpenABESymKey> &skey) {
   OpenABE_ERROR result = OpenABE_NOERROR;
   try {
     // check input is valid
@@ -78,8 +79,9 @@ OpenABE_ERROR OpenABE_storeSymmetricKey(OpenABEKeystore *gKeystore, const std::s
  * @param[in]	A reference to a OpenABEByteString key blob.
  * @return  An error code or OpenABE_NOERROR.
  */
-OpenABE_ERROR OpenABE_loadSymmetricKey(OpenABEKeystore *gKeystore, const std::string keyID,
-                               OpenABEByteString *skeyBlob) {
+OpenABE_ERROR OpenABE_loadSymmetricKey(OpenABEKeystore *gKeystore,
+                                       const std::string keyID,
+                                       OpenABEByteString *skeyBlob) {
   OpenABE_ERROR result = OpenABE_NOERROR;
   OpenABEByteString keyBytes;
   shared_ptr<OpenABESymKey> symKey = nullptr;
@@ -106,10 +108,11 @@ OpenABE_ERROR OpenABE_loadSymmetricKey(OpenABEKeystore *gKeystore, const std::st
  *
  * @param[in]   A Keystore reference.
  * @param[in]   A symmetric key identifier.
- * @return  A reference to the requested OpenABESymKey or NULL if not found in the Keystore.
+ * @return  A reference to the requested OpenABESymKey or NULL if not found in
+ * the Keystore.
  */
 shared_ptr<OpenABESymKey> OpenABE_getSymmetricKey(OpenABEKeystore *gKeystore,
-                                          const std::string keyID) {
+                                                  const std::string keyID) {
   shared_ptr<OpenABESymKey> skey = nullptr;
 
   // get the OpenABEKey stored inside the keystore
@@ -135,7 +138,7 @@ shared_ptr<OpenABESymKey> OpenABE_getSymmetricKey(OpenABEKeystore *gKeystore,
  * @return  An error code or OpenABE_NOERROR.
  */
 OpenABE_ERROR OpenABE_deleteSymmetricKey(OpenABEKeystore *gKeystore,
-                                 const std::string keyID) {
+                                         const std::string keyID) {
   OpenABE_ERROR result = OpenABE_NOERROR;
   try {
     // delete the key within the keystore
@@ -157,8 +160,9 @@ OpenABE_ERROR OpenABE_deleteSymmetricKey(OpenABEKeystore *gKeystore,
  * @param[out]	A reference to a OpenABEByteString output buffer.
  * @return  An error code or OpenABE_NOERROR.
  */
-OpenABE_ERROR OpenABE_exportKey(OpenABEKeystore *gKeystore, const std::string keyID,
-                        OpenABEByteString *outputKeyBlob) {
+OpenABE_ERROR OpenABE_exportKey(OpenABEKeystore *gKeystore,
+                                const std::string keyID,
+                                OpenABEByteString *outputKeyBlob) {
   OpenABE_ERROR result = OpenABE_NOERROR;
   try {
     // check that input is valid
@@ -219,15 +223,15 @@ OpenABE_ERROR OpenABEContextSchemeStreamSKE::keygen(const string &keyID) {
   return result;
 }
 
-OpenABE_ERROR OpenABEContextSchemeStreamSKE::exportKey(const string &keyID,
-                                               OpenABEByteString &keyBlob,
-                                               const string password) {
+OpenABE_ERROR OpenABEContextSchemeStreamSKE::exportKey(
+    const string &keyID, OpenABEByteString &keyBlob, const string password) {
   OpenABE_ERROR result = OpenABE_NOERROR;
   OpenABEByteString tmpKeyBlob;
 
   try {
     // attempt to export the given keyID to the keyBlob output buffer
-    if (OpenABE_exportKey(&this->m_Keystore_, keyID, &tmpKeyBlob) != OpenABE_NOERROR) {
+    if (OpenABE_exportKey(&this->m_Keystore_, keyID, &tmpKeyBlob) !=
+        OpenABE_NOERROR) {
       throw OpenABE_ERROR_INVALID_INPUT;
     }
 
@@ -254,8 +258,8 @@ OpenABE_ERROR OpenABEContextSchemeStreamSKE::exportKey(const string &keyID,
 
 OpenABE_ERROR
 OpenABEContextSchemeStreamSKE::loadPrivateKey(const string &keyID,
-                                          OpenABEByteString &inputKeyBlob,
-                                          const string password) {
+                                              OpenABEByteString &inputKeyBlob,
+                                              const string password) {
   OpenABE_ERROR result = OpenABE_NOERROR;
   OpenABEByteString keyBlob;
 
@@ -272,8 +276,8 @@ OpenABEContextSchemeStreamSKE::loadPrivateKey(const string &keyID,
     }
 
     // load the symmetric key without attempting to decrypt the blob first
-    if ((result = OpenABE_loadSymmetricKey(&this->m_Keystore_, keyID, &keyBlob)) !=
-        OpenABE_NOERROR) {
+    if ((result = OpenABE_loadSymmetricKey(&this->m_Keystore_, keyID,
+                                           &keyBlob)) != OpenABE_NOERROR) {
       return result;
     }
 
@@ -288,8 +292,9 @@ OpenABE_ERROR OpenABEContextSchemeStreamSKE::deleteKey(const string &keyID) {
   return OpenABE_deleteSymmetricKey(&this->m_Keystore_, keyID);
 }
 
-OpenABE_ERROR OpenABEContextSchemeStreamSKE::encryptInit(const string &skID,
-                                                 OpenABEByteString *iv) {
+OpenABE_ERROR
+OpenABEContextSchemeStreamSKE::encryptInit(const string &skID,
+                                           OpenABEByteString *iv) {
   OpenABE_ERROR result = OpenABE_NOERROR;
   shared_ptr<OpenABESymKey> symKey = nullptr;
 
@@ -333,7 +338,7 @@ OpenABE_ERROR OpenABEContextSchemeStreamSKE::encryptInit(const string &skID,
 
 OpenABE_ERROR
 OpenABEContextSchemeStreamSKE::encryptUpdate(OpenABEByteString *plaintextBlock,
-                                         OpenABEByteString *ciphertext) {
+                                             OpenABEByteString *ciphertext) {
   OpenABE_ERROR result = OpenABE_NOERROR;
 
   try {
@@ -351,7 +356,7 @@ OpenABEContextSchemeStreamSKE::encryptUpdate(OpenABEByteString *plaintextBlock,
 
 OpenABE_ERROR
 OpenABEContextSchemeStreamSKE::encryptFinalize(OpenABEByteString *ciphertext,
-                                           OpenABEByteString *tag) {
+                                               OpenABEByteString *tag) {
   OpenABE_ERROR result = OpenABE_NOERROR;
 
   try {
@@ -370,9 +375,8 @@ OpenABEContextSchemeStreamSKE::encryptFinalize(OpenABEByteString *ciphertext,
   return result;
 }
 
-OpenABE_ERROR
-OpenABEContextSchemeStreamSKE::decryptInit(const string &skID, OpenABEByteString *iv,
-                                       OpenABEByteString *tag) {
+OpenABE_ERROR OpenABEContextSchemeStreamSKE::decryptInit(
+    const string &skID, OpenABEByteString *iv, OpenABEByteString *tag) {
   OpenABE_ERROR result = OpenABE_NOERROR;
   shared_ptr<OpenABESymKey> symKey = nullptr;
 
@@ -414,7 +418,7 @@ OpenABEContextSchemeStreamSKE::decryptInit(const string &skID, OpenABEByteString
 
 OpenABE_ERROR
 OpenABEContextSchemeStreamSKE::decryptUpdate(OpenABEByteString *ciphertextBlock,
-                                         OpenABEByteString *plaintext) {
+                                             OpenABEByteString *plaintext) {
   OpenABE_ERROR result = OpenABE_NOERROR;
 
   try {
@@ -449,4 +453,4 @@ OpenABEContextSchemeStreamSKE::decryptFinalize(OpenABEByteString *plaintext) {
   return result;
 }
 
-}
+} // namespace oabe

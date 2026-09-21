@@ -1,21 +1,21 @@
-/// 
+///
 /// Copyright (c) 2018 Zeutro, LLC. All rights reserved.
-/// 
+///
 /// This file is part of Zeutro's OpenABE.
-/// 
+///
 /// OpenABE is free software: you can redistribute it and/or modify
 /// it under the terms of the GNU Affero General Public License as published by
 /// the Free Software Foundation, either version 3 of the License, or
 /// (at your option) any later version.
-/// 
+///
 /// OpenABE is distributed in the hope that it will be useful,
 /// but WITHOUT ANY WARRANTY; without even the implied warranty of
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 /// GNU Affero General Public License for more details.
-/// 
+///
 /// You should have received a copy of the GNU Affero General Public
 /// License along with OpenABE. If not, see <http://www.gnu.org/licenses/>.
-/// 
+///
 /// You can be released from the requirements of the GNU Affero General
 /// Public License and obtain additional features by purchasing a
 /// commercial license. Buying such a license is mandatory if you
@@ -33,13 +33,13 @@
 
 #define __OPENABE_CPP__
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <iostream>
-#include <stdexcept>
-#include <string>
 #include <openabe/openabe.h>
 #include <openabe/openssl_init.h>
+#include <stdexcept>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
 
 using namespace std;
 
@@ -59,14 +59,13 @@ bool initializedOpenssl = false;
 namespace oabe {
 
 /*!
- * Global initialization for the toolkit. This routine must be called before 
+ * Global initialization for the toolkit. This routine must be called before
  * any others.
  *
  * @return				OpenABE_ERROR_NONE or an error code.
  */
 
-static OpenABE_ERROR
-OpenABE_initialize(bool init_openssl) {
+static OpenABE_ERROR OpenABE_initialize(bool init_openssl) {
   OpenABE_ERROR result = OpenABE_ERROR_LIBRARY_NOT_INITIALIZED;
 
   // If the library is in a pre-initialized state, we can initialize it and go.
@@ -101,8 +100,7 @@ OpenABE_initialize(bool init_openssl) {
  * @return				OpenABE_ERROR_NONE or an error code.
  */
 
-static OpenABE_ERROR
-OpenABE_shutdown() {
+static OpenABE_ERROR OpenABE_shutdown() {
   OpenABE_ERROR result = OpenABE_NOERROR;
 
   // Shut down the pairing library
@@ -120,7 +118,8 @@ OpenABE_shutdown() {
 
 void AssertLibInit() {
   if (gLibraryState == OpenABE_STATE_UNINITIALIZED) {
-     throw runtime_error(OpenABE_errorToString(OpenABE_ERROR_LIBRARY_NOT_INITIALIZED));
+    throw runtime_error(
+        OpenABE_errorToString(OpenABE_ERROR_LIBRARY_NOT_INITIALIZED));
   }
 }
 
@@ -134,20 +133,19 @@ void InitializeOpenABE() {
   // initialize RELIC and openssl
   OpenABE_ERROR rc = OpenABE_initialize(true);
   if (rc != OpenABE_NOERROR) {
-      throw runtime_error("InitializeOpenABE: Could not initialize the OpenABE");
+    throw runtime_error("InitializeOpenABE: Could not initialize the OpenABE");
   }
-
 }
 
 /*!
- * Global shutdown for the library.  This routine should be called prior to application
- * exit.
+ * Global shutdown for the library.  This routine should be called prior to
+ * application exit.
  */
 
 void ShutdownOpenABE() {
   OpenABE_ERROR rc = OpenABE_shutdown();
   if (rc != OpenABE_NOERROR) {
-      throw runtime_error("ShutdownOpenABE: Could not shutdown the OpenABE");
+    throw runtime_error("ShutdownOpenABE: Could not shutdown the OpenABE");
   }
 }
 
@@ -181,7 +179,7 @@ void OpenABEStateContext::shutdownThread() {
  */
 
 OpenABEContextABE *OpenABE_createContextABE(unique_ptr<OpenABERNG> *rng,
-                                    OpenABE_SCHEME scheme_type) {
+                                            OpenABE_SCHEME scheme_type) {
   OpenABEContextABE *newContext = NULL;
 
   /* Depending on the scheme, set up the context using the appropriate
@@ -205,7 +203,8 @@ OpenABEContextABE *OpenABE_createContextABE(unique_ptr<OpenABERNG> *rng,
 }
 
 /*!
- * Create a new OpenABEContextScheme for a specific scheme type (for CPA security).
+ * Create a new OpenABEContextScheme for a specific scheme type (for CPA
+ * security).
  *
  * @param[in]   the scheme type
  * @return      A pointer to the OpenABE context structure
@@ -214,11 +213,14 @@ OpenABEContextABE *OpenABE_createContextABE(unique_ptr<OpenABERNG> *rng,
 unique_ptr<OpenABEContextSchemeCPA>
 OpenABE_createContextABESchemeCPA(OpenABE_SCHEME scheme_type) {
   unique_ptr<OpenABERNG> rng(new OpenABERNG);
-  unique_ptr<OpenABEContextABE> kemContext(OpenABE_createContextABE(&rng, scheme_type));
-  return unique_ptr<OpenABEContextSchemeCPA>(new OpenABEContextSchemeCPA(move(kemContext)));
+  unique_ptr<OpenABEContextABE> kemContext(
+      OpenABE_createContextABE(&rng, scheme_type));
+  return unique_ptr<OpenABEContextSchemeCPA>(
+      new OpenABEContextSchemeCPA(move(kemContext)));
 }
 
-unique_ptr<OpenABEContextCCA> OpenABE_createABEContextForKEM(OpenABE_SCHEME scheme_type) {
+unique_ptr<OpenABEContextCCA>
+OpenABE_createABEContextForKEM(OpenABE_SCHEME scheme_type) {
   unique_ptr<OpenABEContextCCA> kemContextCCA;
   // create a scheme context for a given scheme type
   unique_ptr<OpenABEContextSchemeCPA> schemeContext =
@@ -233,7 +235,8 @@ unique_ptr<OpenABEContextCCA> OpenABE_createABEContextForKEM(OpenABE_SCHEME sche
 }
 
 /*!
- * Create a new OpenABEContextSchemeCCA for a specific scheme type (for CCA security).
+ * Create a new OpenABEContextSchemeCCA for a specific scheme type (for CCA
+ * security).
  *
  * @param[in]   the scheme type
  * @return      A pointer to the OpenABE context structure
@@ -249,7 +252,8 @@ OpenABE_createContextABESchemeCCA(OpenABE_SCHEME scheme_type) {
 }
 
 /*!
- * Create a new OpenABEContextSchemeCCAWithATZN for a specific scheme type (for CCA security).
+ * Create a new OpenABEContextSchemeCCAWithATZN for a specific scheme type (for
+ * CCA security).
  *
  * @param[in]   the scheme type
  * @return      A pointer to the OpenABE context structure
@@ -264,7 +268,6 @@ OpenABE_createContextABESchemeCCAWithATZN(OpenABE_SCHEME scheme_type) {
       new OpenABEContextSchemeCCAWithATZN(std::move(kemContextCCA)));
 }
 
-
 /*!
  * Create a new OpenABEContextPKE for a specific scheme type.
  *
@@ -274,28 +277,29 @@ OpenABE_createContextABESchemeCCAWithATZN(OpenABE_SCHEME scheme_type) {
  */
 
 OpenABEContextPKE *OpenABE_createContextPKE(unique_ptr<OpenABERNG> *rng,
-                                    OpenABE_SCHEME scheme_type) {
+                                            OpenABE_SCHEME scheme_type) {
   OpenABEContextPKE *newContext = NULL;
 
   /* Depending on the scheme, set up the context using the appropriate
    * constructor.
    * This will set appropriate function pointers within the context so the other
    * calls won't require a switch statement. */
-    switch(scheme_type) {
-    case OpenABE_SCHEME_PK_OPDH:
-      newContext = (OpenABEContextPKE *)new OpenABEContextOPDH(std::move(*rng));
-      break;
-    default:
-      // gErrorLog.log("Could not instantiate unknown scheme type", __LINE__,
-      // __FILE__);
-      newContext = NULL;
-    }
+  switch (scheme_type) {
+  case OpenABE_SCHEME_PK_OPDH:
+    newContext = (OpenABEContextPKE *)new OpenABEContextOPDH(std::move(*rng));
+    break;
+  default:
+    // gErrorLog.log("Could not instantiate unknown scheme type", __LINE__,
+    // __FILE__);
+    newContext = NULL;
+  }
 
-    return newContext;
+  return newContext;
 }
 
 /*!
- * Create a new OpenABEContextSchemePKE for a specific scheme type (includes CCA security).
+ * Create a new OpenABEContextSchemePKE for a specific scheme type (includes CCA
+ * security).
  *
  * @param[in]   the scheme type
  * @return      A pointer to the OpenABE context structure
@@ -331,9 +335,7 @@ unique_ptr<OpenABEContextSchemePKSIG> OpenABE_createContextPKSIGScheme() {
  * @return    The library version as a unsigned integer.
  */
 
-const uint32_t OpenABE_getLibraryVersion() {
-  return OpenABE_LIBRARY_VERSION;
-}
+const uint32_t OpenABE_getLibraryVersion() { return OpenABE_LIBRARY_VERSION; }
 
 /*
  * elliptic curve identifiers
@@ -422,17 +424,17 @@ const string OpenABE_convertSchemeIDToString(OpenABE_SCHEME id) {
 }
 
 OpenABE_SCHEME OpenABE_convertStringToSchemeID(const string id) {
-    if (id == OpenABE_EC_DSA) {
-        return OpenABE_SCHEME_PKSIG_ECDSA;
-    } else if (id == OpenABE_PK_ENC) {
-        return OpenABE_SCHEME_PK_OPDH;
-    } else if (id == OpenABE_CP_ABE) {
-        return OpenABE_SCHEME_CP_WATERS;
-    } else if (id == OpenABE_KP_ABE) {
-        return OpenABE_SCHEME_KP_GPSW;
-    } else {
-        return OpenABE_SCHEME_NONE;
-    }
+  if (id == OpenABE_EC_DSA) {
+    return OpenABE_SCHEME_PKSIG_ECDSA;
+  } else if (id == OpenABE_PK_ENC) {
+    return OpenABE_SCHEME_PK_OPDH;
+  } else if (id == OpenABE_CP_ABE) {
+    return OpenABE_SCHEME_CP_WATERS;
+  } else if (id == OpenABE_KP_ABE) {
+    return OpenABE_SCHEME_KP_GPSW;
+  } else {
+    return OpenABE_SCHEME_NONE;
+  }
 }
 
 string OpenABE_convertCurveIDToString(OpenABECurveID id) {
@@ -483,4 +485,4 @@ OpenABECurveID OpenABE_convertStringToCurveID(const string paramsID) {
   return curveID;
 }
 
-}
+} // namespace oabe
