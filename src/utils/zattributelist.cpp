@@ -1,21 +1,21 @@
-/// 
+///
 /// Copyright (c) 2018 Zeutro, LLC. All rights reserved.
-/// 
+///
 /// This file is part of Zeutro's OpenABE.
-/// 
+///
 /// OpenABE is free software: you can redistribute it and/or modify
 /// it under the terms of the GNU Affero General Public License as published by
 /// the Free Software Foundation, either version 3 of the License, or
 /// (at your option) any later version.
-/// 
+///
 /// OpenABE is distributed in the hope that it will be useful,
 /// but WITHOUT ANY WARRANTY; without even the implied warranty of
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 /// GNU Affero General Public License for more details.
-/// 
+///
 /// You should have received a copy of the GNU Affero General Public
 /// License along with OpenABE. If not, see <http://www.gnu.org/licenses/>.
-/// 
+///
 /// You can be released from the requirements of the GNU Affero General
 /// Public License and obtain additional features by purchasing a
 /// commercial license. Buying such a license is mandatory if you
@@ -34,13 +34,13 @@
 #define __OpenABEATTRIBUTELIST_CPP__
 
 #include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <openabe/openabe.h>
+#include <regex>
 #include <stdio.h>
 #include <stdlib.h>
-#include <iostream>
-#include <fstream>
 #include <string>
-#include <regex>
-#include <openabe/openabe.h>
 
 using namespace std;
 
@@ -63,7 +63,8 @@ OpenABEAttributeList::OpenABEAttributeList() : OpenABEFunctionInput() {
  *
  */
 
-OpenABEAttributeList::OpenABEAttributeList(uint32_t numArgs, std::vector<string> args)
+OpenABEAttributeList::OpenABEAttributeList(uint32_t numArgs,
+                                           std::vector<string> args)
     : OpenABEFunctionInput() {
   string c;
   if (numArgs != args.size())
@@ -106,7 +107,7 @@ void OpenABEAttributeList::getStringList(std::vector<string> &attrStrings) {
  */
 
 void OpenABEAttributeList::syncOrigAttributes(const string &prefix,
-                                          OpenABEAttributeList &attrList) {
+                                              OpenABEAttributeList &attrList) {
   for (auto &it : attrList.m_OriginalAttributes) {
     if (it.find(prefix) != string::npos) {
       this->m_OriginalAttributes.push_back(it);
@@ -142,14 +143,16 @@ bool OpenABEAttributeList::addAttribute(string attribute) {
     this->m_Attributes.push_back(attribute);
   } else {
     // otherwise, parse as a numerical attribute (using regex)
-    // NOTE: we already handled prefixes in first part so would be redundant here
-    std::unique_ptr<OpenABEAttributeList> attr_list = oabe::createAttributeList(ATTR_SEP + attribute);
+    // NOTE: we already handled prefixes in first part so would be redundant
+    // here
+    std::unique_ptr<OpenABEAttributeList> attr_list =
+        oabe::createAttributeList(ATTR_SEP + attribute);
     const vector<string> *m_attrs = attr_list->getAttributeList();
     const vector<string> *orig_attrs = attr_list->getOriginalAttributeList();
     if (m_attrs && orig_attrs) {
-      for (auto& a : *m_attrs)
+      for (auto &a : *m_attrs)
         this->m_Attributes.push_back(a);
-      for (auto& b : *orig_attrs)
+      for (auto &b : *orig_attrs)
         this->m_OriginalAttributes.push_back(b);
     }
   }
@@ -158,8 +161,8 @@ bool OpenABEAttributeList::addAttribute(string attribute) {
 }
 
 void OpenABEAttributeList::setAttributes(vector<string> &attr_list,
-                                     vector<string> &orig_attr_list,
-                                     set<string> &prefix_list) {
+                                         vector<string> &orig_attr_list,
+                                         set<string> &prefix_list) {
   this->m_Attributes = attr_list;
   this->m_OriginalAttributes = orig_attr_list;
   this->m_prefixSet = prefix_list;
@@ -229,16 +232,17 @@ bool OpenABEAttributeList::isEqual(ZObject *z) const {
   throw OpenABE_ERROR_INVALID_INPUT;
 }
 
-//bool OpenABEAttributeList::isNumeric(const string s) {
-//  for (size_t i = 0; i < s.size(); i++) {
-//    if (!isdigit(s[i])) {
-//      return false;
-//    }
-//  }
-//  return true;
-//}
+// bool OpenABEAttributeList::isNumeric(const string s) {
+//   for (size_t i = 0; i < s.size(); i++) {
+//     if (!isdigit(s[i])) {
+//       return false;
+//     }
+//   }
+//   return true;
+// }
 
-std::unique_ptr<OpenABEAttributeList> createAttributeList(const std::string &s) {
+std::unique_ptr<OpenABEAttributeList>
+createAttributeList(const std::string &s) {
   oabe::Driver driver(false);
   if (s.size() == 0) {
     return nullptr;
@@ -252,4 +256,4 @@ std::unique_ptr<OpenABEAttributeList> createAttributeList(const std::string &s) 
     return nullptr;
   }
 }
-}
+} // namespace oabe

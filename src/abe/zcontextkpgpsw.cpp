@@ -1,21 +1,21 @@
-/// 
+///
 /// Copyright (c) 2018 Zeutro, LLC. All rights reserved.
-/// 
+///
 /// This file is part of Zeutro's OpenABE.
-/// 
+///
 /// OpenABE is free software: you can redistribute it and/or modify
 /// it under the terms of the GNU Affero General Public License as published by
 /// the Free Software Foundation, either version 3 of the License, or
 /// (at your option) any later version.
-/// 
+///
 /// OpenABE is distributed in the hope that it will be useful,
 /// but WITHOUT ANY WARRANTY; without even the implied warranty of
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 /// GNU Affero General Public License for more details.
-/// 
+///
 /// You should have received a copy of the GNU Affero General Public
 /// License along with OpenABE. If not, see <http://www.gnu.org/licenses/>.
-/// 
+///
 /// You can be released from the requirements of the GNU Affero General
 /// Public License and obtain additional features by purchasing a
 /// commercial license. Buying such a license is mandatory if you
@@ -35,10 +35,10 @@
 
 #define __ZCONTEXTKPGPSW_CPP__
 
+#include <fstream>
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
-#include <iostream>
-#include <fstream>
 #include <string>
 
 #include <openabe/openabe.h>
@@ -56,7 +56,8 @@ namespace oabe {
  *
  */
 
-OpenABEContextKPGPSW::OpenABEContextKPGPSW(unique_ptr<OpenABERNG> rng) : OpenABEContextABE() {
+OpenABEContextKPGPSW::OpenABEContextKPGPSW(unique_ptr<OpenABERNG> rng)
+    : OpenABEContextABE() {
   this->debug = false;
   this->m_RNG_ = move(rng);
   this->algID = OpenABE_SCHEME_KP_GPSW;
@@ -74,14 +75,16 @@ OpenABEContextKPGPSW::~OpenABEContextKPGPSW() {}
  * scheme. This function takes in a specific set of pairing parameters.
  *
  * @param[in] pairingParams     - Identifier for the pairing parameters.
- * @param[in] mpkID             - Identifier to use for the new Master Public Key
- * @param[in] mskID             - Identifier to use for the new Master Secret Key
+ * @param[in] mpkID             - Identifier to use for the new Master Public
+ * Key
+ * @param[in] mskID             - Identifier to use for the new Master Secret
+ * Key
  * @return                      - An error code or OpenABE_NOERROR.
  */
 
-OpenABE_ERROR
-OpenABEContextKPGPSW::generateParams(const string pairingParams,
-                                 const string &mpkID, const string &mskID) {
+OpenABE_ERROR OpenABEContextKPGPSW::generateParams(const string pairingParams,
+                                                   const string &mpkID,
+                                                   const string &mskID) {
   OpenABE_ERROR result = OpenABE_NOERROR;
   shared_ptr<OpenABEKey> MPK = nullptr, MSK = nullptr;
   OpenABERNG *myRNG = this->getRNG();
@@ -98,8 +101,10 @@ OpenABEContextKPGPSW::generateParams(const string pairingParams,
     }
 
     // Initialize the elements of the public and secret parameters
-    MPK.reset(new OpenABEKey(this->getPairing()->getCurveID(), this->algID, mpkID));
-    MSK.reset(new OpenABEKey(this->getPairing()->getCurveID(), this->algID, mskID));
+    MPK.reset(
+        new OpenABEKey(this->getPairing()->getCurveID(), this->algID, mpkID));
+    MSK.reset(
+        new OpenABEKey(this->getPairing()->getCurveID(), this->algID, mskID));
 
     // Select random generators g1 \in G1 and g2 \in G2
     G1 g1 = this->getPairing()->randomG1(myRNG);
@@ -130,7 +135,6 @@ OpenABEContextKPGPSW::generateParams(const string pairingParams,
   return result;
 }
 
-
 /*!
  * Generate a decryption key for a given function input. This function
  * requires that the master secret parameters are available.
@@ -138,12 +142,12 @@ OpenABEContextKPGPSW::generateParams(const string pairingParams,
  * @param[in] mpkID     - parameter ID of the Master Public Key
  * @param[in] mskID     - parameter ID of the Master Secret Key
  * @param[in] keyID     - parameter ID of the decryption key to be created
- * @param[in] keyInput  - A OpenABEPolicy structure for the key to be constructed
+ * @param[in] keyInput  - A OpenABEPolicy structure for the key to be
+ * constructed
  * @return              - An error code or OpenABE_NOERROR.
  */
 
-OpenABE_ERROR
-OpenABEContextKPGPSW::generateDecryptionKey(
+OpenABE_ERROR OpenABEContextKPGPSW::generateDecryptionKey(
     OpenABEFunctionInput *keyInput, const string &keyID, const string &mpkID,
     const string &mskID, const string &gpkID = "", const string &GID = "") {
   OpenABE_ERROR result = OpenABE_NOERROR;
@@ -156,7 +160,7 @@ OpenABEContextKPGPSW::generateDecryptionKey(
     // Ensure that the given input is a OpenABEPolicy
     if ((policy = dynamic_cast<OpenABEPolicy *>(keyInput)) == nullptr) {
       OpenABE_LOG_AND_THROW("Encryption input must be a Policy",
-                        OpenABE_ERROR_INVALID_INPUT);
+                            OpenABE_ERROR_INVALID_INPUT);
     }
 
     // Load the master secret and public key
@@ -216,12 +220,10 @@ OpenABEContextKPGPSW::generateDecryptionKey(
  * @return  An error code or OpenABE_NOERROR.
  */
 
-OpenABE_ERROR
-OpenABEContextKPGPSW::encryptKEM(OpenABERNG *rng, const string &mpkID,
-                             const OpenABEFunctionInput *encryptInput,
-                             uint32_t keyByteLen,
-                             const std::shared_ptr<OpenABESymKey> &key,
-                             OpenABECiphertext *ciphertext) {
+OpenABE_ERROR OpenABEContextKPGPSW::encryptKEM(
+    OpenABERNG *rng, const string &mpkID,
+    const OpenABEFunctionInput *encryptInput, uint32_t keyByteLen,
+    const std::shared_ptr<OpenABESymKey> &key, OpenABECiphertext *ciphertext) {
   OpenABE_ERROR result = OpenABE_NOERROR;
   OpenABERNG *myRNG = this->getRNG();
   shared_ptr<OpenABEKey> MPK = nullptr;
@@ -242,12 +244,12 @@ OpenABEContextKPGPSW::encryptKEM(OpenABERNG *rng, const string &mpkID,
         dynamic_cast<const OpenABEAttributeList *>(encryptInput);
     if (attrList == nullptr) {
       OpenABE_LOG_AND_THROW("Encryption input must be a Policy",
-                        OpenABE_ERROR_INVALID_INPUT);
+                            OpenABE_ERROR_INVALID_INPUT);
     }
     // Load the master public key
     if ((MPK = this->getKeystore()->getPublicKey(mpkID)) == nullptr) {
       OpenABE_LOG_AND_THROW("Could not get master public params",
-                        OpenABE_ERROR_INVALID_PARAMS);
+                            OpenABE_ERROR_INVALID_PARAMS);
     }
     // Retrieve the hash function key prefix
     k = MPK->getByteString("k");
@@ -295,10 +297,9 @@ OpenABEContextKPGPSW::encryptKEM(OpenABERNG *rng, const string &mpkID,
  * @return  An error code or OpenABE_NOERROR.
  */
 
-OpenABE_ERROR
-OpenABEContextKPGPSW::decryptKEM(const string &mpkID, const string &keyID,
-                             OpenABECiphertext *ciphertext, uint32_t keyByteLen,
-                             const std::shared_ptr<OpenABESymKey> &key) {
+OpenABE_ERROR OpenABEContextKPGPSW::decryptKEM(
+    const string &mpkID, const string &keyID, OpenABECiphertext *ciphertext,
+    uint32_t keyByteLen, const std::shared_ptr<OpenABESymKey> &key) {
   OpenABE_ERROR result = OpenABE_NOERROR;
   OpenABERNG *myRNG = this->getRNG();
 
@@ -366,4 +367,4 @@ OpenABEContextKPGPSW::decryptKEM(const string &mpkID, const string &keyID,
   return result;
 }
 
-}
+} // namespace oabe
