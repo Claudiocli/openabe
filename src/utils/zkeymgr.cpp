@@ -57,9 +57,8 @@ OpenABEKeystoreManager::~OpenABEKeystoreManager() {
   keyPassphrase_.clear();
 }
 
-void OpenABEKeystoreManager::setPassphrase(const std::string &programId,
-                                           const std::string &userId,
-                                           const std::string &passphrase) {
+void OpenABEKeystoreManager::setPassphrase(const std::string& programId, const std::string& userId,
+                                           const std::string& passphrase) {
   keyPassphrase_[userId] = passphrase;
   activeUsers_[userId] = programId;
 }
@@ -68,11 +67,9 @@ map<string, string> OpenABEKeystoreManager::getActiveUsers() {
   return activeUsers_;
 }
 
-bool OpenABEKeystoreManager::storeWithKeyIDCommand(const string &userId,
-                                                   const std::string keyID,
-                                                   OpenABEByteString &keyBlob,
-                                                   uint64_t keyExpireDate,
-                                                   bool canCacheKey) {
+bool OpenABEKeystoreManager::storeWithKeyIDCommand(const string& userId, const std::string keyID,
+                                                   OpenABEByteString& keyBlob,
+                                                   uint64_t keyExpireDate, bool canCacheKey) {
   OpenABEMetadata metadata(new _OpenABEMetadata);
   OpenABEByteString origBlob = keyBlob, outputKeyBytes;
   // parse the header first
@@ -107,8 +104,7 @@ bool OpenABEKeystoreManager::storeWithKeyIDCommand(const string &userId,
     for (auto it = keyMetadata_.begin(); it != keyMetadata_.end(); it++) {
       funcInputStr = it->second->input->toCompactString();
       if (funcInputStr.compare(funcInputStrNew) == 0 // same func input & type
-          &&
-          keyInput->getFunctionType() == it->second->input->getFunctionType() &&
+          && keyInput->getFunctionType() == it->second->input->getFunctionType() &&
           userId.compare(it->second->userId) == 0) {
         foundAnExistingKey = true;
         break;
@@ -135,17 +131,18 @@ bool OpenABEKeystoreManager::storeWithKeyIDCommand(const string &userId,
   return false;
 }
 
-const string OpenABEKeystoreManager::storeWithKeyPrefixCommand(
-    const string &userId, const string keyPrefix, OpenABEByteString &keyBlob,
-    uint64_t keyExpireDate, bool canCacheKey) {
+const string OpenABEKeystoreManager::storeWithKeyPrefixCommand(const string& userId,
+                                                               const string keyPrefix,
+                                                               OpenABEByteString& keyBlob,
+                                                               uint64_t keyExpireDate,
+                                                               bool canCacheKey) {
   // choose new key ID based on some user-defined prefix
   std::lock_guard<std::mutex> lock(ks_lock_);
 
   if (keyCounter_.count(userId) == 0)
     keyCounter_[userId] = 0;
   const string keyID = keyPrefix + to_string(keyCounter_[userId]);
-  if (storeWithKeyIDCommand(userId, keyID, keyBlob, keyExpireDate,
-                            canCacheKey)) {
+  if (storeWithKeyIDCommand(userId, keyID, keyBlob, keyExpireDate, canCacheKey)) {
     // increment the key counter
     // currentKeyCounter++;
     int key_count = ((keyCounter_[userId] + 1) % MAX_KEYS_PER_USER);
@@ -157,19 +154,18 @@ const string OpenABEKeystoreManager::storeWithKeyPrefixCommand(
   return "";
 }
 
-int OpenABEKeystoreManager::getUserKeyCount(const std::string &userId) {
+int OpenABEKeystoreManager::getUserKeyCount(const std::string& userId) {
   return keyCounter_[userId];
 }
 
-pair<string, OpenABEByteString>
-OpenABEKeystoreManager::getKeyCommand(const string &userId,
-                                      const string &keyID) {
+pair<string, OpenABEByteString> OpenABEKeystoreManager::getKeyCommand(const string& userId,
+                                                                      const string& keyID) {
   OpenABEByteString keyBlob;
   string funcInput = "";
   std::lock_guard<std::mutex> lock(ks_lock_);
 
   if (keyMetadata_.count(keyID) != 0) {
-    auto &keyMd = keyMetadata_[keyID];
+    auto& keyMd = keyMetadata_[keyID];
     if (keyMd->userId.compare(userId) == 0) {
       keyBlob = keyMd->keyBlob;
       funcInput = keyMd->input->toCompactString();
@@ -178,9 +174,8 @@ OpenABEKeystoreManager::getKeyCommand(const string &userId,
   return make_pair(funcInput, keyBlob);
 }
 
-vector<string>
-OpenABEKeystoreManager::filterKeys(const string &userId,
-                                   OpenABEFunctionInputType type) {
+vector<string> OpenABEKeystoreManager::filterKeys(const string& userId,
+                                                  OpenABEFunctionInputType type) {
   vector<string> keyList;
   OpenABEFunctionInputType target_type;
   OpenABEMetadata tmp;
@@ -211,8 +206,7 @@ OpenABEKeystoreManager::filterKeys(const string &userId,
   return keyList;
 }
 
-vector<string> OpenABEKeystoreManager::getKeyIds(const std::string &userId,
-                                                 uint64_t currentTime) {
+vector<string> OpenABEKeystoreManager::getKeyIds(const std::string& userId, uint64_t currentTime) {
   vector<string> keyList;
   OpenABEMetadata tmp;
 
@@ -233,33 +227,29 @@ vector<string> OpenABEKeystoreManager::getKeyIds(const std::string &userId,
   return keyList;
 }
 
-void OpenABEKeystoreManager::rankKeyAlgorithm(vector<string> &keyIDs,
-                                              OpenABEKeyQuery *query) {
+void OpenABEKeystoreManager::rankKeyAlgorithm(vector<string>& keyIDs, OpenABEKeyQuery* query) {
   /* do nothing for now */
   return;
 }
 
 struct key_ref_compare {
-  bool operator()(const std::pair<string, int> &left,
-                  const std::pair<string, int> &right) {
+  bool operator()(const std::pair<string, int>& left, const std::pair<string, int>& right) {
     return (left.second < right.second);
   }
 };
 
-pair<bool, int>
-OpenABEKeystoreManager::testAKey(OpenABEMetadata &key,
-                                 OpenABEFunctionInput *funcInput) {
-  OpenABEPolicy *policy = nullptr;
-  OpenABEAttributeList *attr_list = nullptr;
+pair<bool, int> OpenABEKeystoreManager::testAKey(OpenABEMetadata& key,
+                                                 OpenABEFunctionInput* funcInput) {
+  OpenABEPolicy* policy = nullptr;
+  OpenABEAttributeList* attr_list = nullptr;
   ASSERT_NOTNULL(funcInput);
-  if (key->inputType == FUNC_ATTRLIST_INPUT &&
-      funcInput->getFunctionType() == FUNC_POLICY_INPUT) {
-    policy = (OpenABEPolicy *)funcInput;
-    attr_list = (OpenABEAttributeList *)key->input.get();
+  if (key->inputType == FUNC_ATTRLIST_INPUT && funcInput->getFunctionType() == FUNC_POLICY_INPUT) {
+    policy = (OpenABEPolicy*)funcInput;
+    attr_list = (OpenABEAttributeList*)key->input.get();
   } else if (key->inputType == FUNC_POLICY_INPUT &&
              funcInput->getFunctionType() == FUNC_ATTRLIST_INPUT) {
-    policy = (OpenABEPolicy *)key->input.get();
-    attr_list = (OpenABEAttributeList *)funcInput;
+    policy = (OpenABEPolicy*)key->input.get();
+    attr_list = (OpenABEAttributeList*)funcInput;
   } else {
     /* throw an error - invalid input on either key or ciphertext (most likely
      * ciphertext) */
@@ -268,16 +258,14 @@ OpenABEKeystoreManager::testAKey(OpenABEMetadata &key,
   return checkIfSatisfied(policy, attr_list);
 }
 
-const std::string
-OpenABEKeystoreManager::searchKeyCommand(OpenABEKeyQuery *query,
-                                         OpenABEFunctionInput *func_input) {
+const std::string OpenABEKeystoreManager::searchKeyCommand(OpenABEKeyQuery* query,
+                                                           OpenABEFunctionInput* func_input) {
   // call search key on the functional input
   std::lock_guard<std::mutex> lock(ks_lock_);
   return searchKey(query, func_input);
 }
 
-vector<std::string>
-OpenABEKeystoreManager::deleteKeyCommand(OpenABEKeyQuery *query) {
+vector<std::string> OpenABEKeystoreManager::deleteKeyCommand(OpenABEKeyQuery* query) {
   ASSERT_NOTNULL(query);
   vector<std::string> keyList;
 
@@ -292,8 +280,7 @@ OpenABEKeystoreManager::deleteKeyCommand(OpenABEKeyQuery *query) {
     // delete user from active user list
     this->activeUsers_.erase(query->userId);
   } else {
-    throw runtime_error(
-        "OpenABEKeystoreManager::deleteKeyCommand: invalid delete query.");
+    throw runtime_error("OpenABEKeystoreManager::deleteKeyCommand: invalid delete query.");
   }
 
   for (size_t i = 0; i < keyList.size(); i++) {
@@ -304,16 +291,14 @@ OpenABEKeystoreManager::deleteKeyCommand(OpenABEKeyQuery *query) {
   return keyList;
 }
 
-const string
-OpenABEKeystoreManager::searchKey(OpenABEKeyQuery *query,
-                                  OpenABEFunctionInput *funcInput) {
+const string OpenABEKeystoreManager::searchKey(OpenABEKeyQuery* query,
+                                               OpenABEFunctionInput* funcInput) {
   ASSERT_NOTNULL(query);
   ASSERT_NOTNULL(funcInput);
   vector<KeyRef> satKeys;
   // initial set of keys that are available that could satisfy the input
   // ciphertext
-  vector<string> keyRefs =
-      filterKeys(query->userId, funcInput->getFunctionType());
+  vector<string> keyRefs = filterKeys(query->userId, funcInput->getFunctionType());
   // rank/sort keys based on the contents of the query
   rankKeyAlgorithm(keyRefs, query);
   // test and evaluat each key
@@ -348,7 +333,7 @@ OpenABEKeystoreManager::searchKey(OpenABEKeyQuery *query,
  * OpenABEKeystoreManager utility methods for ciphertexts and keys
  ********************************************************************************/
 
-OpenABEFunctionInputType getFunctionInputType(OpenABEKey *key) {
+OpenABEFunctionInputType getFunctionInputType(OpenABEKey* key) {
   OpenABE_SCHEME scheme_type = OpenABE_getSchemeID(key->getAlgorithmID());
   // check the scheme type
   switch (scheme_type) {
@@ -370,10 +355,10 @@ OpenABEFunctionInputType getFunctionInputType(OpenABEKey *key) {
  * NOTE: caller is responsible for deleting memory associated with
  * OpenABEFunctionInput
  */
-unique_ptr<OpenABEFunctionInput> getFunctionInput(OpenABEKey *key) {
+unique_ptr<OpenABEFunctionInput> getFunctionInput(OpenABEKey* key) {
   OpenABE_SCHEME scheme_type = OpenABE_getSchemeID(key->getAlgorithmID());
-  OpenABEByteString *policy_str = NULL;
-  OpenABEAttributeList *attrList = NULL;
+  OpenABEByteString* policy_str = NULL;
+  OpenABEAttributeList* attrList = NULL;
   unique_ptr<OpenABEPolicy> policy = nullptr;
 
   // check the scheme type
@@ -381,7 +366,7 @@ unique_ptr<OpenABEFunctionInput> getFunctionInput(OpenABEKey *key) {
   case OpenABE_SCHEME_CP_WATERS:
   case OpenABE_SCHEME_CP_WATERS_CCA:
     // attributes are on the key for CP-ABE
-    attrList = (OpenABEAttributeList *)key->getComponent("input");
+    attrList = (OpenABEAttributeList*)key->getComponent("input");
     ASSERT_NOTNULL(attrList);
     return createAttributeList(attrList->toCompactString());
     break;

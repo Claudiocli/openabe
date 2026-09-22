@@ -52,8 +52,7 @@ namespace oabe {
  *
  */
 
-OpenABEFunctionInput::OpenABEFunctionInput()
-    : ZObject(), m_Type(FUNC_INVALID_INPUT) {}
+OpenABEFunctionInput::OpenABEFunctionInput() : ZObject(), m_Type(FUNC_INVALID_INPUT) {}
 
 /*!
  * Destructor for the OpenABEFunctionInput class.
@@ -62,14 +61,13 @@ OpenABEFunctionInput::OpenABEFunctionInput()
 
 OpenABEFunctionInput::~OpenABEFunctionInput() {}
 
-unique_ptr<OpenABEFunctionInput>
-copyFunctionInput(const OpenABEFunctionInput &input) {
+unique_ptr<OpenABEFunctionInput> copyFunctionInput(const OpenABEFunctionInput& input) {
   unique_ptr<OpenABEFunctionInput> funcInput = nullptr;
   if (input.getFunctionType() == FUNC_POLICY_INPUT) {
-    OpenABEPolicy *policy = (OpenABEPolicy *)&input;
+    OpenABEPolicy* policy = (OpenABEPolicy*)&input;
     funcInput.reset(policy->clone());
   } else if (input.getFunctionType() == FUNC_ATTRLIST_INPUT) {
-    OpenABEAttributeList *attrs = (OpenABEAttributeList *)&input;
+    OpenABEAttributeList* attrs = (OpenABEAttributeList*)&input;
     funcInput.reset(attrs->clone());
   } else {
     return nullptr;
@@ -78,12 +76,11 @@ copyFunctionInput(const OpenABEFunctionInput &input) {
   return funcInput;
 }
 
-unique_ptr<OpenABEFunctionInput>
-getFunctionInput(OpenABECiphertext *ciphertext) {
+unique_ptr<OpenABEFunctionInput> getFunctionInput(OpenABECiphertext* ciphertext) {
   ASSERT_NOTNULL(ciphertext);
   OpenABE_SCHEME scheme_type = ciphertext->getSchemeType();
-  OpenABEByteString *policy_str = NULL;
-  OpenABEAttributeList *attrList = NULL;
+  OpenABEByteString* policy_str = NULL;
+  OpenABEAttributeList* attrList = NULL;
 
   // check the scheme type
   switch (scheme_type) {
@@ -91,15 +88,13 @@ getFunctionInput(OpenABECiphertext *ciphertext) {
   case OpenABE_SCHEME_CP_WATERS_CCA:
     policy_str = ciphertext->getByteString("policy");
     ASSERT_NOTNULL(policy_str);
-    return unique_ptr<OpenABEFunctionInput>(
-        createPolicyTree(policy_str->toString()));
+    return unique_ptr<OpenABEFunctionInput>(createPolicyTree(policy_str->toString()));
     break;
   case OpenABE_SCHEME_KP_GPSW:
   case OpenABE_SCHEME_KP_GPSW_CCA:
-    attrList = (OpenABEAttributeList *)ciphertext->getComponent("attributes");
+    attrList = (OpenABEAttributeList*)ciphertext->getComponent("attributes");
     ASSERT_NOTNULL(attrList);
-    return unique_ptr<OpenABEFunctionInput>(
-        createAttributeList(attrList->toCompactString()));
+    return unique_ptr<OpenABEFunctionInput>(createAttributeList(attrList->toCompactString()));
     break;
   default:
     break;

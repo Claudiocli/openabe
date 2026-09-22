@@ -66,7 +66,7 @@ OpenABEPKey::OpenABEPKey(bool isPrivate) : OpenABEKey() {
  * For a private key, the EVP_PKEY is duplicated as-is.
  * For a public key, only the public portion is extracted via a PEM round-trip.
  */
-OpenABEPKey::OpenABEPKey(EVP_PKEY *evp_key, bool isPrivate) : OpenABEKey() {
+OpenABEPKey::OpenABEPKey(EVP_PKEY* evp_key, bool isPrivate) : OpenABEKey() {
   this->pkey = NULL;
   this->isPrivate = isPrivate;
 
@@ -81,7 +81,7 @@ OpenABEPKey::OpenABEPKey(EVP_PKEY *evp_key, bool isPrivate) : OpenABEKey() {
   } else {
     // Extract only the public portion by serialising to PEM and reading back
     // as a public key. This strips any private key material.
-    BIO *bio = BIO_new(BIO_s_mem());
+    BIO* bio = BIO_new(BIO_s_mem());
     if (!bio) {
       throw OpenABE_ERROR_ELEMENT_NOT_INITIALIZED;
     }
@@ -110,9 +110,9 @@ OpenABEPKey::~OpenABEPKey() {
   }
 }
 
-OpenABE_ERROR OpenABEPKey::exportKeyToBytes(OpenABEByteString &output) {
+OpenABE_ERROR OpenABEPKey::exportKeyToBytes(OpenABEByteString& output) {
   OpenABE_ERROR result = OpenABE_ERROR_INVALID_INPUT;
-  BIO *pkey_out = nullptr;
+  BIO* pkey_out = nullptr;
   string pkey_text, s;
   stringstream ss;
 
@@ -125,8 +125,7 @@ OpenABE_ERROR OpenABEPKey::exportKeyToBytes(OpenABEByteString &output) {
 
   if (this->isPrivate) {
     // write private key
-    if (!PEM_write_bio_PKCS8PrivateKey(pkey_out, this->pkey, NULL, NULL, 0,
-                                       NULL, NULL)) {
+    if (!PEM_write_bio_PKCS8PrivateKey(pkey_out, this->pkey, NULL, NULL, 0, NULL, NULL)) {
       goto out;
     }
   } else {
@@ -154,13 +153,13 @@ out:
   return result;
 }
 
-OpenABE_ERROR OpenABEPKey::loadKeyFromBytes(OpenABEByteString &input) {
+OpenABE_ERROR OpenABEPKey::loadKeyFromBytes(OpenABEByteString& input) {
   OpenABE_ERROR result = OpenABE_NOERROR;
-  BIO *bio = NULL;
+  BIO* bio = NULL;
 
   // cout << "Serialized Key:\n" << input.toString() << endl;
 
-  bio = BIO_new_mem_buf((void *)input.getInternalPtr(), input.size());
+  bio = BIO_new_mem_buf((void*)input.getInternalPtr(), input.size());
   if (!bio) {
     result = OpenABE_ERROR_INVALID_INPUT;
     goto out;
@@ -191,14 +190,14 @@ out:
   return result;
 }
 
-bool OpenABEPKey::bioToString(string &s, BIO *bio) {
+bool OpenABEPKey::bioToString(string& s, BIO* bio) {
   bool result = false;
   char buf[512];
   int rc;
 
   s.clear();
   while ((rc = BIO_read(bio, buf, sizeof(buf))) > 0) {
-    char *end = buf;
+    char* end = buf;
     end += rc;
     s.append(buf, end);
   }

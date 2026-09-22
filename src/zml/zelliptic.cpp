@@ -53,7 +53,7 @@ namespace oabe {
  * @return The pairing object or NULL
  */
 
-OpenABEEllipticCurve *OpenABE_createNewEllipticCurve(const string &ecParams) {
+OpenABEEllipticCurve* OpenABE_createNewEllipticCurve(const string& ecParams) {
   return new OpenABEEllipticCurve(ecParams);
 }
 
@@ -135,7 +135,7 @@ int OpenABE_convertCurveIDToNID(OpenABECurveID id) {
  * Constructor for the OpenABEEllipticCurve base class.
  *
  */
-OpenABEEllipticCurve::OpenABEEllipticCurve(const string &ecParams) : ZObject() {
+OpenABEEllipticCurve::OpenABEEllipticCurve(const string& ecParams) : ZObject() {
   AssertLibInit();
   // Look up the EC parameters (throws an error if not valid)
   OpenABECurveID id = OpenABE_convertStringToCurveID(ecParams);
@@ -149,8 +149,7 @@ OpenABEEllipticCurve::OpenABEEllipticCurve(const string &ecParams) : ZObject() {
  *
  */
 
-OpenABEEllipticCurve::OpenABEEllipticCurve(const OpenABEEllipticCurve &copyFrom)
-    : ZObject() {
+OpenABEEllipticCurve::OpenABEEllipticCurve(const OpenABEEllipticCurve& copyFrom) : ZObject() {
   AssertLibInit();
   this->ecParams = copyFrom.getECParams();
 
@@ -172,7 +171,9 @@ OpenABEEllipticCurve::~OpenABEEllipticCurve() {}
  * @return Curve parameter string
  */
 
-string OpenABEEllipticCurve::getECParams() const { return this->ecParams; }
+string OpenABEEllipticCurve::getECParams() const {
+  return this->ecParams;
+}
 
 /*!
  * Return the elliptic curve parameter ID.
@@ -196,7 +197,7 @@ ZP_t OpenABEEllipticCurve::initZP() {
  *
  * @return group element in ZP
  */
-ZP_t OpenABEEllipticCurve::randomZP(OpenABERNG *rng) {
+ZP_t OpenABEEllipticCurve::randomZP(OpenABERNG* rng) {
   ZP_t result;
   this->getGroupOrder(result.order);
   result.isOrderSet = true;
@@ -241,7 +242,7 @@ void OpenABEEllipticCurve::getGroupOrder(bignum_t o) {
  *
  * @return Success or failure.
  */
-bool OpenABEEllipticCurve::isAtInfinity(G_t &point) {
+bool OpenABEEllipticCurve::isAtInfinity(G_t& point) {
   if (ec_point_is_inf(GET_GROUP(this->ecgroup), point.m_G) == 1) {
     return true;
   }
@@ -253,7 +254,7 @@ bool OpenABEEllipticCurve::isAtInfinity(G_t &point) {
  *
  * @return Success or failure.
  */
-bool OpenABEEllipticCurve::isOnCurve(G_t &point) {
+bool OpenABEEllipticCurve::isOnCurve(G_t& point) {
   if (ec_point_is_on_curve(GET_GROUP(this->ecgroup), point.m_G)) {
     return true;
   }

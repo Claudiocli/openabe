@@ -54,21 +54,20 @@ OpenABERNG::~OpenABERNG() {}
  * Implementation of the OpenABEPRNG class
  ********************************************************************************/
 
-static void AesEvpBlockEncrypt(const EVP_CIPHER *cipher, const uint8_t *key,
-                               const uint8_t *pl_ptr, uint8_t *ct_ptr,
-                               size_t pl_len) {
+static void AesEvpBlockEncrypt(const EVP_CIPHER* cipher, const uint8_t* key, const uint8_t* pl_ptr,
+                               uint8_t* ct_ptr, size_t pl_len) {
   ASSERT_NOTNULL(cipher);
-  EVP_CIPHER_CTX *ctx = nullptr;
+  EVP_CIPHER_CTX* ctx = nullptr;
   ctx = EVP_CIPHER_CTX_new();
   EVP_CIPHER_CTX_set_padding(ctx, false);
   // note that cipher AND key must be in sync (key len should be appropriate
   // input size of cipher (e.g., 128-bits by default)
-  EVP_EncryptInit_ex(ctx, cipher, NULL, (uint8_t *)key, NULL);
+  EVP_EncryptInit_ex(ctx, cipher, NULL, (uint8_t*)key, NULL);
 
   int olen = 512, tmp_len = 0, out_len = 0;
   uint8_t out[olen];
   memset(out, 0, olen);
-  EVP_EncryptUpdate(ctx, out, &tmp_len, (uint8_t *)pl_ptr, (int)pl_len);
+  EVP_EncryptUpdate(ctx, out, &tmp_len, (uint8_t*)pl_ptr, (int)pl_len);
 
   // with padding disabled, EVP_EncryptFinal_ex emits 0 bytes: the whole
   // block is produced by EVP_EncryptUpdate (tmp_len)
@@ -78,10 +77,9 @@ static void AesEvpBlockEncrypt(const EVP_CIPHER *cipher, const uint8_t *key,
   EVP_CIPHER_CTX_free(ctx);
 }
 
-static void AES_ECB(const uint8_t *key, const uint8_t *plaintext,
-                    uint8_t *ciphertext, size_t len) {
+static void AES_ECB(const uint8_t* key, const uint8_t* plaintext, uint8_t* ciphertext, size_t len) {
   // make sure key and plaintext are of sufficient length
-  const EVP_CIPHER *cipher = EVP_aes_256_ecb();
+  const EVP_CIPHER* cipher = EVP_aes_256_ecb();
   AesEvpBlockEncrypt(cipher, key, plaintext, ciphertext, len);
 }
 
@@ -92,15 +90,14 @@ static void AES_ECB(const uint8_t *key, const uint8_t *plaintext,
 //     AesEvpBlockEncrypt(EVP_aes_256_ctr(), key, plaintext, len);
 // }
 
-static void initCtrDrbgContext(OpenABECtrDrbg &ctx, uint8_t *key,
-                               size_t key_len) {
+static void initCtrDrbgContext(OpenABECtrDrbg& ctx, uint8_t* key, size_t key_len) {
   memcpy(ctx->key, key, key_len);
   OpenABEZeroize(ctx->counter, AES_BLOCK_SIZE);
   ctx->reseed_counter = 0;
   ctx->reseed_interval = OpenABE_CTR_DRBG_RESEED_INTERVAL;
 }
 
-static void clearCtrDrbgContext(OpenABECtrDrbg &ctx) {
+static void clearCtrDrbgContext(OpenABECtrDrbg& ctx) {
   OpenABEZeroize(ctx->key, OpenABE_CTR_DRBG_KEYSIZE_BYTES);
   OpenABEZeroize(ctx->counter, AES_BLOCK_SIZE);
   ctx->reseed_counter = 0;
@@ -109,10 +106,9 @@ static void clearCtrDrbgContext(OpenABECtrDrbg &ctx) {
   ctx->entropy_callback = NULL;
 }
 
-int ctr_drbg_seed_entropy_len(OpenABECtrDrbg &ctx,
-                              int (*entropy_callback)(void *, unsigned char *,
-                                                      size_t),
-                              void *entropy_src, const uint8_t *person_string,
+int ctr_drbg_seed_entropy_len(OpenABECtrDrbg& ctx,
+                              int (*entropy_callback)(void*, unsigned char*, size_t),
+                              void* entropy_src, const uint8_t* person_string,
                               size_t person_string_len, size_t entropy_len) {
   int result;
 
@@ -138,10 +134,8 @@ int ctr_drbg_seed_entropy_len(OpenABECtrDrbg &ctx,
 //     cout << msg << tmp_buf.toLowerHex() << endl;
 // }
 
-static int block_cipher_df(uint8_t *output, const uint8_t *data,
-                           size_t data_len) {
-  constexpr int max_buf_len =
-      OpenABE_CTR_DRBG_MAX_SEED_INPUT + OpenABE_CTR_DRBG_BLOCKSIZE + 16;
+static int block_cipher_df(uint8_t* output, const uint8_t* data, size_t data_len) {
+  constexpr int max_buf_len = OpenABE_CTR_DRBG_MAX_SEED_INPUT + OpenABE_CTR_DRBG_BLOCKSIZE + 16;
   uint8_t buf[max_buf_len];
   uint8_t tmp[OpenABE_CTR_DRBG_SEEDLEN];
   uint8_t key[OpenABE_CTR_DRBG_KEYSIZE_BYTES];
@@ -187,9 +181,7 @@ static int block_cipher_df(uint8_t *output, const uint8_t *data,
       for (i = 0; i < OpenABE_CTR_DRBG_BLOCKSIZE; i++)
         chain[i] ^= p[i];
       p += OpenABE_CTR_DRBG_BLOCKSIZE;
-      use_len -= (use_len >= OpenABE_CTR_DRBG_BLOCKSIZE)
-                     ? OpenABE_CTR_DRBG_BLOCKSIZE
-                     : use_len;
+      use_len -= (use_len >= OpenABE_CTR_DRBG_BLOCKSIZE) ? OpenABE_CTR_DRBG_BLOCKSIZE : use_len;
       // Block encrypt
       AES_ECB(key, chain, chain, OpenABE_CTR_DRBG_BLOCKSIZE);
     }
@@ -214,10 +206,9 @@ static int block_cipher_df(uint8_t *output, const uint8_t *data,
   return 0;
 }
 
-static int update_internal(OpenABECtrDrbg &ctx,
-                           const uint8_t data[OpenABE_CTR_DRBG_SEEDLEN]) {
+static int update_internal(OpenABECtrDrbg& ctx, const uint8_t data[OpenABE_CTR_DRBG_SEEDLEN]) {
   unsigned char tmp[OpenABE_CTR_DRBG_SEEDLEN];
-  unsigned char *p = tmp;
+  unsigned char* p = tmp;
   size_t i, j;
 
   memset(tmp, 0, OpenABE_CTR_DRBG_SEEDLEN);
@@ -239,14 +230,12 @@ static int update_internal(OpenABECtrDrbg &ctx,
 
   // Update key and counter
   memcpy(ctx->key, tmp, OpenABE_CTR_DRBG_KEYSIZE_BYTES);
-  memcpy(ctx->counter, tmp + OpenABE_CTR_DRBG_KEYSIZE_BYTES,
-         OpenABE_CTR_DRBG_BLOCKSIZE);
+  memcpy(ctx->counter, tmp + OpenABE_CTR_DRBG_KEYSIZE_BYTES, OpenABE_CTR_DRBG_BLOCKSIZE);
 
   return 0;
 }
 
-void ctr_drbg_update(OpenABECtrDrbg &ctx, const uint8_t *additional,
-                     size_t add_len) {
+void ctr_drbg_update(OpenABECtrDrbg& ctx, const uint8_t* additional, size_t add_len) {
   uint8_t add_input[OpenABE_CTR_DRBG_SEEDLEN];
 
   if (add_len > 0) {
@@ -259,8 +248,7 @@ void ctr_drbg_update(OpenABECtrDrbg &ctx, const uint8_t *additional,
   }
 }
 
-int ctr_drbg_reseed(OpenABECtrDrbg &ctx, const uint8_t *additional,
-                    size_t len) {
+int ctr_drbg_reseed(OpenABECtrDrbg& ctx, const uint8_t* additional, size_t len) {
   uint8_t seed[OpenABE_CTR_DRBG_MAX_SEED_INPUT];
   size_t seedlen = 0;
   // make sure entropy len is less than max input
@@ -288,26 +276,23 @@ int ctr_drbg_reseed(OpenABECtrDrbg &ctx, const uint8_t *additional,
   return 0;
 }
 
-int ctr_drbg_init_seed(OpenABECtrDrbg &ctx,
-                       int (*entropy_callback)(void *, uint8_t *, size_t),
-                       OpenABEByteString &entropy_source_buf,
-                       const uint8_t *nonce, size_t nonce_len) {
+int ctr_drbg_init_seed(OpenABECtrDrbg& ctx, int (*entropy_callback)(void*, uint8_t*, size_t),
+                       OpenABEByteString& entropy_source_buf, const uint8_t* nonce,
+                       size_t nonce_len) {
   // make sure entropy_source_buf is right length
   if (entropy_source_buf.size() < OpenABE_CTR_DRBG_ENTROPYLEN) {
     throw OpenABE_ERROR_INVALID_LENGTH;
   }
-  return ctr_drbg_seed_entropy_len(
-      ctx, entropy_callback, (uint8_t *)entropy_source_buf.getInternalPtr(),
-      nonce, nonce_len, OpenABE_CTR_DRBG_ENTROPYLEN);
+  return ctr_drbg_seed_entropy_len(ctx, entropy_callback,
+                                   (uint8_t*)entropy_source_buf.getInternalPtr(), nonce, nonce_len,
+                                   OpenABE_CTR_DRBG_ENTROPYLEN);
 }
 
-int ctr_drbg_generate_random_with_add(OpenABECtrDrbg &ctx, uint8_t *output,
-                                      size_t output_len,
-                                      const uint8_t *additional,
-                                      size_t add_len) {
+int ctr_drbg_generate_random_with_add(OpenABECtrDrbg& ctx, uint8_t* output, size_t output_len,
+                                      const uint8_t* additional, size_t add_len) {
   int ret = 0;
   uint8_t add_input[OpenABE_CTR_DRBG_SEEDLEN];
-  uint8_t *p = output;
+  uint8_t* p = output;
   uint8_t tmp[OpenABE_CTR_DRBG_BLOCKSIZE];
   int i;
   size_t use_len;
@@ -342,9 +327,7 @@ int ctr_drbg_generate_random_with_add(OpenABECtrDrbg &ctx, uint8_t *output,
     }
     // Block_encrypt
     AES_ECB(ctx->key, ctx->counter, tmp, OpenABE_CTR_DRBG_BLOCKSIZE);
-    use_len = (output_len > OpenABE_CTR_DRBG_BLOCKSIZE)
-                  ? OpenABE_CTR_DRBG_BLOCKSIZE
-                  : output_len;
+    use_len = (output_len > OpenABE_CTR_DRBG_BLOCKSIZE) ? OpenABE_CTR_DRBG_BLOCKSIZE : output_len;
     // Copy random block to destination
     memcpy(p, tmp, use_len);
     p += use_len;
@@ -357,19 +340,16 @@ int ctr_drbg_generate_random_with_add(OpenABECtrDrbg &ctx, uint8_t *output,
   return 0;
 }
 
-OpenABECtrDrbgContext::OpenABECtrDrbgContext(OpenABEByteString &entropy) {
+OpenABECtrDrbgContext::OpenABECtrDrbgContext(OpenABEByteString& entropy) {
   ctx_.reset(new OpenABECtrDrbg_);
-  ASSERT(entropy.size() >= OpenABE_CTR_DRBG_ENTROPYLEN,
-         OpenABE_ERROR_INVALID_LENGTH);
+  ASSERT(entropy.size() >= OpenABE_CTR_DRBG_ENTROPYLEN, OpenABE_ERROR_INVALID_LENGTH);
   short_entropy_ = entropy;
 }
 
-OpenABECtrDrbgContext::OpenABECtrDrbgContext(const uint8_t *entropy,
-                                             uint32_t entropy_len) {
+OpenABECtrDrbgContext::OpenABECtrDrbgContext(const uint8_t* entropy, uint32_t entropy_len) {
   ctx_.reset(new OpenABECtrDrbg_);
-  ASSERT(entropy_len >= OpenABE_CTR_DRBG_ENTROPYLEN,
-         OpenABE_ERROR_INVALID_LENGTH);
-  short_entropy_.appendArray((uint8_t *)entropy, entropy_len);
+  ASSERT(entropy_len >= OpenABE_CTR_DRBG_ENTROPYLEN, OpenABE_ERROR_INVALID_LENGTH);
+  short_entropy_.appendArray((uint8_t*)entropy, entropy_len);
 }
 
 OpenABECtrDrbgContext::~OpenABECtrDrbgContext() {
@@ -377,43 +357,40 @@ OpenABECtrDrbgContext::~OpenABECtrDrbgContext() {
   clearCtrDrbgContext(ctx_);
 }
 
-void OpenABECtrDrbgContext::initSeed(int (*entropy_func)(void *, uint8_t *,
-                                                         size_t),
-                                     const uint8_t *nonce, size_t nonce_len) {
+void OpenABECtrDrbgContext::initSeed(int (*entropy_func)(void*, uint8_t*, size_t),
+                                     const uint8_t* nonce, size_t nonce_len) {
   ctr_drbg_init_seed(ctx_, entropy_func, short_entropy_, nonce, nonce_len);
 }
 
-static int entropy_callback(void *data, uint8_t *target_buf,
-                            size_t target_len) {
-  const uint8_t *src = (uint8_t *)data;
+static int entropy_callback(void* data, uint8_t* target_buf, size_t target_len) {
+  const uint8_t* src = (uint8_t*)data;
   memcpy(target_buf, src, target_len);
   return 0;
 }
 
-void OpenABECtrDrbgContext::initSeed(const uint8_t *nonce, size_t nonce_len) {
+void OpenABECtrDrbgContext::initSeed(const uint8_t* nonce, size_t nonce_len) {
   ctr_drbg_init_seed(ctx_, entropy_callback, short_entropy_, nonce, nonce_len);
 }
 
-int OpenABECtrDrbgContext::getRandomBytes(uint8_t *output, size_t output_len) {
+int OpenABECtrDrbgContext::getRandomBytes(uint8_t* output, size_t output_len) {
   // make sure we've called init on ctx. otherwise, throw an error
   std::lock_guard<std::mutex> write_lock(lock_);
   return ctr_drbg_generate_random_with_add(ctx_, output, output_len, NULL, 0);
 }
 
-int OpenABECtrDrbgContext::getRandomBytes(OpenABEByteString *output,
-                                          size_t output_len) {
+int OpenABECtrDrbgContext::getRandomBytes(OpenABEByteString* output, size_t output_len) {
   output->clear();
   std::lock_guard<std::mutex> write_lock(lock_);
-  return ctr_drbg_generate_random_with_add(
-      ctx_, (uint8_t *)output->getInternalPtr(), output_len, NULL, 0);
+  return ctr_drbg_generate_random_with_add(ctx_, (uint8_t*)output->getInternalPtr(), output_len,
+                                           NULL, 0);
 }
 
-int OpenABECtrDrbgContext::reSeed(const uint8_t *buf_ptr, size_t buf_len) {
+int OpenABECtrDrbgContext::reSeed(const uint8_t* buf_ptr, size_t buf_len) {
   return ctr_drbg_reseed(ctx_, buf_ptr, buf_len);
 }
 
-int OpenABECtrDrbgContext::reSeed(OpenABEByteString *buf) {
-  uint8_t *buf_ptr = NULL;
+int OpenABECtrDrbgContext::reSeed(OpenABEByteString* buf) {
+  uint8_t* buf_ptr = NULL;
   size_t buf_len = 0;
 
   if (buf != nullptr) {
@@ -423,21 +400,20 @@ int OpenABECtrDrbgContext::reSeed(OpenABEByteString *buf) {
   return this->reSeed(buf_ptr, buf_len);
 }
 
-OpenABECTR_DRBG::OpenABECTR_DRBG(OpenABEByteString &entropy) : isInit_(false) {
+OpenABECTR_DRBG::OpenABECTR_DRBG(OpenABEByteString& entropy) : isInit_(false) {
   ctrDrbgContext_.reset(new OpenABECtrDrbgContext(entropy));
 }
 
-OpenABECTR_DRBG::OpenABECTR_DRBG(uint8_t *entropy_buf, uint32_t entropy_len)
-    : isInit_(false) {
+OpenABECTR_DRBG::OpenABECTR_DRBG(uint8_t* entropy_buf, uint32_t entropy_len) : isInit_(false) {
   ctrDrbgContext_.reset(new OpenABECtrDrbgContext(entropy_buf, entropy_len));
 }
 
-void OpenABECTR_DRBG::setSeed(OpenABEByteString &nonce) {
+void OpenABECTR_DRBG::setSeed(OpenABEByteString& nonce) {
   ctrDrbgContext_->initSeed(nonce.getInternalPtr(), nonce.size());
   isInit_ = true;
 }
 
-int OpenABECTR_DRBG::getRandomBytes(uint8_t *buf, size_t buf_len) {
+int OpenABECTR_DRBG::getRandomBytes(uint8_t* buf, size_t buf_len) {
   ASSERT(isInit_, OpenABE_ERROR_CTR_DRB_NOT_INITIALIZED);
   int ret = ctrDrbgContext_->getRandomBytes(buf, buf_len);
   if (ret < 0) {
@@ -447,7 +423,7 @@ int OpenABECTR_DRBG::getRandomBytes(uint8_t *buf, size_t buf_len) {
   return 1;
 }
 
-int OpenABECTR_DRBG::getRandomBytes(OpenABEByteString *buf, size_t buf_len) {
+int OpenABECTR_DRBG::getRandomBytes(OpenABEByteString* buf, size_t buf_len) {
   ASSERT(isInit_, OpenABE_ERROR_CTR_DRB_NOT_INITIALIZED);
   uint8_t out[buf_len];
   buf->clear();

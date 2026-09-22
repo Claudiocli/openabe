@@ -118,8 +118,7 @@ static OpenABE_ERROR OpenABE_shutdown() {
 
 void AssertLibInit() {
   if (gLibraryState == OpenABE_STATE_UNINITIALIZED) {
-    throw runtime_error(
-        OpenABE_errorToString(OpenABE_ERROR_LIBRARY_NOT_INITIALIZED));
+    throw runtime_error(OpenABE_errorToString(OpenABE_ERROR_LIBRARY_NOT_INITIALIZED));
   }
 }
 
@@ -178,9 +177,9 @@ void OpenABEStateContext::shutdownThread() {
  * @return      A pointer to the OpenABE context structure
  */
 
-OpenABEContextABE *OpenABE_createContextABE(unique_ptr<OpenABERNG> *rng,
+OpenABEContextABE* OpenABE_createContextABE(unique_ptr<OpenABERNG>* rng,
                                             OpenABE_SCHEME scheme_type) {
-  OpenABEContextABE *newContext = NULL;
+  OpenABEContextABE* newContext = NULL;
 
   /* Depending on the scheme, set up the context using the appropriate
    * constructor.
@@ -188,10 +187,10 @@ OpenABEContextABE *OpenABE_createContextABE(unique_ptr<OpenABERNG> *rng,
    * calls won't require a switch statement. */
   switch (scheme_type) {
   case OpenABE_SCHEME_CP_WATERS:
-    newContext = (OpenABEContextABE *)new OpenABEContextCPWaters(move(*rng));
+    newContext = (OpenABEContextABE*)new OpenABEContextCPWaters(move(*rng));
     break;
   case OpenABE_SCHEME_KP_GPSW:
-    newContext = (OpenABEContextABE *)new OpenABEContextKPGPSW(move(*rng));
+    newContext = (OpenABEContextABE*)new OpenABEContextKPGPSW(move(*rng));
     break;
   default:
     // gErrorLog.log("Could not instantiate unknown scheme type", __LINE__,
@@ -210,17 +209,13 @@ OpenABEContextABE *OpenABE_createContextABE(unique_ptr<OpenABERNG> *rng,
  * @return      A pointer to the OpenABE context structure
  */
 
-unique_ptr<OpenABEContextSchemeCPA>
-OpenABE_createContextABESchemeCPA(OpenABE_SCHEME scheme_type) {
+unique_ptr<OpenABEContextSchemeCPA> OpenABE_createContextABESchemeCPA(OpenABE_SCHEME scheme_type) {
   unique_ptr<OpenABERNG> rng(new OpenABERNG);
-  unique_ptr<OpenABEContextABE> kemContext(
-      OpenABE_createContextABE(&rng, scheme_type));
-  return unique_ptr<OpenABEContextSchemeCPA>(
-      new OpenABEContextSchemeCPA(move(kemContext)));
+  unique_ptr<OpenABEContextABE> kemContext(OpenABE_createContextABE(&rng, scheme_type));
+  return unique_ptr<OpenABEContextSchemeCPA>(new OpenABEContextSchemeCPA(move(kemContext)));
 }
 
-unique_ptr<OpenABEContextCCA>
-OpenABE_createABEContextForKEM(OpenABE_SCHEME scheme_type) {
+unique_ptr<OpenABEContextCCA> OpenABE_createABEContextForKEM(OpenABE_SCHEME scheme_type) {
   unique_ptr<OpenABEContextCCA> kemContextCCA;
   // create a scheme context for a given scheme type
   unique_ptr<OpenABEContextSchemeCPA> schemeContext =
@@ -242,13 +237,10 @@ OpenABE_createABEContextForKEM(OpenABE_SCHEME scheme_type) {
  * @return      A pointer to the OpenABE context structure
  */
 
-unique_ptr<OpenABEContextSchemeCCA>
-OpenABE_createContextABESchemeCCA(OpenABE_SCHEME scheme_type) {
-  unique_ptr<OpenABEContextCCA> kemContextCCA =
-      OpenABE_createABEContextForKEM(scheme_type);
+unique_ptr<OpenABEContextSchemeCCA> OpenABE_createContextABESchemeCCA(OpenABE_SCHEME scheme_type) {
+  unique_ptr<OpenABEContextCCA> kemContextCCA = OpenABE_createABEContextForKEM(scheme_type);
   // wrap the CCA KEM context in a CCA scheme context for use by user
-  return unique_ptr<OpenABEContextSchemeCCA>(
-      new OpenABEContextSchemeCCA(std::move(kemContextCCA)));
+  return unique_ptr<OpenABEContextSchemeCCA>(new OpenABEContextSchemeCCA(std::move(kemContextCCA)));
 }
 
 /*!
@@ -261,8 +253,7 @@ OpenABE_createContextABESchemeCCA(OpenABE_SCHEME scheme_type) {
 
 unique_ptr<OpenABEContextSchemeCCAWithATZN>
 OpenABE_createContextABESchemeCCAWithATZN(OpenABE_SCHEME scheme_type) {
-  unique_ptr<OpenABEContextCCA> kemContextCCA =
-      OpenABE_createABEContextForKEM(scheme_type);
+  unique_ptr<OpenABEContextCCA> kemContextCCA = OpenABE_createABEContextForKEM(scheme_type);
   // wrap the CCA KEM context in a CCA scheme context with amortization
   return unique_ptr<OpenABEContextSchemeCCAWithATZN>(
       new OpenABEContextSchemeCCAWithATZN(std::move(kemContextCCA)));
@@ -276,9 +267,9 @@ OpenABE_createContextABESchemeCCAWithATZN(OpenABE_SCHEME scheme_type) {
  * @return      A pointer to the OpenABE context structure
  */
 
-OpenABEContextPKE *OpenABE_createContextPKE(unique_ptr<OpenABERNG> *rng,
+OpenABEContextPKE* OpenABE_createContextPKE(unique_ptr<OpenABERNG>* rng,
                                             OpenABE_SCHEME scheme_type) {
-  OpenABEContextPKE *newContext = NULL;
+  OpenABEContextPKE* newContext = NULL;
 
   /* Depending on the scheme, set up the context using the appropriate
    * constructor.
@@ -286,7 +277,7 @@ OpenABEContextPKE *OpenABE_createContextPKE(unique_ptr<OpenABERNG> *rng,
    * calls won't require a switch statement. */
   switch (scheme_type) {
   case OpenABE_SCHEME_PK_OPDH:
-    newContext = (OpenABEContextPKE *)new OpenABEContextOPDH(std::move(*rng));
+    newContext = (OpenABEContextPKE*)new OpenABEContextOPDH(std::move(*rng));
     break;
   default:
     // gErrorLog.log("Could not instantiate unknown scheme type", __LINE__,
@@ -305,19 +296,16 @@ OpenABEContextPKE *OpenABE_createContextPKE(unique_ptr<OpenABERNG> *rng,
  * @return      A pointer to the OpenABE context structure
  */
 
-unique_ptr<OpenABEContextSchemePKE>
-OpenABE_createContextPKESchemeCCA(OpenABE_SCHEME scheme_type) {
+unique_ptr<OpenABEContextSchemePKE> OpenABE_createContextPKESchemeCCA(OpenABE_SCHEME scheme_type) {
   // consruct an RNG object
   unique_ptr<OpenABERNG> rng(new OpenABERNG);
   // create a KEM context for PKE given the RNG object
-  unique_ptr<OpenABEContextPKE> pkeKEMContext(
-      OpenABE_createContextPKE(&rng, scheme_type));
+  unique_ptr<OpenABEContextPKE> pkeKEMContext(OpenABE_createContextPKE(&rng, scheme_type));
   if (!pkeKEMContext) {
     throw OpenABE_ERROR_INVALID_SCHEME_ID;
   }
   // return a scheme context for PKE given the KEM context
-  return unique_ptr<OpenABEContextSchemePKE>(
-      new OpenABEContextSchemePKE(move(pkeKEMContext)));
+  return unique_ptr<OpenABEContextSchemePKE>(new OpenABEContextSchemePKE(move(pkeKEMContext)));
 }
 
 unique_ptr<OpenABEContextSchemePKSIG> OpenABE_createContextPKSIGScheme() {
@@ -325,8 +313,7 @@ unique_ptr<OpenABEContextSchemePKSIG> OpenABE_createContextPKSIGScheme() {
   unique_ptr<OpenABEContextPKSIG> pksig(new OpenABEContextPKSIG);
   // return a unique ptr to a PKSIG scheme context (smoothen out API)
   // with an underlying PKSIG context
-  return unique_ptr<OpenABEContextSchemePKSIG>(
-      new OpenABEContextSchemePKSIG(move(pksig)));
+  return unique_ptr<OpenABEContextSchemePKSIG>(new OpenABEContextSchemePKSIG(move(pksig)));
 }
 
 /*!
@@ -335,7 +322,9 @@ unique_ptr<OpenABEContextSchemePKSIG> OpenABE_createContextPKSIGScheme() {
  * @return    The library version as a unsigned integer.
  */
 
-const uint32_t OpenABE_getLibraryVersion() { return OpenABE_LIBRARY_VERSION; }
+const uint32_t OpenABE_getLibraryVersion() {
+  return OpenABE_LIBRARY_VERSION;
+}
 
 /*
  * elliptic curve identifiers
@@ -358,7 +347,7 @@ OpenABECurveID OpenABE_getCurveID(uint8_t id) {
   return curveID;
 }
 
-void OpenABE_setGroupObject(std::shared_ptr<ZGroup> &group, uint8_t id) {
+void OpenABE_setGroupObject(std::shared_ptr<ZGroup>& group, uint8_t id) {
   switch (id) {
   case OpenABE_NONE_ID:
   case OpenABE_NIST_P256_ID:

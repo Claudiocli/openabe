@@ -40,7 +40,7 @@ void zml_clean() {
 
 #if !defined(BP_WITH_OPENSSL)
 int zml_check_error() {
-  ctx_t *ctx = core_get();
+  ctx_t* ctx = core_get();
   if (ctx != NULL) {
     if (ctx->code == STS_OK)
       return TRUE;
@@ -51,7 +51,7 @@ int zml_check_error() {
 }
 #endif
 
-void zml_bignum_init(bignum_t *b) {
+void zml_bignum_init(bignum_t* b) {
 #if defined(BN_WITH_OPENSSL)
   *b = BN_new();
 #else
@@ -102,12 +102,14 @@ int zml_bignum_countbytes(const bignum_t a) {
 }
 
 #if !defined(BN_WITH_OPENSSL)
-void zml_bignum_rand(bignum_t a, bignum_t o) { bn_rand(a, BN_POS, bn_bits(o)); }
+void zml_bignum_rand(bignum_t a, bignum_t o) {
+  bn_rand(a, BN_POS, bn_bits(o));
+}
 #endif
 
 void zml_bignum_mod(bignum_t x, const bignum_t o) {
 #if defined(BN_WITH_OPENSSL)
-  BN_CTX *ctx = BN_CTX_new();
+  BN_CTX* ctx = BN_CTX_new();
   BN_mod(x, x, o, ctx);
   BN_CTX_free(ctx);
 #else
@@ -115,11 +117,10 @@ void zml_bignum_mod(bignum_t x, const bignum_t o) {
 #endif
 }
 
-void zml_bignum_add(bignum_t r, const bignum_t x, const bignum_t y,
-                    const bignum_t o) {
+void zml_bignum_add(bignum_t r, const bignum_t x, const bignum_t y, const bignum_t o) {
 #if defined(BN_WITH_OPENSSL)
   /* computes r = (x+y) mod o */
-  BN_CTX *ctx = BN_CTX_new();
+  BN_CTX* ctx = BN_CTX_new();
   BN_mod_add(r, x, y, o, ctx);
   BN_CTX_free(ctx);
 #else
@@ -138,11 +139,10 @@ void zml_bignum_sub(bignum_t r, const bignum_t x, const bignum_t y) {
 #endif
 }
 
-void zml_bignum_sub_order(bignum_t r, const bignum_t x, const bignum_t y,
-                          const bignum_t o) {
+void zml_bignum_sub_order(bignum_t r, const bignum_t x, const bignum_t y, const bignum_t o) {
 #if defined(BN_WITH_OPENSSL)
   /* computes r = (x-y) mod o */
-  BN_CTX *ctx = BN_CTX_new();
+  BN_CTX* ctx = BN_CTX_new();
   BN_mod_sub(r, x, y, o, ctx);
   BN_CTX_free(ctx);
 #else
@@ -155,11 +155,10 @@ void zml_bignum_sub_order(bignum_t r, const bignum_t x, const bignum_t y,
 #endif
 }
 
-void zml_bignum_mul(bignum_t r, const bignum_t x, const bignum_t y,
-                    const bignum_t o) {
+void zml_bignum_mul(bignum_t r, const bignum_t x, const bignum_t y, const bignum_t o) {
 #if defined(BN_WITH_OPENSSL)
   /* computes r = (x*y) mod o */
-  BN_CTX *ctx = BN_CTX_new();
+  BN_CTX* ctx = BN_CTX_new();
   BN_mod_mul(r, x, y, o, ctx);
   BN_CTX_free(ctx);
 #else
@@ -183,8 +182,7 @@ int bn_is_one(const bn_t a) {
 }
 #endif
 
-void zml_bignum_div(bignum_t r, const bignum_t x, const bignum_t y,
-                    const bignum_t o) {
+void zml_bignum_div(bignum_t r, const bignum_t x, const bignum_t y, const bignum_t o) {
   // r = (1 / y) mod o
   zml_bignum_mod_inv(r, y, o);
   if (zml_bignum_is_one(x))
@@ -193,11 +191,10 @@ void zml_bignum_div(bignum_t r, const bignum_t x, const bignum_t y,
   zml_bignum_mul(r, r, x, o);
 }
 
-void zml_bignum_exp(bignum_t r, const bignum_t x, const bignum_t y,
-                    const bignum_t o) {
+void zml_bignum_exp(bignum_t r, const bignum_t x, const bignum_t y, const bignum_t o) {
   // r = (x^y) mod o
 #if defined(BN_WITH_OPENSSL)
-  BN_CTX *ctx = BN_CTX_new();
+  BN_CTX* ctx = BN_CTX_new();
   BN_mod_exp(r, x, y, o, ctx);
   BN_CTX_free(ctx);
 #else
@@ -221,28 +218,28 @@ void zml_bignum_rshift(bignum_t r, const bignum_t a, int n) {
 #endif
 }
 
-char *zml_bignum_toHex(const bignum_t b, int *length) {
-  char *hex = NULL;
+char* zml_bignum_toHex(const bignum_t b, int* length) {
+  char* hex = NULL;
 #if defined(BN_WITH_OPENSSL)
   hex = BN_bn2hex(b);
-  *length = strlen((const char *)hex);
+  *length = strlen((const char*)hex);
 #else
   *length = bn_size_str(b, 16);
-  hex = (char *)malloc(*length + 1);
+  hex = (char*)malloc(*length + 1);
   MALLOC_CHECK_OUT_OF_MEMORY(hex);
   bn_write_str(hex, *length, b, 16);
 #endif
   return hex;
 }
 
-char *zml_bignum_toDec(const bignum_t b, int *length) {
-  char *dec = NULL;
+char* zml_bignum_toDec(const bignum_t b, int* length) {
+  char* dec = NULL;
 #if defined(BN_WITH_OPENSSL)
   dec = BN_bn2dec(b);
   *length = strlen(dec);
 #else
   *length = bn_size_str(b, 10);
-  dec = (char *)malloc(*length + 1);
+  dec = (char*)malloc(*length + 1);
   MALLOC_CHECK_OUT_OF_MEMORY(dec);
   bn_write_str(dec, *length, b, 10);
 #endif
@@ -266,7 +263,7 @@ void zml_bignum_negate(bignum_t b, const bignum_t o) {
 
 int zml_bignum_mod_inv(bignum_t a, const bignum_t b, const bignum_t o) {
 #if defined(BN_WITH_OPENSSL)
-  BN_CTX *ctx = BN_CTX_new();
+  BN_CTX* ctx = BN_CTX_new();
   BN_mod_inverse(a, b, o, ctx);
   BN_CTX_free(ctx);
   return 1;
@@ -293,7 +290,7 @@ int zml_bignum_mod_inv(bignum_t a, const bignum_t b, const bignum_t o) {
  * ZML abstract C operations for EC operations
  ********************************************************************************/
 
-int ec_group_init(ec_group_t *group, uint8_t id) {
+int ec_group_init(ec_group_t* group, uint8_t id) {
   switch (id) {
 #if defined(EC_WITH_OPENSSL)
   case OpenABE_NIST_P256_ID:
@@ -305,7 +302,7 @@ int ec_group_init(ec_group_t *group, uint8_t id) {
   case OpenABE_NIST_P521_ID:
     *group = EC_GROUP_new_by_curve_name(OBJ_sn2nid("secp521r1"));
     break;
-#else /* RELIC -- group is always NULL b/c parameters are statically defined   \
+#else /* RELIC -- group is always NULL b/c parameters are statically defined                       \
        */
   case OpenABE_NIST_P256_ID:
     return ec_relic_param_set(256);
@@ -328,13 +325,12 @@ void ec_get_order(ec_group_t group, bignum_t order) {
   // object to query. The crossover is big-endian bytes since the RELIC types
   // will differ
   uint8_t ec_order_bytes[EC_RELIC_MAX_BYTES];
-  size_t ec_order_len =
-      ec_relic_order_bin(ec_order_bytes, sizeof(ec_order_bytes));
-          bn_read_bin(order, ec_order_bytes, ec_order_len);
+  size_t ec_order_len = ec_relic_order_bin(ec_order_bytes, sizeof(ec_order_bytes));
+  bn_read_bin(order, ec_order_bytes, ec_order_len);
 #endif
 }
 
-void ec_point_init(ec_group_t group, ec_point_t *e) {
+void ec_point_init(ec_group_t group, ec_point_t* e) {
 #if defined(EC_WITH_OPENSSL)
   *e = EC_POINT_new(group);
 #else
@@ -378,8 +374,7 @@ int ec_point_is_on_curve(ec_group_t group, ec_point_t p) {
   return 0;
 }
 
-void ec_point_add(ec_group_t g, ec_point_t r, const ec_point_t x,
-                  const ec_point_t y) {
+void ec_point_add(ec_group_t g, ec_point_t r, const ec_point_t x, const ec_point_t y) {
 #if defined(EC_WITH_OPENSSL)
   EC_POINT_add(g, r, x, y, NULL);
 #else
@@ -387,8 +382,7 @@ void ec_point_add(ec_group_t g, ec_point_t r, const ec_point_t x,
 #endif
 }
 
-void ec_point_mul(ec_group_t g, ec_point_t r, const ec_point_t x,
-                  const bignum_t y) {
+void ec_point_mul(ec_group_t g, ec_point_t r, const ec_point_t x, const bignum_t y) {
 #if defined(EC_WITH_OPENSSL)
   EC_POINT_mul(g, r, NULL, x, y, NULL);
 #else
@@ -410,8 +404,7 @@ int ec_point_cmp(ec_group_t group, const ec_point_t a, const ec_point_t b) {
 #endif
 }
 
-void ec_get_coordinates(ec_group_t group, bignum_t x, bignum_t y,
-                        const ec_point_t p) {
+void ec_get_coordinates(ec_group_t group, bignum_t x, bignum_t y, const ec_point_t p) {
 #if defined(EC_WITH_OPENSSL)
   EC_POINT_get_affine_coordinates_GFp(group, p, x, y, NULL);
 #else
@@ -440,17 +433,16 @@ size_t ec_point_elem_len(const ec_point_t g) {
   return ec_relic_point_size_bin(g, COMPRESS);
 }
 
-void ec_point_elem_in(ec_point_t g, uint8_t *in, size_t len) {
+void ec_point_elem_in(ec_point_t g, uint8_t* in, size_t len) {
   ec_relic_point_read_bin(g, in, len);
 }
 
-void ec_point_elem_out(const ec_point_t g, uint8_t *out, size_t len) {
+void ec_point_elem_out(const ec_point_t g, uint8_t* out, size_t len) {
   ec_relic_point_write_bin(out, len, g, COMPRESS);
 }
 #endif
 
-int ec_convert_to_point(ec_group_t group, ec_point_t p, uint8_t *xstr,
-                        int len) {
+int ec_convert_to_point(ec_group_t group, ec_point_t p, uint8_t* xstr, int len) {
 #if defined(EC_WITH_OPENSSL)
   EC_POINT_oct2point(group, p, xstr, len, NULL);
   if (!EC_POINT_is_on_curve(group, p, NULL)) {
@@ -463,7 +455,7 @@ int ec_convert_to_point(ec_group_t group, ec_point_t p, uint8_t *xstr,
 #endif
 }
 
-int bp_group_init(bp_group_t *group, uint8_t id) {
+int bp_group_init(bp_group_t* group, uint8_t id) {
 #if !defined(BP_WITH_OPENSSL)
   /* RELIC definitions */
   int twist = EP_DTYPE; // , degree = 2;
@@ -479,7 +471,7 @@ int bp_group_init(bp_group_t *group, uint8_t id) {
     break;
 //    *group = BP_GROUP_new_by_curve_name(NID_fp256bnb);
 //    break;
-#else /* RELIC -- group is always NULL b/c parameters are statically defined   \
+#else /* RELIC -- group is always NULL b/c parameters are statically defined                       \
        */
   case OpenABE_BN_P254_ID:
     ep_param_set(BN_P254);
@@ -515,7 +507,7 @@ void bp_get_order(bp_group_t group, bignum_t order) {
  * ZML abstract C operations for G1 init/arithmetic
  ********************************************************************************/
 
-void g1_init(bp_group_t group, g1_ptr *e) {
+void g1_init(bp_group_t group, g1_ptr* e) {
 #if defined(BP_WITH_OPENSSL)
   *e = G1_ELEM_new(group);
 #else
@@ -523,7 +515,7 @@ void g1_init(bp_group_t group, g1_ptr *e) {
 #endif
 }
 
-void g1_set_to_infinity(bp_group_t group, g1_ptr *e) {
+void g1_set_to_infinity(bp_group_t group, g1_ptr* e) {
 #if defined(BP_WITH_OPENSSL)
   *e = G1_ELEM_new(group);
   G1_ELEM_set_to_infinity(group, *e);
@@ -563,12 +555,13 @@ void g1_mul_op(bp_group_t group, g1_ptr z, const g1_ptr x, const bignum_t r) {
 }
 
 #if !defined(BP_WITH_OPENSSL)
-void g1_rand_op(g1_ptr g) { ep_rand(g); }
+void g1_rand_op(g1_ptr g) {
+  ep_rand(g);
+}
 #endif
 
 #if defined(BP_WITH_OPENSSL)
-static int g1_map_OpenSSL(const bp_group_t group, uint8_t *h, int hlen,
-                          g1_ptr p) {
+static int g1_map_OpenSSL(const bp_group_t group, uint8_t* h, int hlen, g1_ptr p) {
   int result = FALSE;
   bignum_t px;
 
@@ -590,7 +583,7 @@ static int g1_map_OpenSSL(const bp_group_t group, uint8_t *h, int hlen,
 }
 #endif
 
-void g1_map_op(const bp_group_t group, g1_ptr g, uint8_t *msg, int msg_len) {
+void g1_map_op(const bp_group_t group, g1_ptr g, uint8_t* msg, int msg_len) {
 #if defined(BP_WITH_OPENSSL)
   // now convert digest into a G1 point
   g1_map_OpenSSL(group, msg, msg_len, g);
@@ -600,23 +593,27 @@ void g1_map_op(const bp_group_t group, g1_ptr g, uint8_t *msg, int msg_len) {
 }
 
 #if !defined(BP_WITH_OPENSSL)
-size_t g1_elem_len(const g1_ptr g) { return ep_size_bin(g, COMPRESS); }
+size_t g1_elem_len(const g1_ptr g) {
+  return ep_size_bin(g, COMPRESS);
+}
 
-void g1_elem_in(g1_ptr g, uint8_t *in, size_t len) {
+void g1_elem_in(g1_ptr g, uint8_t* in, size_t len) {
   ep_read_bin(g, in, (int)len);
 }
 
-void g1_elem_out(const g1_ptr g, uint8_t *out, size_t len) {
+void g1_elem_out(const g1_ptr g, uint8_t* out, size_t len) {
   ep_write_bin(out, len, g, COMPRESS);
 }
 
-size_t g2_elem_len(g2_ptr g) { return ep2_size_bin(g, COMPRESS); }
+size_t g2_elem_len(g2_ptr g) {
+  return ep2_size_bin(g, COMPRESS);
+}
 
-void g2_elem_in(g2_ptr g, uint8_t *in, size_t len) {
+void g2_elem_in(g2_ptr g, uint8_t* in, size_t len) {
   ep2_read_bin(g, in, (int)len);
 }
 
-void g2_elem_out(g2_ptr g, uint8_t *out, size_t len) {
+void g2_elem_out(g2_ptr g, uint8_t* out, size_t len) {
   ep2_write_bin(out, len, g, COMPRESS);
 }
 
@@ -624,11 +621,11 @@ size_t gt_elem_len(gt_ptr g, int should_compress) {
   return fp12_size_bin(g, should_compress);
 }
 
-void gt_elem_in(gt_ptr g, uint8_t *in, size_t len) {
+void gt_elem_in(gt_ptr g, uint8_t* in, size_t len) {
   fp12_read_bin(g, in, (int)len);
 }
 
-void gt_elem_out(gt_ptr g, uint8_t *out, size_t len, int should_compress) {
+void gt_elem_out(gt_ptr g, uint8_t* out, size_t len, int should_compress) {
   fp12_write_bin(out, len, g, should_compress);
 }
 
@@ -638,7 +635,7 @@ void gt_elem_out(gt_ptr g, uint8_t *out, size_t len, int should_compress) {
  * ZML abstract C operations for G2 init/arithmetic
  ********************************************************************************/
 
-void g2_init(bp_group_t group, g2_ptr *e) {
+void g2_init(bp_group_t group, g2_ptr* e) {
 #if defined(BP_WITH_OPENSSL)
   *e = G2_ELEM_new(group);
 #else
@@ -646,7 +643,7 @@ void g2_init(bp_group_t group, g2_ptr *e) {
 #endif
 }
 
-void g2_set_to_infinity(bp_group_t group, g2_ptr *e) {
+void g2_set_to_infinity(bp_group_t group, g2_ptr* e) {
 #if defined(BP_WITH_OPENSSL)
   *e = G2_ELEM_new(group);
   G2_ELEM_set_to_infinity(group, *e);
@@ -678,7 +675,7 @@ int g2_cmp_op(bp_group_t group, g2_ptr x, g2_ptr y) {
  * abstract C operations for GT init/arithmetic
  ********************************************************************************/
 
-void gt_init(const bp_group_t group, gt_ptr *e) {
+void gt_init(const bp_group_t group, gt_ptr* e) {
 #if defined(BP_WITH_OPENSSL)
   *e = GT_ELEM_new(group);
 #else
@@ -686,7 +683,7 @@ void gt_init(const bp_group_t group, gt_ptr *e) {
 #endif
 }
 
-void gt_set_to_infinity(bp_group_t group, gt_ptr *e) {
+void gt_set_to_infinity(bp_group_t group, gt_ptr* e) {
 #if defined(BP_WITH_OPENSSL)
   *e = GT_ELEM_new(group);
   GT_ELEM_set_to_unity(group, *e);
@@ -831,7 +828,7 @@ int bn_cmp_abs_const(const bn_t a, const bn_t b) {
   return bn_cmpn_low_const(a->dp, b->dp, a->used);
 }
 
-int bn_cmpn_low_const(const dig_t *a, const dig_t *b, const int size) {
+int bn_cmpn_low_const(const dig_t* a, const dig_t* b, const int size) {
   int i, r;
 
   a += (size - 1);
@@ -879,30 +876,27 @@ int ep2_cmp_const(ep2_t p, const ep2_t q) {
 }
 
 int fp12_cmp_const(fp12_t a, const fp12_t b) {
-  return ((fp6_cmp_const(a[0], b[0]) == CMP_EQ) &&
-                  (fp6_cmp_const(a[1], b[1]) == CMP_EQ)
-              ? CMP_EQ
-              : CMP_NE);
+  return ((fp6_cmp_const(a[0], b[0]) == CMP_EQ) && (fp6_cmp_const(a[1], b[1]) == CMP_EQ) ? CMP_EQ
+                                                                                         : CMP_NE);
 }
 
 int fp6_cmp_const(fp6_t a, const fp6_t b) {
-  return ((fp2_cmp_const(a[0], b[0]) == CMP_EQ) &&
-                  (fp2_cmp_const(a[1], b[1]) == CMP_EQ) &&
+  return ((fp2_cmp_const(a[0], b[0]) == CMP_EQ) && (fp2_cmp_const(a[1], b[1]) == CMP_EQ) &&
                   (fp2_cmp_const(a[2], b[2]) == CMP_EQ)
               ? CMP_EQ
               : CMP_NE);
 }
 
 int fp2_cmp_const(fp2_t a, const fp2_t b) {
-  return (fp_cmp_const(a[0], b[0]) == CMP_EQ) &&
-                 (fp_cmp_const(a[1], b[1]) == CMP_EQ)
-             ? CMP_EQ
-             : CMP_NE;
+  return (fp_cmp_const(a[0], b[0]) == CMP_EQ) && (fp_cmp_const(a[1], b[1]) == CMP_EQ) ? CMP_EQ
+                                                                                      : CMP_NE;
 }
 
-int fp_cmp_const(fp_t a, const fp_t b) { return fp_cmpn_low_const(a, b); }
+int fp_cmp_const(fp_t a, const fp_t b) {
+  return fp_cmpn_low_const(a, b);
+}
 
-int fp_cmpn_low_const(dig_t *a, const dig_t *b) {
+int fp_cmpn_low_const(dig_t* a, const dig_t* b) {
   int i, r;
 
   a += (FP_DIGS - 1);

@@ -48,9 +48,8 @@
 #endif
 
 #ifndef SSL_load_error_strings
-#define SSL_load_error_strings()                                               \
-  OPENSSL_init_ssl(                                                            \
-      OPENSSL_INIT_LOAD_SSL_STRINGS | OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL)
+#define SSL_load_error_strings()                                                                   \
+  OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS | OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL)
 #endif
 
 #endif
@@ -63,7 +62,7 @@ struct CRYPTO_dynlock_value {
 
 static unique_ptr<mutex[]> mutexes;
 
-static void lockingCallback(int mode, int n, const char *, int) {
+static void lockingCallback(int mode, int n, const char*, int) {
   if (mode & CRYPTO_LOCK) {
     mutexes[n].lock();
   } else {
@@ -71,12 +70,11 @@ static void lockingCallback(int mode, int n, const char *, int) {
   }
 }
 
-static CRYPTO_dynlock_value *dynlockCreate(const char *, int) {
+static CRYPTO_dynlock_value* dynlockCreate(const char*, int) {
   return new CRYPTO_dynlock_value;
 }
 
-static void dynlockLock(int mode, struct CRYPTO_dynlock_value *lock,
-                        const char *, int) {
+static void dynlockLock(int mode, struct CRYPTO_dynlock_value* lock, const char*, int) {
   if (lock != nullptr) {
     if (mode & CRYPTO_LOCK) {
       lock->the_mutex.lock();
@@ -86,19 +84,16 @@ static void dynlockLock(int mode, struct CRYPTO_dynlock_value *lock,
   }
 }
 
-static void dynlockDestroy(struct CRYPTO_dynlock_value *lock, const char *,
-                           int) {
+static void dynlockDestroy(struct CRYPTO_dynlock_value* lock, const char*, int) {
   delete lock;
 }
 
 void openSslInitialize() {
-  OPENSSL_init_ssl(
-      OPENSSL_INIT_LOAD_SSL_STRINGS | OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL);
+  OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS | OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL);
   // static locking
   mutexes.reset(new mutex[CRYPTO_num_locks()]);
   if (mutexes == nullptr) {
-    throw runtime_error(
-        "openSslInitialize() failed, out of memory while creating mutex array");
+    throw runtime_error("openSslInitialize() failed, out of memory while creating mutex array");
   }
   CRYPTO_set_locking_callback(lockingCallback);
   // dynamic locking

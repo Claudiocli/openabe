@@ -80,7 +80,7 @@ OpenABE_ERROR zMathShutdownLibrary() {
  * @return The pairing object or NULL
  */
 
-OpenABEPairing *OpenABE_createNewPairing(const string &pairingParams) {
+OpenABEPairing* OpenABE_createNewPairing(const string& pairingParams) {
   return new OpenABEPairing(pairingParams);
 }
 
@@ -91,8 +91,7 @@ OpenABEPairing *OpenABE_createNewPairing(const string &pairingParams) {
  * @return The corresponding ID string or NULL
  */
 
-string
-OpenABE_pairingParamsForSecurityLevel(OpenABESecurityLevel securityLevel) {
+string OpenABE_pairingParamsForSecurityLevel(OpenABESecurityLevel securityLevel) {
   if (securityLevel == 128)
     return "BN_P256";
   return "";
@@ -107,7 +106,7 @@ OpenABE_pairingParamsForSecurityLevel(OpenABESecurityLevel securityLevel) {
  *
  */
 
-OpenABEPairing::OpenABEPairing(const string &pairingParams) : ZObject() {
+OpenABEPairing::OpenABEPairing(const string& pairingParams) : ZObject() {
   AssertLibInit();
   // Look up the pairing parameters and set them
   this->curveID = getPairingCurveID(pairingParams);
@@ -121,7 +120,7 @@ OpenABEPairing::OpenABEPairing(const string &pairingParams) : ZObject() {
  * Constructor for the OpenABEPairing class.
  *
  */
-OpenABEPairing::OpenABEPairing(const OpenABEPairing &copyFrom) : ZObject() {
+OpenABEPairing::OpenABEPairing(const OpenABEPairing& copyFrom) : ZObject() {
   AssertLibInit();
   // copy the pairing params first
   string pairingParams = copyFrom.getPairingParams();
@@ -143,7 +142,7 @@ OpenABEPairing::~OpenABEPairing() {
   this->bpgroup.reset();
 }
 
-void OpenABEPairing::initZP(ZP &result, uint32_t v) {
+void OpenABEPairing::initZP(ZP& result, uint32_t v) {
   result = v;
   result.setOrder(order);
 }
@@ -174,7 +173,7 @@ GT OpenABEPairing::initGT() {
  *
  * @return group element in ZP
  */
-ZP OpenABEPairing::randomZP(OpenABERNG *rng) {
+ZP OpenABEPairing::randomZP(OpenABERNG* rng) {
   ASSERT_NOTNULL(rng);
   ZP result;
   result.setRandom(rng, order);
@@ -186,7 +185,7 @@ ZP OpenABEPairing::randomZP(OpenABERNG *rng) {
  *
  * @return group element in G1
  */
-G1 OpenABEPairing::randomG1(OpenABERNG *rng) {
+G1 OpenABEPairing::randomG1(OpenABERNG* rng) {
   ASSERT_NOTNULL(rng);
   G1 result(this->bpgroup);
   result.setRandom(rng);
@@ -198,14 +197,14 @@ G1 OpenABEPairing::randomG1(OpenABERNG *rng) {
  *
  * @return group element in G2
  */
-G2 OpenABEPairing::randomG2(OpenABERNG *rng) {
+G2 OpenABEPairing::randomG2(OpenABERNG* rng) {
   ASSERT_NOTNULL(rng);
   G2 result(this->bpgroup);
   result.setRandom(rng);
   return result;
 }
 
-G1 OpenABEPairing::hashToG1(OpenABEByteString &keyPrefix, string msg) {
+G1 OpenABEPairing::hashToG1(OpenABEByteString& keyPrefix, string msg) {
   ASSERT_PAIRING(this);
   OpenABEByteString tmp;
   // set the key prefix
@@ -217,13 +216,13 @@ G1 OpenABEPairing::hashToG1(OpenABEByteString &keyPrefix, string msg) {
   G1 g1(this->bpgroup);
   std::string digest, str = tmp.toString();
   oabe::sha256(digest, str);
-  uint8_t *xstr = (uint8_t *)digest.c_str();
+  uint8_t* xstr = (uint8_t*)digest.c_str();
   size_t xstr_len = digest.size();
   g1_map_op(GET_BP_GROUP(this->bpgroup), g1.m_G1, xstr, xstr_len);
   return g1;
 }
 
-GT OpenABEPairing::pairing(G1 &g1, G2 &g2) {
+GT OpenABEPairing::pairing(G1& g1, G2& g2) {
   GT result(this->bpgroup);
   bp_map_op(GET_BP_GROUP(this->bpgroup), result.m_GT, g1.m_G1, g2.m_G2);
   if (result.isInfinity()) {
@@ -232,8 +231,7 @@ GT OpenABEPairing::pairing(G1 &g1, G2 &g2) {
   return result;
 }
 
-void OpenABEPairing::multi_pairing(GT &gt, std::vector<G1> &g1,
-                                   std::vector<G2> &g2) {
+void OpenABEPairing::multi_pairing(GT& gt, std::vector<G1>& g1, std::vector<G2>& g2) {
   multi_bp_map_op(GET_BP_GROUP(this->bpgroup), gt, g1, g2);
   if (gt.isInfinity()) {
     gt.setIdentity();
@@ -246,7 +244,9 @@ void OpenABEPairing::multi_pairing(GT &gt, std::vector<G1> &g1,
  * @return Pairing parameters string
  */
 
-string OpenABEPairing::getPairingParams() const { return this->pairingParams; }
+string OpenABEPairing::getPairingParams() const {
+  return this->pairingParams;
+}
 
 /*!
  * Return the pairing parameters ID.
@@ -254,7 +254,9 @@ string OpenABEPairing::getPairingParams() const { return this->pairingParams; }
  * @return Pairing parameters ID
  */
 
-OpenABECurveID OpenABEPairing::getCurveID() const { return this->curveID; }
+OpenABECurveID OpenABEPairing::getCurveID() const {
+  return this->curveID;
+}
 
 /*
  * Convert a pairing parameters identifier string into a RELIC
@@ -263,7 +265,7 @@ OpenABECurveID OpenABEPairing::getCurveID() const { return this->curveID; }
  * @return An int representing the parameters, or -1 if not found.
  */
 
-OpenABECurveID getPairingCurveID(const string &paramsID) {
+OpenABECurveID getPairingCurveID(const string& paramsID) {
   OpenABECurveID curveID = OpenABE_NONE_ID;
 
   if (paramsID == "BN_P254") {
@@ -280,7 +282,7 @@ OpenABECurveID getPairingCurveID(const string &paramsID) {
   return curveID;
 }
 
-OpenABEByteString OpenABEPairing::hashToBytes(uint8_t *buf, uint32_t buf_len) {
+OpenABEByteString OpenABEPairing::hashToBytes(uint8_t* buf, uint32_t buf_len) {
   uint8_t hash[SHA256_LEN];
   sha256(hash, buf, buf_len);
 
@@ -294,8 +296,7 @@ OpenABEByteString OpenABEPairing::hashToBytes(uint8_t *buf, uint32_t buf_len) {
 // H(00 || hash_byte || m) || H(01 || hash_byte || m) || ... || H(n || hash_byte
 // || m)
 // ... where 'n' is block_len and 'm' is message
-OpenABEByteString OpenABEPairing::hashFromBytes(OpenABEByteString &buf,
-                                                uint32_t target_len,
+OpenABEByteString OpenABEPairing::hashFromBytes(OpenABEByteString& buf, uint32_t target_len,
                                                 uint8_t hash_prefix) {
   // compute number of hash blocks needed
   int block_len = ceil(((double)target_len) / SHA256_LEN);
@@ -309,8 +310,8 @@ OpenABEByteString OpenABEPairing::hashFromBytes(OpenABEByteString &buf,
 
   buf2.insertFirstByte(hash_prefix);
   buf2.insertFirstByte(count);
-  uint8_t *ptr = buf2.getInternalPtr();
-  uint8_t *hash_ptr = hash;
+  uint8_t* ptr = buf2.getInternalPtr();
+  uint8_t* hash_ptr = hash;
 
   for (int i = 0; i < block_len; i++) {
     // H(count || hash_prefix || buf)

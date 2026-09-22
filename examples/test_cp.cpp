@@ -37,7 +37,7 @@ using namespace std;
 using namespace oabe;
 using namespace oabe::crypto;
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
 
   InitializeOpenABE();
 

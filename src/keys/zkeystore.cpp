@@ -91,8 +91,7 @@ OpenABEKeystore::~OpenABEKeystore() {
  * @param Object containing the key
  */
 
-OpenABE_ERROR OpenABEKeystore::addKey(const string name,
-                                      const shared_ptr<OpenABEKey> &component,
+OpenABE_ERROR OpenABEKeystore::addKey(const string name, const shared_ptr<OpenABEKey>& component,
                                       zKeyType keyType) {
   // Insert the key into the public or secret key maps
   if (keyType == KEY_TYPE_PUBLIC) {
@@ -216,10 +215,8 @@ OpenABE_ERROR OpenABEKeystore::deleteKey(const string keyID) {
     key->zeroize();
     bool foundInPubKey = false, foundInSecKey = false;
     // Remove key/value from our internal store via the iterator
-    map<string, shared_ptr<OpenABEKey>>::iterator iter1 =
-        this->pubKeys.find(keyID);
-    map<string, shared_ptr<OpenABEKey>>::iterator iter2 =
-        this->secKeys.find(keyID);
+    map<string, shared_ptr<OpenABEKey>>::iterator iter1 = this->pubKeys.find(keyID);
+    map<string, shared_ptr<OpenABEKey>>::iterator iter2 = this->secKeys.find(keyID);
 
     if (iter1 != this->pubKeys.end()) {
       this->pubKeys.erase(iter1);
@@ -247,13 +244,12 @@ OpenABE_ERROR OpenABEKeystore::deleteKey(const string keyID) {
  * @return              - true if the key is /not/ present
  */
 
-bool OpenABEKeystore::validateNewParamsID(const string &keyID) {
+bool OpenABEKeystore::validateNewParamsID(const string& keyID) {
   return (this->getKey(keyID) == nullptr);
 }
 
-OpenABE_ERROR
-OpenABEKeystore::exportKeyToBytes(const string keyID,
-                                  OpenABEByteString &exportedKey) {
+OpenABE_ERROR OpenABEKeystore::exportKeyToBytes(const string keyID,
+                                                OpenABEByteString& exportedKey) {
   shared_ptr<OpenABEKey> key = this->getKey(keyID);
   if (key == nullptr) {
     return OpenABE_ERROR_INVALID_INPUT;
@@ -264,10 +260,9 @@ OpenABEKeystore::exportKeyToBytes(const string keyID,
   return OpenABE_NOERROR;
 }
 
-shared_ptr<OpenABEKey>
-OpenABEKeystore::parseKeyHeader(const std::string keyID,
-                                OpenABEByteString &keyBlob,
-                                OpenABEByteString &outputKeyBytes) {
+shared_ptr<OpenABEKey> OpenABEKeystore::parseKeyHeader(const std::string keyID,
+                                                       OpenABEByteString& keyBlob,
+                                                       OpenABEByteString& outputKeyBytes) {
   shared_ptr<OpenABEKey> key = nullptr;
 
   // parse the result into a OpenABEKey structure
@@ -280,10 +275,9 @@ OpenABEKeystore::parseKeyHeader(const std::string keyID,
   return key;
 }
 
-shared_ptr<OpenABEKey>
-OpenABEKeystore::constructKeyFromBytes(const string &keyID,
-                                       OpenABEByteString &keyBlob,
-                                       OpenABEByteString &keyBytes) {
+shared_ptr<OpenABEKey> OpenABEKeystore::constructKeyFromBytes(const string& keyID,
+                                                              OpenABEByteString& keyBlob,
+                                                              OpenABEByteString& keyBytes) {
   size_t hdrLen = 3 + UID_LEN;
   shared_ptr<OpenABEKey> key = nullptr;
 
@@ -298,14 +292,12 @@ OpenABEKeystore::constructKeyFromBytes(const string &keyID,
 
     if (keyHeader.size() >= hdrLen) {
       // check that lib version correct
-      ASSERT(keyHeader.at(0) <= OpenABE_LIBRARY_VERSION,
-             OpenABE_ERROR_INVALID_LIBVERSION);
+      ASSERT(keyHeader.at(0) <= OpenABE_LIBRARY_VERSION, OpenABE_ERROR_INVALID_LIBVERSION);
 
       OpenABECurveID curveID = OpenABE_getCurveID(keyHeader.at(1));
       uint8_t algID = OpenABE_getSchemeID(keyHeader.at(2));
       OpenABEByteString uid = keyHeader.getSubset(3, UID_LEN);
-      OpenABEByteString id =
-          keyHeader.getSubset(hdrLen, keyHeader.size() - hdrLen);
+      OpenABEByteString id = keyHeader.getSubset(hdrLen, keyHeader.size() - hdrLen);
 
       // alloc/construct the key
       key.reset(new OpenABEKey(curveID, algID, id.toString(), &uid));
@@ -315,9 +307,8 @@ OpenABEKeystore::constructKeyFromBytes(const string &keyID,
     } else {
       THROW_ERROR(OpenABE_ERROR_INVALID_KEY_HEADER);
     }
-  } catch (OpenABE_ERROR &error) {
-    cerr << "OpenABEKeystore::constructKeyFromBytes: "
-         << OpenABE_errorToString(error) << endl;
+  } catch (OpenABE_ERROR& error) {
+    cerr << "OpenABEKeystore::constructKeyFromBytes: " << OpenABE_errorToString(error) << endl;
   }
   return key;
 }

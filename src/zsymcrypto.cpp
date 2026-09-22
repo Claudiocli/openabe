@@ -46,15 +46,14 @@ namespace crypto {
  * Implementation of the OpenABESymKeyAuthEnc class
  ********************************************************************************/
 
-void OpenABEComputeHKDF(OpenABEByteString &key, OpenABEByteString &salt,
-                        OpenABEByteString &info, size_t key_len,
-                        OpenABEByteString &output_key) {
-  EVP_PKEY_CTX *kctx = NULL;
+void OpenABEComputeHKDF(OpenABEByteString& key, OpenABEByteString& salt, OpenABEByteString& info,
+                        size_t key_len, OpenABEByteString& output_key) {
+  EVP_PKEY_CTX* kctx = NULL;
   string error_msg = "";
   // check if key is at least a certain size > 0, < 1024
   size_t out_len = key_len;
   uint8_t out_key[out_len + 1];
-  const EVP_MD *md = EVP_sha256();
+  const EVP_MD* md = EVP_sha256();
 
   // allocates public key algorithm context using alg specified by id
   kctx = EVP_PKEY_CTX_new_id(EVP_PKEY_HKDF, NULL);
@@ -70,8 +69,7 @@ void OpenABEComputeHKDF(OpenABEByteString &key, OpenABEByteString &salt,
   }
 
   if (salt.size() > 0) {
-    if (EVP_PKEY_CTX_set1_hkdf_salt(kctx, salt.getInternalPtr(), salt.size()) <=
-        0) {
+    if (EVP_PKEY_CTX_set1_hkdf_salt(kctx, salt.getInternalPtr(), salt.size()) <= 0) {
       error_msg = "EVP_PKEY_CTX_set1_salt";
       goto out;
     }
@@ -83,8 +81,7 @@ void OpenABEComputeHKDF(OpenABEByteString &key, OpenABEByteString &salt,
   }
 
   if (info.size() > 0) {
-    if (EVP_PKEY_CTX_add1_hkdf_info(kctx, info.getInternalPtr(), info.size()) <=
-        0) {
+    if (EVP_PKEY_CTX_add1_hkdf_info(kctx, info.getInternalPtr(), info.size()) <= 0) {
       error_msg = "EVP_PKEY_CTX_add1_hkdf_info";
       goto out;
     }
@@ -105,7 +102,7 @@ out:
   }
 }
 
-void generateSymmetricKey(std::string &key, uint32_t keyLen) {
+void generateSymmetricKey(std::string& key, uint32_t keyLen) {
   OpenABEByteString key_buf;
   OpenABERNG rng;
   rng.getRandomBytes(&key_buf, (int)keyLen);
@@ -113,17 +110,15 @@ void generateSymmetricKey(std::string &key, uint32_t keyLen) {
 }
 
 // For debug purposes only!!
-const string printAsHex(const string &bin_buf) {
+const string printAsHex(const string& bin_buf) {
   OpenABEByteString buf;
   buf += bin_buf;
   return buf.toLowerHex();
 }
 
-OpenABESymKeyAuthEnc::OpenABESymKeyAuthEnc(int securitylevel,
-                                           const string &zkey)
-    : ZObject() {
+OpenABESymKeyAuthEnc::OpenABESymKeyAuthEnc(int securitylevel, const string& zkey) : ZObject() {
   if (securitylevel == DEFAULT_AES_SEC_LEVEL) {
-    this->cipher = (EVP_CIPHER *)EVP_aes_256_gcm();
+    this->cipher = (EVP_CIPHER*)EVP_aes_256_gcm();
     // cout << "cipher_block_size: " << EVP_CIPHER_block_size(this->cipher) <<
     // endl;
   }
@@ -132,11 +127,9 @@ OpenABESymKeyAuthEnc::OpenABESymKeyAuthEnc(int securitylevel,
   this->key = zkey;
 }
 
-OpenABESymKeyAuthEnc::OpenABESymKeyAuthEnc(int securitylevel,
-                                           OpenABEByteString &zkey)
-    : ZObject() {
+OpenABESymKeyAuthEnc::OpenABESymKeyAuthEnc(int securitylevel, OpenABEByteString& zkey) : ZObject() {
   if (securitylevel == DEFAULT_AES_SEC_LEVEL) {
-    this->cipher = (EVP_CIPHER *)EVP_aes_256_gcm();
+    this->cipher = (EVP_CIPHER*)EVP_aes_256_gcm();
     // cout << "cipher_block_size: " << EVP_CIPHER_block_size(this->cipher) <<
     // endl;
   }
@@ -155,7 +148,7 @@ void OpenABESymKeyAuthEnc::chooseRandomIV() {
   RAND_bytes(this->iv, AES_BLOCK_SIZE);
 }
 
-void OpenABESymKeyAuthEnc::setAddAuthData(OpenABEByteString &aad) {
+void OpenABESymKeyAuthEnc::setAddAuthData(OpenABEByteString& aad) {
   if (aad.size() == 0) {
     // fill AAD buffer with 0's
     this->aad.fillBuffer(0, AES_BLOCK_SIZE);
@@ -166,7 +159,7 @@ void OpenABESymKeyAuthEnc::setAddAuthData(OpenABEByteString &aad) {
   this->aad_set = true;
 }
 
-void OpenABESymKeyAuthEnc::setAddAuthData(uint8_t *aad, uint32_t aad_len) {
+void OpenABESymKeyAuthEnc::setAddAuthData(uint8_t* aad, uint32_t aad_len) {
   this->aad.clear();
   if (aad) {
     this->aad.appendArray(aad, aad_len);
@@ -177,21 +170,19 @@ void OpenABESymKeyAuthEnc::setAddAuthData(uint8_t *aad, uint32_t aad_len) {
   this->aad_set = true;
 }
 
-OpenABE_ERROR OpenABESymKeyAuthEnc::encrypt(const string &plaintext,
-                                            OpenABEByteString *iv,
-                                            OpenABEByteString *ciphertext,
-                                            OpenABEByteString *tag) {
+OpenABE_ERROR OpenABESymKeyAuthEnc::encrypt(const string& plaintext, OpenABEByteString* iv,
+                                            OpenABEByteString* ciphertext, OpenABEByteString* tag) {
   OpenABE_ERROR result = OpenABE_NOERROR;
-  uint8_t *ct = nullptr;
+  uint8_t* ct = nullptr;
 
   try {
     ASSERT_NOTNULL(iv);
     ASSERT_NOTNULL(ciphertext);
     ASSERT_NOTNULL(tag);
 
-    EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
+    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
     OpenABEByteString ivObj, ctObj, tagObj;
-    uint8_t *pt_ptr = (uint8_t *)plaintext.c_str();
+    uint8_t* pt_ptr = (uint8_t*)plaintext.c_str();
     int len = 0, ctlen, pt_len = plaintext.size();
     if (pt_len < AES_BLOCK_SIZE)
       /* add block size to the len */
@@ -201,7 +192,7 @@ OpenABE_ERROR OpenABESymKeyAuthEnc::encrypt(const string &plaintext,
       len += pt_len;
     // allocate the temp output ciphertext buffer
     // uint8_t ct[len+1];
-    ct = (uint8_t *)malloc(len + 1);
+    ct = (uint8_t*)malloc(len + 1);
     MALLOC_CHECK_OUT_OF_MEMORY(ct);
     memset(ct, 0, len + 1);
 
@@ -223,8 +214,7 @@ OpenABE_ERROR OpenABESymKeyAuthEnc::encrypt(const string &plaintext,
 
     /* specify the additional authentication data (aad) */
     if (this->aad_set) {
-      EVP_EncryptUpdate(ctx, NULL, &ctlen, this->aad.getInternalPtr(),
-                        this->aad.size());
+      EVP_EncryptUpdate(ctx, NULL, &ctlen, this->aad.getInternalPtr(), this->aad.size());
     }
 
     /* encrypt plaintext */
@@ -253,7 +243,7 @@ OpenABE_ERROR OpenABESymKeyAuthEnc::encrypt(const string &plaintext,
     tag->appendArray(tag_buf, tag_len);
 
     EVP_CIPHER_CTX_free(ctx);
-  } catch (OpenABE_ERROR &e) {
+  } catch (OpenABE_ERROR& e) {
     result = e;
   }
   if (ct)
@@ -261,9 +251,8 @@ OpenABE_ERROR OpenABESymKeyAuthEnc::encrypt(const string &plaintext,
   return result;
 }
 
-bool OpenABESymKeyAuthEnc::decrypt(string &plaintext, OpenABEByteString *iv,
-                                   OpenABEByteString *ciphertext,
-                                   OpenABEByteString *tag) {
+bool OpenABESymKeyAuthEnc::decrypt(string& plaintext, OpenABEByteString* iv,
+                                   OpenABEByteString* ciphertext, OpenABEByteString* tag) {
   ASSERT_NOTNULL(iv);
   ASSERT_NOTNULL(ciphertext);
   ASSERT_NOTNULL(tag);
@@ -273,17 +262,17 @@ bool OpenABESymKeyAuthEnc::decrypt(string &plaintext, OpenABEByteString *iv,
     return false;
   }
 
-  EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
-  uint8_t *pt = nullptr;
+  EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+  uint8_t* pt = nullptr;
   OpenABEByteString pt_buf;
 
   int pt_len, retValue;
-  uint8_t *ct_ptr = ciphertext->getInternalPtr();
+  uint8_t* ct_ptr = ciphertext->getInternalPtr();
   int ct_len = ciphertext->size();
   // cout << "Dec Ciphertext:\n";
   // BIO_dump_fp(stdout, (const char *) ct_ptr, ct_len);
 
-  uint8_t *tag_ptr = tag->getInternalPtr();
+  uint8_t* tag_ptr = tag->getInternalPtr();
   int tag_len = tag->size();
   ASSERT(tag_len == AES_BLOCK_SIZE, OpenABE_ERROR_INVALID_TAG_LENGTH);
   // cout << "Dec Tag:\n";
@@ -297,8 +286,7 @@ bool OpenABESymKeyAuthEnc::decrypt(string &plaintext, OpenABEByteString *iv,
   // cout << "Dec Key:\n";
   // BIO_dump_fp(stdout, (const char *) this->key.getInternalPtr(),
   // this->key.size());
-  EVP_DecryptInit_ex(ctx, NULL, NULL, this->key.getInternalPtr(),
-                     iv->getInternalPtr());
+  EVP_DecryptInit_ex(ctx, NULL, NULL, this->key.getInternalPtr(), iv->getInternalPtr());
 
   // OpenSSL says tag must be set *before* any EVP_DecryptUpdate call.
   // This is a restriction for OpenSSL v1.0.1c and prior versions but also works
@@ -309,12 +297,11 @@ bool OpenABESymKeyAuthEnc::decrypt(string &plaintext, OpenABEByteString *iv,
 
   /* specify additional authentication data */
   if (this->aad_set) {
-    EVP_DecryptUpdate(ctx, NULL, &pt_len, this->aad.getInternalPtr(),
-                      this->aad.size());
+    EVP_DecryptUpdate(ctx, NULL, &pt_len, this->aad.getInternalPtr(), this->aad.size());
   }
 
   // uint8_t pt[ct_len+1];
-  pt = (uint8_t *)malloc(ct_len + 1);
+  pt = (uint8_t*)malloc(ct_len + 1);
   MALLOC_CHECK_OUT_OF_MEMORY(pt);
   memset(pt, 0, ct_len + 1);
   /* decrypt and store plaintext in pt buffer */
@@ -347,15 +334,14 @@ bool OpenABESymKeyAuthEnc::decrypt(string &plaintext, OpenABEByteString *iv,
  * Implementation of the OpenABESymKeyHandleImpl class
  ********************************************************************************/
 
-OpenABESymKeyHandleImpl::OpenABESymKeyHandleImpl(const string &keyBytes,
-                                                 bool apply_b64_encode) {
+OpenABESymKeyHandleImpl::OpenABESymKeyHandleImpl(const string& keyBytes, bool apply_b64_encode) {
   try {
     if (keyBytes.size() != DEFAULT_SYM_KEY_BYTES) {
       throw OpenABE_ERROR_INVALID_LENGTH;
     }
 
     security_level_ = DEFAULT_AES_SEC_LEVEL;
-  } catch (OpenABE_ERROR &error) {
+  } catch (OpenABE_ERROR& error) {
     string msg = OpenABE_errorToString(error);
     throw runtime_error(msg);
   }
@@ -364,8 +350,8 @@ OpenABESymKeyHandleImpl::OpenABESymKeyHandleImpl(const string &keyBytes,
   b64_encode_ = apply_b64_encode;
 }
 
-OpenABESymKeyHandleImpl::OpenABESymKeyHandleImpl(OpenABEByteString &keyBytes,
-                                                 OpenABEByteString &authData,
+OpenABESymKeyHandleImpl::OpenABESymKeyHandleImpl(OpenABEByteString& keyBytes,
+                                                 OpenABEByteString& authData,
                                                  bool apply_b64_encode) {
   try {
     key_ = keyBytes.toString();
@@ -374,7 +360,7 @@ OpenABESymKeyHandleImpl::OpenABESymKeyHandleImpl(OpenABEByteString &keyBytes,
     }
 
     security_level_ = DEFAULT_AES_SEC_LEVEL;
-  } catch (OpenABE_ERROR &error) {
+  } catch (OpenABE_ERROR& error) {
     string msg = OpenABE_errorToString(error);
     throw runtime_error(msg);
   }
@@ -388,10 +374,8 @@ OpenABESymKeyHandleImpl::~OpenABESymKeyHandleImpl() {
   authData_.clear();
 }
 
-void OpenABESymKeyHandleImpl::encrypt(string &ciphertext,
-                                      const string &plaintext) {
-  unique_ptr<OpenABESymKeyAuthEnc> symkeyContext_(
-      new OpenABESymKeyAuthEnc(security_level_, key_));
+void OpenABESymKeyHandleImpl::encrypt(string& ciphertext, const string& plaintext) {
+  unique_ptr<OpenABESymKeyAuthEnc> symkeyContext_(new OpenABESymKeyAuthEnc(security_level_, key_));
   try {
     OpenABEByteString zciphertext, ziv, zct, ztag;
     // set the additional auth data (if set)
@@ -401,8 +385,7 @@ void OpenABESymKeyHandleImpl::encrypt(string &ciphertext,
       symkeyContext_->setAddAuthData(NULL, 0);
     }
     // now we can encrypt with sym key
-    if (symkeyContext_->encrypt(plaintext, &ziv, &zct, &ztag) !=
-        OpenABE_NOERROR) {
+    if (symkeyContext_->encrypt(plaintext, &ziv, &zct, &ztag) != OpenABE_NOERROR) {
       throw runtime_error("Encryption failed");
     }
 
@@ -419,21 +402,19 @@ void OpenABESymKeyHandleImpl::encrypt(string &ciphertext,
     string s = zciphertext.toString();
     if (b64_encode_) {
       // output base64 encoded version
-      ciphertext = Base64Encode((const unsigned char *)s.c_str(), s.size());
+      ciphertext = Base64Encode((const unsigned char*)s.c_str(), s.size());
     } else {
       // output binary (caller handles encoding format)
       ciphertext = s;
     }
-  } catch (OpenABE_ERROR &error) {
+  } catch (OpenABE_ERROR& error) {
     string msg = OpenABE_errorToString(error);
     throw runtime_error(msg);
   }
 }
 
-void OpenABESymKeyHandleImpl::decrypt(string &plaintext,
-                                      const string &ciphertext) {
-  unique_ptr<OpenABESymKeyAuthEnc> symkeyContext_(
-      new OpenABESymKeyAuthEnc(security_level_, key_));
+void OpenABESymKeyHandleImpl::decrypt(string& plaintext, const string& ciphertext) {
+  unique_ptr<OpenABESymKeyAuthEnc> symkeyContext_(new OpenABESymKeyAuthEnc(security_level_, key_));
   try {
     size_t index = 0;
     OpenABEByteString zciphertext;
@@ -457,15 +438,17 @@ void OpenABESymKeyHandleImpl::decrypt(string &plaintext,
     if (!dec_status) {
       throw runtime_error("Decryption failed");
     }
-  } catch (OpenABE_ERROR &error) {
+  } catch (OpenABE_ERROR& error) {
     string msg = OpenABE_errorToString(error);
     throw runtime_error(msg);
   }
 }
 
-void OpenABESymKeyHandleImpl::exportRawKey(string &key) { key = this->key_; }
+void OpenABESymKeyHandleImpl::exportRawKey(string& key) {
+  key = this->key_;
+}
 
-void OpenABESymKeyHandleImpl::exportKey(string &key) {
+void OpenABESymKeyHandleImpl::exportKey(string& key) {
   size_t key_len = this->key_.size();
   OpenABEByteString secret_key, salt, info, output_key;
   secret_key += this->key_;

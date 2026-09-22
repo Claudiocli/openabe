@@ -50,7 +50,7 @@ using namespace std;
  */
 namespace oabe {
 
-const char *OpenABE_errorToString(OpenABE_ERROR error) {
+const char* OpenABE_errorToString(OpenABE_ERROR error) {
   switch (error) {
   case OpenABE_NOERROR:
     return "No error";
