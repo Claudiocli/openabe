@@ -36,7 +36,7 @@
 using namespace std;
 using namespace oabe;
 
-void getFile(std::string &result, const std::string &filename) {
+void getFile(std::string& result, const std::string& filename) {
   result.clear();
 
   fstream fs(filename, fstream::in);
@@ -56,7 +56,7 @@ void getFile(std::string &result, const std::string &filename) {
   fs.close();
 }
 
-OpenABE_SCHEME checkForScheme(string type, string &suffix) {
+OpenABE_SCHEME checkForScheme(string type, string& suffix) {
   suffix.clear();
   if (type == CP_ABE) {
     suffix = ".cpabe";
@@ -72,7 +72,7 @@ OpenABE_SCHEME checkForScheme(string type, string &suffix) {
   }
 }
 
-void addNameSeparator(string &prefix) {
+void addNameSeparator(string& prefix) {
   // check if last character of prefix is a name separator (if not, add it)
   if (prefix.size() > 0 && prefix[prefix.size() - 1] != NAME_SEP) {
     prefix += NAME_SEP;
@@ -81,21 +81,21 @@ void addNameSeparator(string &prefix) {
 }
 
 // adds an extension if not present
-void addFileExtension(string &filename, string ext) {
+void addFileExtension(string& filename, string ext) {
   if (filename.find(ext) == string::npos) {
     filename += ext;
   }
   return;
 }
 
-void WriteToFile(const char *filename, string outputStr) {
+void WriteToFile(const char* filename, string outputStr) {
   ofstream file;
   file.open(filename);
   file << outputStr;
   file.close();
 }
 
-string ReadFile(const char *filename) {
+string ReadFile(const char* filename) {
   ifstream input(filename);
   string line = "";
   // read everthing between the headers
@@ -115,8 +115,7 @@ string ReadFile(const char *filename) {
   return Base64Decode(line);
 }
 
-string ReadBlockFromFile(const char *begin_header, const char *end_header,
-                         const char *filename) {
+string ReadBlockFromFile(const char* begin_header, const char* end_header, const char* filename) {
   ifstream input(filename);
   string block = "", line;
   bool found_header = false;
@@ -138,22 +137,22 @@ string ReadBlockFromFile(const char *begin_header, const char *end_header,
   return Base64Decode(block);
 }
 
-void WriteBinaryFile(const char *filename, string &outputStr) {
+void WriteBinaryFile(const char* filename, string& outputStr) {
   ofstream file;
   file.open(filename, ios::out | ios::binary);
   file << outputStr;
   file.close();
 }
 
-void WriteBinaryFile(const char *filename, uint8_t *buf, uint32_t len) {
+void WriteBinaryFile(const char* filename, uint8_t* buf, uint32_t len) {
   ofstream file;
   file.open(filename, ios::out | ios::binary);
   // file << outputStr;
-  file.write((const char *)buf, (int)len);
+  file.write((const char*)buf, (int)len);
   file.close();
 }
 
-string ReadBinaryFile(const char *filename) {
+string ReadBinaryFile(const char* filename) {
   ifstream input(filename, ios::binary);
   string inputBlob = "", line;
   // read everthing between the headers

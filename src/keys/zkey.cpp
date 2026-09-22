@@ -66,8 +66,8 @@ OpenABEKey::OpenABEKey() : OpenABEContainer() {
  *
  */
 
-OpenABEKey::OpenABEKey(const OpenABECurveID curveID, uint8_t algorithmID,
-                       const string ID, OpenABEByteString *uid)
+OpenABEKey::OpenABEKey(const OpenABECurveID curveID, uint8_t algorithmID, const string ID,
+                       OpenABEByteString* uid)
     : OpenABEContainer() {
   // store the curve identifier
   this->curveID = curveID;
@@ -101,7 +101,7 @@ OpenABEKey::~OpenABEKey() {}
  *
  */
 
-void OpenABEKey::getHeader(OpenABEByteString &header) {
+void OpenABEKey::getHeader(OpenABEByteString& header) {
   header.clear();
   header.push_back(this->libraryVersion);
   header.push_back(this->curveID);
@@ -111,7 +111,7 @@ void OpenABEKey::getHeader(OpenABEByteString &header) {
   return;
 }
 
-OpenABE_ERROR OpenABEKey::exportKeyToBytes(OpenABEByteString &output) {
+OpenABE_ERROR OpenABEKey::exportKeyToBytes(OpenABEByteString& output) {
   output.clear();
   OpenABEByteString keyHeader, keyBytes;
   // libVersion || curveID || AlgID || uid || id
@@ -129,7 +129,7 @@ OpenABE_ERROR OpenABEKey::exportKeyToBytes(OpenABEByteString &output) {
   return OpenABE_NOERROR;
 }
 
-OpenABE_ERROR OpenABEKey::loadKeyFromBytes(OpenABEByteString &input) {
+OpenABE_ERROR OpenABEKey::loadKeyFromBytes(OpenABEByteString& input) {
   this->deserialize(input);
   return OpenABE_NOERROR;
 }
@@ -137,11 +137,9 @@ OpenABE_ERROR OpenABEKey::loadKeyFromBytes(OpenABEByteString &input) {
 OpenABEKeyType OpenABE_KeyTypeFromAlgorithmID(uint8_t algorithmID) {
   if (algorithmID == OpenABE_SCHEME_PK_OPDH)
     return OpenABEKEY_PK_ENC;
-  else if (algorithmID == OpenABE_SCHEME_CP_WATERS ||
-           algorithmID == OpenABE_SCHEME_CP_WATERS_CCA)
+  else if (algorithmID == OpenABE_SCHEME_CP_WATERS || algorithmID == OpenABE_SCHEME_CP_WATERS_CCA)
     return OpenABEKEY_CP_ENC;
-  else if (algorithmID == OpenABE_SCHEME_KP_GPSW ||
-           algorithmID == OpenABE_SCHEME_KP_GPSW_CCA)
+  else if (algorithmID == OpenABE_SCHEME_KP_GPSW || algorithmID == OpenABE_SCHEME_KP_GPSW_CCA)
     return OpenABEKEY_KP_ENC;
   else if (algorithmID == OpenABE_SCHEME_PKSIG_ECDSA)
     return OpenABEKEY_PK_SIG;

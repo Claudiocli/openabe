@@ -63,14 +63,12 @@ OpenABEPolicy::OpenABEPolicy()
  *
  */
 
-OpenABEPolicy::OpenABEPolicy(const OpenABEPolicy &copy)
-    : OpenABEFunctionInput() {
-  OpenABETreeNode *root = copy.getRootNode();
+OpenABEPolicy::OpenABEPolicy(const OpenABEPolicy& copy) : OpenABEFunctionInput() {
+  OpenABETreeNode* root = copy.getRootNode();
 
   // Copy the tree (routine can handle a NULL root)
   if (root != NULL) {
-    this->m_rootNode =
-        std::unique_ptr<OpenABETreeNode>(new OpenABETreeNode(root));
+    this->m_rootNode = std::unique_ptr<OpenABETreeNode>(new OpenABETreeNode(root));
   } else {
     this->m_rootNode = nullptr;
   }
@@ -88,7 +86,9 @@ OpenABEPolicy::OpenABEPolicy(const OpenABEPolicy &copy)
  *
  */
 
-OpenABEPolicy::~OpenABEPolicy() { this->m_rootNode.reset(); }
+OpenABEPolicy::~OpenABEPolicy() {
+  this->m_rootNode.reset();
+}
 
 #if 0
 void
@@ -108,11 +108,11 @@ OpenABEPolicy::ConstructTestPolicy() {
 }
 #endif
 
-void OpenABEPolicy::setRootNode(OpenABETreeNode *subtree) {
+void OpenABEPolicy::setRootNode(OpenABETreeNode* subtree) {
   this->m_rootNode = std::unique_ptr<OpenABETreeNode>(subtree);
 }
 
-void OpenABEPolicy::serialize(OpenABEByteString &result) const {}
+void OpenABEPolicy::serialize(OpenABEByteString& result) const {}
 
 std::unique_ptr<OpenABEPolicy> createPolicyTree(std::string s) {
   oabe::Driver driver(false);
@@ -123,15 +123,14 @@ std::unique_ptr<OpenABEPolicy> createPolicyTree(std::string s) {
   try {
     driver.parse_string(POLICY_PREFIX, s);
     return driver.getPolicy();
-  } catch (OpenABE_ERROR &error) {
+  } catch (OpenABE_ERROR& error) {
     cerr << "OpenABE Error: " << OpenABE_errorToString(error) << endl;
     return nullptr;
   }
 }
 
-unique_ptr<OpenABEPolicy> addToRootOfInput(zGateType type,
-                                           const string attribute,
-                                           OpenABEPolicy *policy) {
+unique_ptr<OpenABEPolicy> addToRootOfInput(zGateType type, const string attribute,
+                                           OpenABEPolicy* policy) {
   ASSERT_NOTNULL(policy);
   if (!policy->getRevocationStatus()) {
     // add attribute to policy
@@ -147,22 +146,21 @@ unique_ptr<OpenABEPolicy> addToRootOfInput(zGateType type,
   return nullptr;
 }
 
-OpenABEPolicy &OpenABEPolicy::operator=(OpenABEPolicy const &rhs) {
+OpenABEPolicy& OpenABEPolicy::operator=(OpenABEPolicy const& rhs) {
   // Protect against self-assignment
   if (this != &rhs) {
     // Free the pairing structure associated with the current
     // object, and move the new one in
     this->m_rootNode.reset();
     // set this rootNode to the rhs and perform copy via OpenABETreeNode class
-    this->m_rootNode = std::unique_ptr<OpenABETreeNode>(
-        new OpenABETreeNode(rhs.getRootNode()));
+    this->m_rootNode = std::unique_ptr<OpenABETreeNode>(new OpenABETreeNode(rhs.getRootNode()));
   }
 
   return *this;
 }
 
-void OpenABEPolicy::setDuplicateInfo(std::map<std::string, int> &attr_count,
-                                     std::set<std::string> &attr_list) {
+void OpenABEPolicy::setDuplicateInfo(std::map<std::string, int>& attr_count,
+                                     std::set<std::string>& attr_list) {
   if (attr_list.size() > 0) {
     this->m_hasDuplicates = true;
     // set<string>::iterator it;
@@ -176,13 +174,13 @@ void OpenABEPolicy::setDuplicateInfo(std::map<std::string, int> &attr_count,
   }
 
   // record the list of attributes (for easy access)
-  for (auto &it : attr_count) {
+  for (auto& it : attr_count) {
     // cout << "ATTR: " << it.first << endl;
     this->m_attrCompleteSet.insert(it.first);
   }
 }
 
-void OpenABEPolicy::setPrefixSet(set<string> &prefix_set) {
+void OpenABEPolicy::setPrefixSet(set<string>& prefix_set) {
   m_prefixSet = prefix_set;
 }
 
@@ -196,8 +194,8 @@ void OpenABEPolicy::setPrefixSet(set<string> &prefix_set) {
  */
 
 OpenABETreeNode::OpenABETreeNode()
-    : m_nodeType(GATE_TYPE_NONE), m_thresholdValue(0), m_numSubnodes(0),
-      m_Mark(false), m_Prefix(""), m_Label(""), m_Index(0), m_Visited(false) {}
+    : m_nodeType(GATE_TYPE_NONE), m_thresholdValue(0), m_numSubnodes(0), m_Mark(false),
+      m_Prefix(""), m_Label(""), m_Index(0), m_Visited(false) {}
 
 /*!
  * Constructor for leaf nodes
@@ -205,9 +203,8 @@ OpenABETreeNode::OpenABETreeNode()
  */
 
 OpenABETreeNode::OpenABETreeNode(string label, string prefix, int index)
-    : m_nodeType(GATE_TYPE_LEAF), m_thresholdValue(0), m_numSubnodes(0),
-      m_Mark(false), m_Prefix(prefix), m_Label(label), m_Index(index),
-      m_Visited(false) {}
+    : m_nodeType(GATE_TYPE_LEAF), m_thresholdValue(0), m_numSubnodes(0), m_Mark(false),
+      m_Prefix(prefix), m_Label(label), m_Index(index), m_Visited(false) {}
 
 /*!
  * Get the threshold value, which is computed based on the gate type.
@@ -246,10 +243,9 @@ uint32_t OpenABETreeNode::getThresholdValue() {
  * @throw                  - an exception if the subnode doesn't exist
  */
 
-OpenABETreeNode *OpenABETreeNode::getSubnode(uint32_t index) {
+OpenABETreeNode* OpenABETreeNode::getSubnode(uint32_t index) {
   if (index >= this->getNumSubnodes()) {
-    OpenABE_LOG_AND_THROW("Invalid policy subnode requested",
-                          OpenABE_ERROR_INVALID_INPUT);
+    OpenABE_LOG_AND_THROW("Invalid policy subnode requested", OpenABE_ERROR_INVALID_INPUT);
   }
 
   return this->m_Subnodes[index];
@@ -261,7 +257,7 @@ OpenABETreeNode *OpenABETreeNode::getSubnode(uint32_t index) {
  * @throw            - an exception if there is a problem copying the policy
  */
 
-OpenABETreeNode::OpenABETreeNode(OpenABETreeNode *copy) {
+OpenABETreeNode::OpenABETreeNode(OpenABETreeNode* copy) {
   if (copy == NULL) {
     OpenABE_LOG_AND_THROW("Copy with NULL pointer", OpenABE_ERROR_UNKNOWN);
   }
@@ -339,8 +335,7 @@ string OpenABETreeNode::toString() {
   if (this->m_Subnodes.size() == 2) {
     tree += "(";
     if (recurse) {
-      tree += this->m_Subnodes[0]->toString() + op +
-              this->m_Subnodes[1]->toString();
+      tree += this->m_Subnodes[0]->toString() + op + this->m_Subnodes[1]->toString();
     }
     tree += ")";
   } else {
@@ -362,9 +357,9 @@ string OpenABETreeNode::toString() {
 /*
  * Iterative pre-order traversal to set each m_Mark and m_Visited flags to false
  */
-bool resetFlags(OpenABETreeNode *root) {
-  std::stack<OpenABETreeNode *> stack;
-  OpenABETreeNode *top = nullptr;
+bool resetFlags(OpenABETreeNode* root) {
+  std::stack<OpenABETreeNode*> stack;
+  OpenABETreeNode* top = nullptr;
   if (root == nullptr)
     return false;
   stack.push(root);
@@ -406,12 +401,12 @@ OpenABETreeNode::~OpenABETreeNode() {
   }
 }
 
-void OpenABETreeNode::addSubnode(OpenABETreeNode *subnode) {
+void OpenABETreeNode::addSubnode(OpenABETreeNode* subnode) {
   this->m_Subnodes.push_back(subnode);
   this->m_numSubnodes++;
 }
 
-const char *OpenABETreeNode_ToString(zGateType type) {
+const char* OpenABETreeNode_ToString(zGateType type) {
   switch (type) {
   case GATE_TYPE_OR:
     return " or ";
@@ -429,8 +424,7 @@ const char *OpenABETreeNode_ToString(zGateType type) {
   return "";
 }
 
-std::vector<std::string> &split(const std::string &s, char delim,
-                                std::vector<std::string> &elems) {
+std::vector<std::string>& split(const std::string& s, char delim, std::vector<std::string>& elems) {
   std::stringstream ss(s);
   std::string item;
   while (std::getline(ss, item, delim)) {
@@ -441,7 +435,7 @@ std::vector<std::string> &split(const std::string &s, char delim,
   return elems;
 }
 
-std::vector<std::string> split(const std::string &s, char delim) {
+std::vector<std::string> split(const std::string& s, char delim) {
   std::vector<std::string> elems;
   split(s, delim, elems);
   return elems;

@@ -59,8 +59,7 @@ OpenABECiphertext::OpenABECiphertext() : OpenABEContainer() {
   this->uid_set_extern = false;
 }
 
-OpenABECiphertext::OpenABECiphertext(std::shared_ptr<ZGroup> group)
-    : OpenABEContainer(group) {
+OpenABECiphertext::OpenABECiphertext(std::shared_ptr<ZGroup> group) : OpenABEContainer(group) {
   this->curveID = OpenABE_NONE_ID;
   this->algorithmID = OpenABE_SCHEME_NONE;
   this->libraryVersion = OpenABE_LIBRARY_VERSION;
@@ -68,8 +67,7 @@ OpenABECiphertext::OpenABECiphertext(std::shared_ptr<ZGroup> group)
   this->uid_set_extern = false;
 }
 
-OpenABECiphertext::OpenABECiphertext(const OpenABEByteString &uid)
-    : OpenABEContainer() {
+OpenABECiphertext::OpenABECiphertext(const OpenABEByteString& uid) : OpenABEContainer() {
   this->curveID = OpenABE_NONE_ID;
   this->algorithmID = OpenABE_SCHEME_NONE;
   this->libraryVersion = OpenABE_LIBRARY_VERSION;
@@ -94,7 +92,7 @@ OpenABECiphertext::~OpenABECiphertext() {}
  * elements).
  *
  */
-void OpenABECiphertext::exportToBytes(OpenABEByteString &output) {
+void OpenABECiphertext::exportToBytes(OpenABEByteString& output) {
   OpenABEByteString ciphertextHeader, ciphertextBytes;
   // libVersion || curveID || AlgID || uid || id
   this->getHeader(ciphertextHeader);
@@ -113,7 +111,7 @@ void OpenABECiphertext::exportToBytes(OpenABEByteString &output) {
  * elements).
  *
  */
-void OpenABECiphertext::loadFromBytes(OpenABEByteString &input) {
+void OpenABECiphertext::loadFromBytes(OpenABEByteString& input) {
   size_t hdrLen = 3 + UID_LEN;
   if (input.size() < hdrLen) {
     throw OpenABE_ERROR_INVALID_INPUT;
@@ -126,8 +124,7 @@ void OpenABECiphertext::loadFromBytes(OpenABEByteString &input) {
 
   if (ciphertextHeader.size() == hdrLen) {
     // assert that libID matches current libID
-    ASSERT(ciphertextHeader.at(0) <= OpenABE_LIBRARY_VERSION,
-           OpenABE_ERROR_INVALID_LIBVERSION);
+    ASSERT(ciphertextHeader.at(0) <= OpenABE_LIBRARY_VERSION, OpenABE_ERROR_INVALID_LIBVERSION);
     this->libraryVersion = ciphertextHeader.at(0);
     // fetch remaining ciphertext bytes
     ciphertextBytes = input.smartUnpack(&index);
@@ -153,7 +150,7 @@ void OpenABECiphertext::loadFromBytes(OpenABEByteString &input) {
  * header).
  *
  */
-void OpenABECiphertext::exportToBytesWithoutHeader(OpenABEByteString &output) {
+void OpenABECiphertext::exportToBytesWithoutHeader(OpenABEByteString& output) {
   OpenABEByteString ciphertextBytes;
   // serialize the ciphertext elements
   this->serialize(ciphertextBytes);
@@ -169,7 +166,7 @@ void OpenABECiphertext::exportToBytesWithoutHeader(OpenABEByteString &output) {
  * header).
  *
  */
-void OpenABECiphertext::loadFromBytesWithoutHeader(OpenABEByteString &input) {
+void OpenABECiphertext::loadFromBytesWithoutHeader(OpenABEByteString& input) {
   OpenABEByteString ciphertextBytes;
   size_t index = 0;
 
@@ -184,8 +181,8 @@ void OpenABECiphertext::loadFromBytesWithoutHeader(OpenABEByteString &input) {
  * Obtain the serialized form of the OpenABEKey header.
  *
  */
-void OpenABECiphertext::setHeader(OpenABECurveID curveID,
-                                  OpenABE_SCHEME scheme_type, OpenABERNG *rng) {
+void OpenABECiphertext::setHeader(OpenABECurveID curveID, OpenABE_SCHEME scheme_type,
+                                  OpenABERNG* rng) {
   /* set the header of the ciphertext */
   this->curveID = curveID;
   this->algorithmID = scheme_type;
@@ -197,9 +194,8 @@ void OpenABECiphertext::setHeader(OpenABECurveID curveID,
   }
 }
 
-void OpenABECiphertext::setHeader(OpenABECurveID curveID,
-                                  OpenABE_SCHEME scheme_type,
-                                  OpenABEByteString &uid) {
+void OpenABECiphertext::setHeader(OpenABECurveID curveID, OpenABE_SCHEME scheme_type,
+                                  OpenABEByteString& uid) {
   /* set the header of the ciphertext */
   this->curveID = curveID;
   this->algorithmID = scheme_type;
@@ -212,7 +208,7 @@ void OpenABECiphertext::setHeader(OpenABECurveID curveID,
  * Obtain the serialized form of the OpenABEKey header.
  *
  */
-void OpenABECiphertext::getHeader(OpenABEByteString &header) {
+void OpenABECiphertext::getHeader(OpenABEByteString& header) {
   header.clear();
   header.push_back(this->libraryVersion);
   header.push_back(this->curveID);

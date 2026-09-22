@@ -53,7 +53,7 @@ extern "C" {
 
 /// Opaque handle for a point on the ec build's curve. The struct is defined
 /// in zelement_ec_relic.c, the only place that knows the ec build's ep_t.
-typedef struct ec_relic_point_st *ec_relic_point_t;
+typedef struct ec_relic_point_st* ec_relic_point_t;
 
 /// Initialize and tear down the ec build's own RELIC context. Separate from
 /// the bp build's core_init()/core_clean(), which the caller drives itself.
@@ -66,7 +66,7 @@ int ec_relic_param_set(int curve_bits);
 
 /// Write the group order of the active curve into out, big-endian, and
 /// return the number of bytes written. Returns 0 if outlen is too small.
-size_t ec_relic_order_bin(uint8_t *out, size_t outlen);
+size_t ec_relic_order_bin(uint8_t* out, size_t outlen);
 
 /// Size in bytes of one field element, which is the width
 /// ec_relic_point_coord_bin writes per coordinate.
@@ -79,29 +79,26 @@ void ec_relic_point_free(ec_relic_point_t p);
 
 void ec_relic_point_copy(ec_relic_point_t to, const ec_relic_point_t from);
 void ec_relic_point_set_inf(ec_relic_point_t p);
-int  ec_relic_point_is_inf(const ec_relic_point_t p);
-int  ec_relic_point_is_on_curve(const ec_relic_point_t p);
-int  ec_relic_point_cmp(const ec_relic_point_t a, const ec_relic_point_t b);
-void ec_relic_point_add(ec_relic_point_t r, const ec_relic_point_t a,
-                        const ec_relic_point_t b);
+int ec_relic_point_is_inf(const ec_relic_point_t p);
+int ec_relic_point_is_on_curve(const ec_relic_point_t p);
+int ec_relic_point_cmp(const ec_relic_point_t a, const ec_relic_point_t b);
+void ec_relic_point_add(ec_relic_point_t r, const ec_relic_point_t a, const ec_relic_point_t b);
 
 /// r = a * k, where k is a big-endian scalar of klen bytes.
-void ec_relic_point_mul(ec_relic_point_t r, const ec_relic_point_t a,
-                        const uint8_t *k, size_t klen);
+void ec_relic_point_mul(ec_relic_point_t r, const ec_relic_point_t a, const uint8_t* k,
+                        size_t klen);
 
 void ec_relic_generator(ec_relic_point_t g);
 
 /// Serialization. pack is 1 for the compressed encoding, 0 for uncompressed.
 size_t ec_relic_point_size_bin(const ec_relic_point_t p, int pack);
-void ec_relic_point_write_bin(uint8_t *out, size_t len,
-                              const ec_relic_point_t p, int pack);
-void ec_relic_point_read_bin(ec_relic_point_t p, const uint8_t *in, size_t len);
+void ec_relic_point_write_bin(uint8_t* out, size_t len, const ec_relic_point_t p, int pack);
+void ec_relic_point_read_bin(ec_relic_point_t p, const uint8_t* in, size_t len);
 
 /// Write p's affine x and y coordinates, each big-endian and each exactly len
 /// bytes wide. len must equal ec_relic_field_bytes(). Returns 0 on success,
 /// -1 for any other len.
-int ec_relic_point_coord_bin(uint8_t *xout, uint8_t *yout, size_t len,
-                             const ec_relic_point_t p);
+int ec_relic_point_coord_bin(uint8_t* xout, uint8_t* yout, size_t len, const ec_relic_point_t p);
 
 #ifdef __cplusplus
 }

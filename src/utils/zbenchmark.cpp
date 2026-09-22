@@ -40,9 +40,13 @@ using namespace std;
 int sec_in_microsecond = 1000000;
 int ms_in_microsecond = 1000;
 
-void Benchmark::start() { startT = chrono::system_clock::now(); }
+void Benchmark::start() {
+  startT = chrono::system_clock::now();
+}
 
-void Benchmark::stop() { endT = chrono::system_clock::now(); }
+void Benchmark::stop() {
+  endT = chrono::system_clock::now();
+}
 
 int Benchmark::getTimeInMicroseconds() {
   if (initBench) {
@@ -63,9 +67,13 @@ double Benchmark::computeTimeInMilliseconds() {
   return -1.0; // didn't call start
 }
 
-string Benchmark::getRawResultString() { return ss.str(); }
+string Benchmark::getRawResultString() {
+  return ss.str();
+}
 
-double Benchmark::getAverage() { return sum / iterationCount; }
+double Benchmark::getAverage() {
+  return sum / iterationCount;
+}
 
 ListStr::ListStr(void) {
   // increases as elements are appended
@@ -77,13 +85,13 @@ ListStr::~ListStr() {
     list.erase(i);
 }
 
-ListStr::ListStr(const ListStr &cList) {
+ListStr::ListStr(const ListStr& cList) {
   // copy constructor
   index = cList.index;
   list = cList.list;
 }
 
-void ListStr::append(string &s) {
+void ListStr::append(string& s) {
   list[index] = s;
   index++;
 }
@@ -98,7 +106,7 @@ void ListStr::insert(int index, string s) {
   index++;
 }
 
-void ListStr::insert(int index, string &s) {
+void ListStr::insert(int index, string& s) {
   list[index] = s;
   this->index++;
 }
@@ -112,7 +120,7 @@ int ListStr::searchKey(string index) {
   return -1;
 }
 
-string &ListStr::operator[](const int index) {
+string& ListStr::operator[](const int index) {
   if (index == this->index) { // means we are creating reference.
     this->index++;
     return list[index];
@@ -128,7 +136,7 @@ string &ListStr::operator[](const int index) {
   }
 }
 
-ListStr &ListStr::operator=(const ListStr &cList) {
+ListStr& ListStr::operator=(const ListStr& cList) {
   if (this == &cList)
     return *this;
 
@@ -143,7 +151,9 @@ ListStr &ListStr::operator=(const ListStr &cList) {
   return *this;
 }
 
-int ListStr::length() { return (int)list.size(); }
+int ListStr::length() {
+  return (int)list.size();
+}
 
 string ListStr::printAtIndex(int index) {
   stringstream ss;
@@ -158,7 +168,7 @@ string ListStr::printAtIndex(int index) {
   return s;
 }
 
-ostream &operator<<(ostream &s, const ListStr &cList) {
+ostream& operator<<(ostream& s, const ListStr& cList) {
   ListStr cList2 = cList;
   for (int i = 0; i < cList2.length(); i++) {
     if (cList2.printAtIndex(i) != "")

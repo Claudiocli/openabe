@@ -59,11 +59,11 @@ using namespace oabe;
 
 #define CPA "cpa"
 #define CCA "cca"
-#define EXIT(msg)                                                              \
-  cout << msg << endl;                                                         \
+#define EXIT(msg)                                                                                  \
+  cout << msg << endl;                                                                             \
   goto CLEANUP
 
-const string mapToJsonString(map<string, string> &data) {
+const string mapToJsonString(map<string, string>& data) {
   stringstream ss;
   int data_size = data.size();
   bool has_one = (data_size > 0) ? true : false;
@@ -72,7 +72,7 @@ const string mapToJsonString(map<string, string> &data) {
 #if defined(USE_BOOST)
   boost::property_tree::ptree pt;
 
-  for (auto &d : data) {
+  for (auto& d : data) {
     // keep this simple...
     pt.put(d.first, d.second);
   }
@@ -80,7 +80,7 @@ const string mapToJsonString(map<string, string> &data) {
 #else
   int c = 0;
   ss << "{" << endl;
-  for (auto &d : data) {
+  for (auto& d : data) {
     c++;
     ss << "\t\"" << d.first << "\": \"" << d.second << "\"";
     if (c < data_size) {
@@ -104,7 +104,7 @@ bool isEqual(string value1, string value2) {
     return false;
 }
 
-string createAttribute(const string &prefix, int i) {
+string createAttribute(const string& prefix, int i) {
   stringstream ss;
   if (prefix == "")
     ss << "Attr" << i;
@@ -113,7 +113,7 @@ string createAttribute(const string &prefix, int i) {
   return ss.str();
 }
 
-bool getAttributes(const string &prefix, int max, vector<string> &attrList) {
+bool getAttributes(const string& prefix, int max, vector<string>& attrList) {
   if (max < 0) {
     return false;
   }
@@ -125,14 +125,13 @@ bool getAttributes(const string &prefix, int max, vector<string> &attrList) {
 }
 
 // returns an evenly distributed / balanced policy tree
-string getBalancedOpenABETree(const string &prefix, int start, int end) {
+string getBalancedOpenABETree(const string& prefix, int start, int end) {
   if (start == end) {
     return createAttribute(prefix, start);
   }
   int mid = ceil((start + (end - start) / 2.0));
   if (mid == 0) {
-    return "(" + createAttribute(prefix, start) + " and " +
-           createAttribute(prefix, end) + ")";
+    return "(" + createAttribute(prefix, start) + " and " + createAttribute(prefix, end) + ")";
   } else {
     return "(" + getBalancedOpenABETree(prefix, start, mid - 1) + " and " +
            getBalancedOpenABETree(prefix, mid, end) + ")";
@@ -144,11 +143,10 @@ string getBalancedOpenABETree(const string &prefix, int start, int end) {
 //     return getBalancedOpenABETree(0, max-1);
 // }
 
-string getPolicyString(const string &prefix, int max) {
+string getPolicyString(const string& prefix, int max) {
   string policystr;
   if (max >= 2) {
-    policystr = "(" + createAttribute(prefix, 0) + " and " +
-                createAttribute(prefix, 1) + ")";
+    policystr = "(" + createAttribute(prefix, 0) + " and " + createAttribute(prefix, 1) + ")";
   } else if (max == 1) {
     policystr = createAttribute(prefix, 0);
   }
@@ -173,22 +171,18 @@ string getSchemeString(OpenABE_SCHEME scheme_type) {
 /// Benchmark routines for CP-ABE Waters '11 and KP-ABE GPSW ///
 ///////////////////////////////////////////////////////////////////////////////////
 
-void benchmarkABE_CPA_KEM(map<string, string> &data, OpenABE_SCHEME scheme_type,
-                          ofstream &outfile0, ofstream &outfile1,
-                          ofstream &outfile2, int attributeCount,
-                          int iterationCount, ListStr &encryptResults,
-                          ListStr &keygenResults, ListStr &decryptResults,
-                          bool verbose) {
+void benchmarkABE_CPA_KEM(map<string, string>& data, OpenABE_SCHEME scheme_type, ofstream& outfile0,
+                          ofstream& outfile1, ofstream& outfile2, int attributeCount,
+                          int iterationCount, ListStr& encryptResults, ListStr& keygenResults,
+                          ListStr& decryptResults, bool verbose) {
   data["scheme"] = getSchemeString(scheme_type);
   data["security"] = "CPA_KEM";
   Benchmark benchE, benchD, benchK;
   OpenABE_ERROR res;
   double en_in_ms, de_in_ms, kg_in_ms;
   stringstream s0, s1, s2;
-  string mpk, msk, auth1mpk, auth1msk, decKey = "decKey",
-                                       decKeyBench = "decKeyBench";
-  std::unique_ptr<OpenABEFunctionInput> keyFuncInput = nullptr,
-                                        encFuncInput = nullptr;
+  string mpk, msk, auth1mpk, auth1msk, decKey = "decKey", decKeyBench = "decKeyBench";
+  std::unique_ptr<OpenABEFunctionInput> keyFuncInput = nullptr, encFuncInput = nullptr;
   shared_ptr<OpenABESymKey> symkey = nullptr, newkey = nullptr;
   unique_ptr<OpenABECiphertext> ciphertext = nullptr;
   unique_ptr<OpenABEContextABE> context = nullptr;
@@ -204,13 +198,11 @@ void benchmarkABE_CPA_KEM(map<string, string> &data, OpenABE_SCHEME scheme_type,
     EXIT("Unable to create a new context");
   }
 
-  if (scheme_type == OpenABE_SCHEME_CP_WATERS ||
-      scheme_type == OpenABE_SCHEME_KP_GPSW) {
+  if (scheme_type == OpenABE_SCHEME_CP_WATERS || scheme_type == OpenABE_SCHEME_KP_GPSW) {
     mpk = "MPK";
     msk = "MSK";
     // Generate a set of parameters for an ABE authority
-    if (context->generateParams(DEFAULT_BP_PARAM, mpk, msk) !=
-        OpenABE_NOERROR) {
+    if (context->generateParams(DEFAULT_BP_PARAM, mpk, msk) != OpenABE_NOERROR) {
       EXIT("Unable to generate params");
     }
   } else {
@@ -221,25 +213,21 @@ void benchmarkABE_CPA_KEM(map<string, string> &data, OpenABE_SCHEME scheme_type,
   if (scheme_type == OpenABE_SCHEME_CP_WATERS) {
     // attributes are embedded in the key
     keyFuncInput.reset(new OpenABEAttributeList(S.size(), S));
-    cout << "<== ATTRIBUTES ==>" << keyFuncInput->toString()
-         << "<== ATTRIBUTES ==>\n"; // DEBUG
+    cout << "<== ATTRIBUTES ==>" << keyFuncInput->toString() << "<== ATTRIBUTES ==>\n"; // DEBUG
 
     // policy is embedded in the ciphertext
     string policy_str = getPolicyString(prefix, attributeCount);
-    encFuncInput =
-        std::unique_ptr<OpenABEFunctionInput>(createPolicyTree(policy_str));
+    encFuncInput = std::unique_ptr<OpenABEFunctionInput>(createPolicyTree(policy_str));
     // cout << "<=== FUNC INPUT ===>\n" << policy_str << "<=== FUNC INPUT
     // ===>\n";
   } else if (scheme_type == OpenABE_SCHEME_KP_GPSW) {
     // policy is embedded in the key
     string policy_str = getPolicyString(prefix, attributeCount);
-    keyFuncInput =
-        std::unique_ptr<OpenABEFunctionInput>(createPolicyTree(policy_str));
+    keyFuncInput = std::unique_ptr<OpenABEFunctionInput>(createPolicyTree(policy_str));
 
     // attributes are embedded in the ciphertext
     encFuncInput.reset(new OpenABEAttributeList(S.size(), S));
-    cout << "<== ATTRIBUTES ==>" << encFuncInput->toString()
-         << "<== ATTRIBUTES ==>\n"; // DEBUG
+    cout << "<== ATTRIBUTES ==>" << encFuncInput->toString() << "<== ATTRIBUTES ==>\n"; // DEBUG
   }
 
   // generate key used for decryption
@@ -249,13 +237,11 @@ void benchmarkABE_CPA_KEM(map<string, string> &data, OpenABE_SCHEME scheme_type,
   cout << "Testing with " << S.size() << " attributes" << endl;
   for (int i = 0; i < iterationCount; i++) {
     benchK.start();
-    res = context->generateDecryptionKey(keyFuncInput.get(), decKeyBench, mpk,
-                                         msk);
+    res = context->generateDecryptionKey(keyFuncInput.get(), decKeyBench, mpk, msk);
     benchK.stop();
     kg_in_ms = benchK.computeTimeInMilliseconds();
     if (res != OpenABE_NOERROR) {
-      cout << "Fail: " << OpenABE_errorToString(res) << ", time: " << kg_in_ms
-           << " ms" << endl;
+      cout << "Fail: " << OpenABE_errorToString(res) << ", time: " << kg_in_ms << " ms" << endl;
       EXIT("failed to generate key");
     }
     context->getKeystore()->deleteKey(decKeyBench);
@@ -271,13 +257,12 @@ void benchmarkABE_CPA_KEM(map<string, string> &data, OpenABE_SCHEME scheme_type,
     symkey.reset(new OpenABESymKey);
     ciphertext.reset(new OpenABECiphertext);
     benchE.start();
-    res = context->encryptKEM(nullptr, mpk, encFuncInput.get(),
-                              DEFAULT_SYM_KEY_BYTES, symkey, ciphertext.get());
+    res = context->encryptKEM(nullptr, mpk, encFuncInput.get(), DEFAULT_SYM_KEY_BYTES, symkey,
+                              ciphertext.get());
     benchE.stop();
     en_in_ms = benchE.computeTimeInMilliseconds();
     if (res != OpenABE_NOERROR) {
-      cout << "Fail: " << OpenABE_errorToString(res) << ", time: " << en_in_ms
-           << " ms" << endl;
+      cout << "Fail: " << OpenABE_errorToString(res) << ", time: " << en_in_ms << " ms" << endl;
     }
   }
   // get encryption measurements
@@ -291,13 +276,11 @@ void benchmarkABE_CPA_KEM(map<string, string> &data, OpenABE_SCHEME scheme_type,
   for (int i = 0; i < iterationCount; i++) {
     newkey.reset(new OpenABESymKey);
     benchD.start();
-    res = context->decryptKEM(mpk, decKey, ciphertext.get(),
-                              DEFAULT_SYM_KEY_BYTES, newkey);
+    res = context->decryptKEM(mpk, decKey, ciphertext.get(), DEFAULT_SYM_KEY_BYTES, newkey);
     benchD.stop();
     de_in_ms = benchD.computeTimeInMilliseconds();
     if (res != OpenABE_NOERROR) {
-      cout << "Fail: " << OpenABE_errorToString(res) << ", time: " << de_in_ms
-           << " ms" << endl;
+      cout << "Fail: " << OpenABE_errorToString(res) << ", time: " << de_in_ms << " ms" << endl;
     }
   }
   // get decryption measurements
@@ -316,22 +299,18 @@ CLEANUP:
   return;
 }
 
-void benchmarkABE_CCA_KEM(map<string, string> &data, OpenABE_SCHEME scheme_type,
-                          ofstream &outfile0, ofstream &outfile1,
-                          ofstream &outfile2, int attributeCount,
-                          int iterationCount, ListStr &encryptResults,
-                          ListStr &keygenResults, ListStr &decryptResults,
-                          bool verbose) {
+void benchmarkABE_CCA_KEM(map<string, string>& data, OpenABE_SCHEME scheme_type, ofstream& outfile0,
+                          ofstream& outfile1, ofstream& outfile2, int attributeCount,
+                          int iterationCount, ListStr& encryptResults, ListStr& keygenResults,
+                          ListStr& decryptResults, bool verbose) {
   data["scheme"] = getSchemeString(scheme_type);
   data["security"] = "CCA_KEM";
   Benchmark benchE, benchD, benchK;
   OpenABE_ERROR res;
   double en_in_ms, de_in_ms, kg_in_ms;
   stringstream s0, s1, s2;
-  string mpk, msk, auth1mpk, auth1msk, decKey = "decKey",
-                                       decKeyBench = "decKeyBench";
-  std::unique_ptr<OpenABEFunctionInput> keyFuncInput = nullptr,
-                                        encFuncInput = nullptr;
+  string mpk, msk, auth1mpk, auth1msk, decKey = "decKey", decKeyBench = "decKeyBench";
+  std::unique_ptr<OpenABEFunctionInput> keyFuncInput = nullptr, encFuncInput = nullptr;
   shared_ptr<OpenABESymKey> symkey = nullptr, newkey = nullptr;
   unique_ptr<OpenABECiphertext> ciphertext = nullptr;
   unique_ptr<OpenABEContextCCA> ccaContext = nullptr;
@@ -356,13 +335,11 @@ void benchmarkABE_CCA_KEM(map<string, string> &data, OpenABE_SCHEME scheme_type,
   }
 
   // generate the parameters for the given scheme_type
-  if (scheme_type == OpenABE_SCHEME_CP_WATERS ||
-      scheme_type == OpenABE_SCHEME_KP_GPSW) {
+  if (scheme_type == OpenABE_SCHEME_CP_WATERS || scheme_type == OpenABE_SCHEME_KP_GPSW) {
     mpk = "MPK";
     msk = "MSK";
     // Generate a set of parameters for an ABE authority
-    if (ccaContext->generateParams(DEFAULT_BP_PARAM, mpk, msk) !=
-        OpenABE_NOERROR) {
+    if (ccaContext->generateParams(DEFAULT_BP_PARAM, mpk, msk) != OpenABE_NOERROR) {
       EXIT("Unable to generate params");
     }
   } else {
@@ -375,24 +352,20 @@ void benchmarkABE_CCA_KEM(map<string, string> &data, OpenABE_SCHEME scheme_type,
     // attributes are embedded in the key
     keyFuncInput.reset(new OpenABEAttributeList(S.size(), S));
     if (verbose)
-      cout << "<== ATTRIBUTES ==>" << keyFuncInput->toString()
-           << "<== ATTRIBUTES ==>\n";
+      cout << "<== ATTRIBUTES ==>" << keyFuncInput->toString() << "<== ATTRIBUTES ==>\n";
 
     // policy is embedded in the ciphertext
     string policy_str = getPolicyString(prefix, attributeCount);
-    encFuncInput =
-        std::unique_ptr<OpenABEFunctionInput>(createPolicyTree(policy_str));
+    encFuncInput = std::unique_ptr<OpenABEFunctionInput>(createPolicyTree(policy_str));
   } else if (scheme_type == OpenABE_SCHEME_KP_GPSW) {
     // policy is embedded in the key
     string policy_str = getPolicyString(prefix, attributeCount);
-    keyFuncInput =
-        std::unique_ptr<OpenABEFunctionInput>(createPolicyTree(policy_str));
+    keyFuncInput = std::unique_ptr<OpenABEFunctionInput>(createPolicyTree(policy_str));
 
     // attributes are embedded in the ciphertext
     encFuncInput.reset(new OpenABEAttributeList(S.size(), S));
     if (verbose)
-      cout << "<== ATTRIBUTES ==>" << encFuncInput->toString()
-           << "<== ATTRIBUTES ==>\n";
+      cout << "<== ATTRIBUTES ==>" << encFuncInput->toString() << "<== ATTRIBUTES ==>\n";
   }
 
   // generate key used for decryption
@@ -403,13 +376,11 @@ void benchmarkABE_CCA_KEM(map<string, string> &data, OpenABE_SCHEME scheme_type,
     cout << "Testing with " << S.size() << " attributes" << endl;
   for (int i = 0; i < iterationCount; i++) {
     benchK.start();
-    res = ccaContext->generateDecryptionKey(keyFuncInput.get(), decKeyBench,
-                                            mpk, msk);
+    res = ccaContext->generateDecryptionKey(keyFuncInput.get(), decKeyBench, mpk, msk);
     benchK.stop();
     kg_in_ms = benchK.computeTimeInMilliseconds();
     if (res != OpenABE_NOERROR) {
-      cout << "Fail: " << OpenABE_errorToString(res) << ", time: " << kg_in_ms
-           << " ms" << endl;
+      cout << "Fail: " << OpenABE_errorToString(res) << ", time: " << kg_in_ms << " ms" << endl;
       EXIT("failed to generate dec key");
     }
     ccaContext->deleteKey(decKeyBench);
@@ -426,14 +397,12 @@ void benchmarkABE_CCA_KEM(map<string, string> &data, OpenABE_SCHEME scheme_type,
     symkey.reset(new OpenABESymKey);
     ciphertext.reset(new OpenABECiphertext);
     benchE.start();
-    res =
-        ccaContext->encryptKEM(rng2.get(), mpk, encFuncInput.get(),
-                               DEFAULT_SYM_KEY_BYTES, symkey, ciphertext.get());
+    res = ccaContext->encryptKEM(rng2.get(), mpk, encFuncInput.get(), DEFAULT_SYM_KEY_BYTES, symkey,
+                                 ciphertext.get());
     benchE.stop();
     en_in_ms = benchE.computeTimeInMilliseconds();
     if (res != OpenABE_NOERROR) {
-      cout << "Fail: " << OpenABE_errorToString(res) << ", time: " << en_in_ms
-           << " ms" << endl;
+      cout << "Fail: " << OpenABE_errorToString(res) << ", time: " << en_in_ms << " ms" << endl;
     }
   }
   // get encryption measurements
@@ -448,13 +417,11 @@ void benchmarkABE_CCA_KEM(map<string, string> &data, OpenABE_SCHEME scheme_type,
   for (int i = 0; i < iterationCount; i++) {
     newkey.reset(new OpenABESymKey);
     benchD.start();
-    res = ccaContext->decryptKEM(mpk, decKey, ciphertext.get(),
-                                 DEFAULT_SYM_KEY_BYTES, newkey);
+    res = ccaContext->decryptKEM(mpk, decKey, ciphertext.get(), DEFAULT_SYM_KEY_BYTES, newkey);
     benchD.stop();
     de_in_ms = benchD.computeTimeInMilliseconds();
     if (res != OpenABE_NOERROR) {
-      cout << "Fail: " << OpenABE_errorToString(res) << ", time: " << de_in_ms
-           << " ms" << endl;
+      cout << "Fail: " << OpenABE_errorToString(res) << ", time: " << de_in_ms << " ms" << endl;
     }
   }
   // get decryption measurements
@@ -476,16 +443,13 @@ CLEANUP:
   return;
 }
 
-int runBenchmark(map<string, string> &data, OpenABE_SCHEME scheme_type,
-                 string filename, int iterationCount, int attributeCount,
-                 string fixOrRange,
-                 void (*benchmarkFunc)(map<string, string> &data,
-                                       OpenABE_SCHEME type, ofstream &outfile0,
-                                       ofstream &outfile1, ofstream &outfile2,
+int runBenchmark(map<string, string>& data, OpenABE_SCHEME scheme_type, string filename,
+                 int iterationCount, int attributeCount, string fixOrRange,
+                 void (*benchmarkFunc)(map<string, string>& data, OpenABE_SCHEME type,
+                                       ofstream& outfile0, ofstream& outfile1, ofstream& outfile2,
                                        int attributeCount, int iterationCount,
-                                       ListStr &encryptResults,
-                                       ListStr &keygenResults,
-                                       ListStr &decryptResults, bool verbose)) {
+                                       ListStr& encryptResults, ListStr& keygenResults,
+                                       ListStr& decryptResults, bool verbose)) {
   stringstream s3, s4, s5;
   ofstream outfile0, outfile1, outfile2, outfile3, outfile4, outfile5;
   string f0 = filename + "_encrypt.dat";
@@ -506,14 +470,12 @@ int runBenchmark(map<string, string> &data, OpenABE_SCHEME scheme_type,
   if (fixOrRange.compare(RANGE_CMD) == 0) {
     for (int i = 1; i < attributeCount; i++) {
       cout << "Benchmark with " << i << " attributes." << endl;
-      benchmarkFunc(data, scheme_type, outfile0, outfile1, outfile2, i,
-                    iterationCount, encryptResults, keygenResults,
-                    decryptResults, false);
+      benchmarkFunc(data, scheme_type, outfile0, outfile1, outfile2, i, iterationCount,
+                    encryptResults, keygenResults, decryptResults, false);
     }
     cout << "Benchmark with " << attributeCount << " attributes." << endl;
-    benchmarkFunc(data, scheme_type, outfile0, outfile1, outfile2,
-                  attributeCount, iterationCount, encryptResults, keygenResults,
-                  decryptResults, true);
+    benchmarkFunc(data, scheme_type, outfile0, outfile1, outfile2, attributeCount, iterationCount,
+                  encryptResults, keygenResults, decryptResults, true);
     s3 << keygenResults << endl;
     data["keygen"] = s3.str();
     s4 << decryptResults << endl;
@@ -522,9 +484,8 @@ int runBenchmark(map<string, string> &data, OpenABE_SCHEME scheme_type,
     data["encrypt"] = s5.str();
   } else if (fixOrRange.compare(FIXED_CMD) == 0) {
     cout << "Benchmark with " << attributeCount << " attributes." << endl;
-    benchmarkFunc(data, scheme_type, outfile0, outfile1, outfile2,
-                  attributeCount, iterationCount, encryptResults, keygenResults,
-                  decryptResults, true);
+    benchmarkFunc(data, scheme_type, outfile0, outfile1, outfile2, attributeCount, iterationCount,
+                  encryptResults, keygenResults, decryptResults, true);
     s3 << attributeCount << " " << keygenResults[attributeCount] << endl;
     s4 << attributeCount << " " << decryptResults[attributeCount] << endl;
     s5 << attributeCount << " " << encryptResults[attributeCount] << endl;
@@ -545,12 +506,11 @@ int runBenchmark(map<string, string> &data, OpenABE_SCHEME scheme_type,
   return 0;
 }
 
-int main(int argc, const char *argv[]) {
+int main(int argc, const char* argv[]) {
   cout << "Math Library: " << DEFAULT_MATH_LIB << endl;
   cout << "Curve Param ID: " << DEFAULT_BP_PARAM << endl;
   if (argc < 7) {
-    cout << "OpenABE benchmark utility, v" << (OpenABE_LIBRARY_VERSION / 100.)
-         << endl;
+    cout << "OpenABE benchmark utility, v" << (OpenABE_LIBRARY_VERSION / 100.) << endl;
     cout << "Usage " << argv[0]
          << ": [ scheme => 'CP', 'KP' or 'MA' ] [ iterations ] [ attributes ] "
             "[ 'fixed' or 'range' ] [ 'cpa' or 'cca'] [ filename.json ] [ "
@@ -567,9 +527,7 @@ int main(int argc, const char *argv[]) {
     cout << "\tcpa or cca: chosen-plaintext secure vs chosen-ciphertext secure "
             "versions"
          << endl;
-    cout
-        << "\tfilename.json: output file name for result summary in JSON format"
-        << endl;
+    cout << "\tfilename.json: output file name for result summary in JSON format" << endl;
     cout << "\ttimestamp: an optional timestamp (generated via 'date +%s' via "
             "cmd line) to group results based on scheme/security/attributes"
          << endl;
@@ -624,16 +582,15 @@ int main(int argc, const char *argv[]) {
   if (secType == CPA) {
     // run all the CPA tests
     cout << "Running the CPA tests" << endl;
-    runBenchmark(data, scheme_type, filename, iterationCount, attributeCount,
-                 fixOrRange, benchmarkABE_CPA_KEM);
+    runBenchmark(data, scheme_type, filename, iterationCount, attributeCount, fixOrRange,
+                 benchmarkABE_CPA_KEM);
   } else if (secType == CCA) {
     // run all the CCA tests
     cout << "Running the CCA tests" << endl;
-    runBenchmark(data, scheme_type, filename, iterationCount, attributeCount,
-                 fixOrRange, benchmarkABE_CCA_KEM);
+    runBenchmark(data, scheme_type, filename, iterationCount, attributeCount, fixOrRange,
+                 benchmarkABE_CCA_KEM);
   } else {
-    cout << "Invalid security type! Expected Argument: '" << CPA << "' or '"
-         << CCA << "'" << endl;
+    cout << "Invalid security type! Expected Argument: '" << CPA << "' or '" << CCA << "'" << endl;
     return -1;
   }
 
@@ -644,8 +601,7 @@ int main(int argc, const char *argv[]) {
   outfile0.open(output_file.c_str());
   outfile0 << data_json;
   outfile0.close();
-  cout << "Writing " << data_json.size() << " bytes to " << output_file << "."
-       << endl;
+  cout << "Writing " << data_json.size() << " bytes to " << output_file << "." << endl;
 
   return 0;
 }

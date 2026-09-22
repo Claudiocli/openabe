@@ -52,9 +52,7 @@ namespace oabe {
  *
  */
 
-OpenABEKDF::OpenABEKDF(uint8_t hashPrefix, uint32_t hashLen,
-                       uint32_t maxInputLen)
-    : ZObject() {
+OpenABEKDF::OpenABEKDF(uint8_t hashPrefix, uint32_t hashLen, uint32_t maxInputLen) : ZObject() {
   // select a hash prefix for KDFs
   this->hashPrefix = hashPrefix;
   // bitlength of target hash function, H
@@ -80,9 +78,8 @@ OpenABEKDF::~OpenABEKDF() {}
  * @return  A OpenABEByteString object that contains the derived key.
  */
 
-OpenABEByteString OpenABEKDF::DeriveKey(OpenABEByteString &Z,
-                                        uint32_t keyBitLen,
-                                        OpenABEByteString &metadata) {
+OpenABEByteString OpenABEKDF::DeriveKey(OpenABEByteString& Z, uint32_t keyBitLen,
+                                        OpenABEByteString& metadata) {
   // compute number of hash blocks needed (round up)
   OpenABEByteString buffer;
   uint32_t count = 1;
@@ -108,7 +105,7 @@ OpenABEByteString OpenABEKDF::DeriveKey(OpenABEByteString &Z,
   uint8_t hash[hash_len + 1];
   memset(hash, 0, hash_len + 1);
 
-  uint8_t *hash_ptr = hash;
+  uint8_t* hash_ptr = hash;
   for (size_t i = 0; i < reps_len; i++) {
     // H(count++ || prefix || Z || Metadata)
     sha256(hash_ptr, buffer.getInternalPtr(), buffer.size());
@@ -127,11 +124,9 @@ OpenABEByteString OpenABEKDF::DeriveKey(OpenABEByteString &Z,
  * Implementation of the OpenABEPBKDF wrapper
  ********************************************************************************/
 
-int PKCS5_PBKDF2_HMAC_SHA256(const char *pass, int passlen,
-                             const unsigned char *salt, int saltlen, int iter,
-                             int keylen, unsigned char *out) {
-  return PKCS5_PBKDF2_HMAC(pass, passlen, salt, saltlen, iter, EVP_sha256(),
-                           keylen, out);
+int PKCS5_PBKDF2_HMAC_SHA256(const char* pass, int passlen, const unsigned char* salt, int saltlen,
+                             int iter, int keylen, unsigned char* out) {
+  return PKCS5_PBKDF2_HMAC(pass, passlen, salt, saltlen, iter, EVP_sha256(), keylen, out);
 }
 
 /*!
@@ -145,9 +140,8 @@ int PKCS5_PBKDF2_HMAC_SHA256(const char *pass, int passlen,
  * @return  A OpenABEByteString object that contains the derived key.
  */
 
-OpenABEByteString OpenABEPBKDF(OpenABEByteString &password,
-                               uint32_t keydataLenBytes,
-                               OpenABEByteString &salt, int iterationCount) {
+OpenABEByteString OpenABEPBKDF(OpenABEByteString& password, uint32_t keydataLenBytes,
+                               OpenABEByteString& salt, int iterationCount) {
   ASSERT(password.size() > 0, OpenABE_ERROR_INVALID_INPUT);
   ASSERT(salt.size() > 0, OpenABE_ERROR_INVALID_INPUT);
   ASSERT(keydataLenBytes > 0, OpenABE_ERROR_INVALID_INPUT);
@@ -156,9 +150,8 @@ OpenABEByteString OpenABEPBKDF(OpenABEByteString &password,
   OpenABEByteString outputHash;
   outputHash.fillBuffer(0, keydataLenBytes);
   /* call PBKDF2 function in OpenSSL */
-  PKCS5_PBKDF2_HMAC_SHA256((const char *)password.getInternalPtr(),
-                           password.size(), salt.getInternalPtr(), salt.size(),
-                           iterationCount, (int)keydataLenBytes,
+  PKCS5_PBKDF2_HMAC_SHA256((const char*)password.getInternalPtr(), password.size(),
+                           salt.getInternalPtr(), salt.size(), iterationCount, (int)keydataLenBytes,
                            outputHash.getInternalPtr());
 
   return outputHash;

@@ -46,7 +46,7 @@ extern "C" {
 
 using namespace std;
 
-const string print_point(char *x, int x_len, char *y, int y_len) {
+const string print_point(char* x, int x_len, char* y, int y_len) {
   string s;
   s = "[" + string(x, x_len);
   s += ",";
@@ -62,8 +62,8 @@ const string g1_point_to_string(bp_group_t group, const g1_ptr p) {
   G1_ELEM_get_affine_coordinates(group, p, x, y, NULL);
 #endif
   int x_size, y_size;
-  char *xstr = zml_bignum_toDec(x, &x_size);
-  char *ystr = zml_bignum_toDec(y, &y_size);
+  char* xstr = zml_bignum_toDec(x, &x_size);
+  char* ystr = zml_bignum_toDec(y, &y_size);
   string s = print_point(xstr, x_size, ystr, y_size);
   //    s  = "[" + string(xstr, x_size);
   //    s += ",";
@@ -76,13 +76,11 @@ const string g1_point_to_string(bp_group_t group, const g1_ptr p) {
   return s;
 }
 
-void g1_convert_to_bytestring(bp_group_t group, oabe::OpenABEByteString &s,
-                              const g1_ptr p) {
+void g1_convert_to_bytestring(bp_group_t group, oabe::OpenABEByteString& s, const g1_ptr p) {
 #if defined(BP_WITH_OPENSSL)
   uint8_t buf[MAX_BUFFER_SIZE];
   memset(buf, 0, MAX_BUFFER_SIZE);
-  size_t len = G1_ELEM_point2oct(group, p, POINT_CONVERSION_COMPRESSED, buf,
-                                 MAX_BUFFER_SIZE, NULL);
+  size_t len = G1_ELEM_point2oct(group, p, POINT_CONVERSION_COMPRESSED, buf, MAX_BUFFER_SIZE, NULL);
   s.appendArray(buf, len);
 #else
   size_t len = g1_elem_len(p);
@@ -91,9 +89,8 @@ void g1_convert_to_bytestring(bp_group_t group, oabe::OpenABEByteString &s,
 #endif
 }
 
-void g1_convert_to_point(bp_group_t group, oabe::OpenABEByteString &s,
-                         g1_ptr p) {
-  uint8_t *xstr = s.getInternalPtr();
+void g1_convert_to_point(bp_group_t group, oabe::OpenABEByteString& s, g1_ptr p) {
+  uint8_t* xstr = s.getInternalPtr();
   size_t xstr_len = s.size();
 #if defined(BP_WITH_OPENSSL)
   G1_ELEM_oct2point(group, p, xstr, xstr_len, NULL);
@@ -113,10 +110,10 @@ const string g2_point_to_string(bp_group_t group, const g2_ptr p) {
   G2_ELEM_get_affine_coordinates(group, p, x, y, NULL);
 #endif
   int x1_size, y1_size, x2_size, y2_size;
-  char *x1str = zml_bignum_toDec(x[0], &x1_size);
-  char *y1str = zml_bignum_toDec(y[0], &y1_size);
-  char *x2str = zml_bignum_toDec(x[1], &x2_size);
-  char *y2str = zml_bignum_toDec(y[1], &y2_size);
+  char* x1str = zml_bignum_toDec(x[0], &x1_size);
+  char* y1str = zml_bignum_toDec(y[0], &y1_size);
+  char* x2str = zml_bignum_toDec(x[1], &x2_size);
+  char* y2str = zml_bignum_toDec(y[1], &y2_size);
 
   std::string s = "";
   s += print_point(x1str, x1_size, y1str, y1_size) + ",";
@@ -143,13 +140,12 @@ const string g2_point_to_string(bp_group_t group, const g2_ptr p) {
   return s;
 }
 
-void g2_convert_to_bytestring(bp_group_t group, oabe::OpenABEByteString &s,
-                              g2_ptr p) {
+void g2_convert_to_bytestring(bp_group_t group, oabe::OpenABEByteString& s, g2_ptr p) {
 #if defined(BP_WITH_OPENSSL)
   uint8_t buf[MAX_BUFFER_SIZE];
   memset(buf, 0, MAX_BUFFER_SIZE); // ideal => POINT_CONVERSION_COMPRESSED
-  size_t len = G2_ELEM_point2oct(group, p, POINT_CONVERSION_UNCOMPRESSED, buf,
-                                 MAX_BUFFER_SIZE, NULL);
+  size_t len =
+      G2_ELEM_point2oct(group, p, POINT_CONVERSION_UNCOMPRESSED, buf, MAX_BUFFER_SIZE, NULL);
   s.appendArray(buf, len);
 #else
   size_t len = g2_elem_len(p);
@@ -163,9 +159,8 @@ void g2_convert_to_bytestring(bp_group_t group, oabe::OpenABEByteString &s,
 #endif
 }
 
-void g2_convert_to_point(bp_group_t group, oabe::OpenABEByteString &s,
-                         g2_ptr p) {
-  uint8_t *xstr = s.getInternalPtr();
+void g2_convert_to_point(bp_group_t group, oabe::OpenABEByteString& s, g2_ptr p) {
+  uint8_t* xstr = s.getInternalPtr();
   size_t xstr_len = s.size();
 #if defined(BP_WITH_OPENSSL)
   G2_ELEM_oct2point(group, p, xstr, xstr_len, NULL);
@@ -175,8 +170,8 @@ void g2_convert_to_point(bp_group_t group, oabe::OpenABEByteString &s,
 #endif
 }
 
-void gt_convert_to_bytestring(bp_group_t group, oabe::OpenABEByteString &s,
-                              gt_ptr p, int should_compress) {
+void gt_convert_to_bytestring(bp_group_t group, oabe::OpenABEByteString& s, gt_ptr p,
+                              int should_compress) {
 #if defined(BP_WITH_OPENSSL)
   uint8_t buf[MAX_BUFFER_SIZE];
   memset(buf, 0, MAX_BUFFER_SIZE);
@@ -193,9 +188,8 @@ void gt_convert_to_bytestring(bp_group_t group, oabe::OpenABEByteString &s,
 #endif
 }
 
-void gt_convert_to_point(bp_group_t group, oabe::OpenABEByteString &s,
-                         gt_ptr p) {
-  uint8_t *xstr = s.getInternalPtr();
+void gt_convert_to_point(bp_group_t group, oabe::OpenABEByteString& s, gt_ptr p) {
+  uint8_t* xstr = s.getInternalPtr();
   size_t xstr_len = s.size();
 #if defined(BP_WITH_OPENSSL)
   GT_ELEM_oct2elem(group, p, xstr, xstr_len, NULL);
@@ -205,15 +199,15 @@ void gt_convert_to_point(bp_group_t group, oabe::OpenABEByteString &s,
 #endif
 }
 
-void multi_bp_map_op(const bp_group_t group, oabe::GT &gt,
-                     std::vector<oabe::G1> &g1, std::vector<oabe::G2> &g2) {
+void multi_bp_map_op(const bp_group_t group, oabe::GT& gt, std::vector<oabe::G1>& g1,
+                     std::vector<oabe::G2>& g2) {
   if (g1.size() != g2.size()) {
     throw oabe::OpenABE_ERROR_INVALID_LENGTH;
   }
   const size_t n = g1.size();
 #if defined(BP_WITH_OPENSSL)
-  const G1_ELEM *ps[n];
-  const G2_ELEM *qs[n];
+  const G1_ELEM* ps[n];
+  const G2_ELEM* qs[n];
   for (size_t i = 0; i < n; i++) {
     ps[i] = g1.at(i).m_G1;
     qs[i] = g2.at(i).m_G2;
@@ -248,13 +242,15 @@ void ro_error(void) {
 namespace oabe {
 
 #if !defined(BP_WITH_OPENSSL)
-static void rng_trampoline(uint8_t *buf, size_t len, void *this_ptr) {
+static void rng_trampoline(uint8_t* buf, size_t len, void* this_ptr) {
   // cout << "calling our RNG!!!!" << endl;
-  OpenABERNG *rng = static_cast<OpenABERNG *>(this_ptr);
+  OpenABERNG* rng = static_cast<OpenABERNG*>(this_ptr);
   rng->getRandomBytes(buf, len);
 }
 
-bool checkRelicError() { return (zml_check_error() == TRUE); }
+bool checkRelicError() {
+  return (zml_check_error() == TRUE);
+}
 #endif
 
 /********************************************************************************
@@ -273,7 +269,9 @@ BPGroup::~BPGroup() {
   zml_bignum_free(order);
 }
 
-void BPGroup::getGroupOrder(bignum_t o) { zml_bignum_copy(o, order); }
+void BPGroup::getGroupOrder(bignum_t o) {
+  zml_bignum_copy(o, order);
+}
 
 /********************************************************************************
  * Implementation of the ZP class
@@ -296,16 +294,16 @@ ZP::ZP(uint32_t x) {
   isInit = true;
 }
 
-ZP::ZP(char *hex_str, bignum_t o) {
+ZP::ZP(char* hex_str, bignum_t o) {
   zml_bignum_init(&m_ZP);
   zml_bignum_init(&order);
   zml_bignum_copy(order, o);
-  zml_bignum_fromHex(m_ZP, (const char *)hex_str, strlen(hex_str));
+  zml_bignum_fromHex(m_ZP, (const char*)hex_str, strlen(hex_str));
   isOrderSet = true;
   isInit = true;
 }
 
-ZP::ZP(uint8_t *bstr, uint32_t bstr_len, bignum_t o) {
+ZP::ZP(uint8_t* bstr, uint32_t bstr_len, bignum_t o) {
   zml_bignum_init(&m_ZP);
   zml_bignum_init(&order);
   zml_bignum_copy(order, o);
@@ -324,7 +322,7 @@ ZP::ZP(bignum_t y) {
   isInit = true;
 }
 
-ZP::ZP(const ZP &w) {
+ZP::ZP(const ZP& w) {
   zml_bignum_init(&this->m_ZP);
   zml_bignum_copy(this->m_ZP, w.m_ZP);
   zml_bignum_init(&this->order);
@@ -338,19 +336,19 @@ ZP::~ZP() {
   zml_bignum_free(order);
 }
 
-ZP &ZP::operator+=(const ZP &x) {
+ZP& ZP::operator+=(const ZP& x) {
   ZP r(*this);
   *this = r + x;
   return *this;
 }
 
-ZP &ZP::operator*=(const ZP &x) {
+ZP& ZP::operator*=(const ZP& x) {
   ZP r(*this);
   *this = r * x;
   return *this;
 }
 
-ZP &ZP::operator=(const ZP &w) {
+ZP& ZP::operator=(const ZP& w) {
   if (isInit) {
     zml_bignum_copy(m_ZP, w.m_ZP);
     zml_bignum_copy(order, w.order);
@@ -360,7 +358,7 @@ ZP &ZP::operator=(const ZP &w) {
   return *this;
 }
 
-ZP operator+(const ZP &x, const ZP &y) {
+ZP operator+(const ZP& x, const ZP& y) {
   ASSERT(x.isOrderSet || y.isOrderSet, OpenABE_ERROR_INVALID_INPUT);
   ZP zr;
   if (x.isOrderSet)
@@ -372,7 +370,7 @@ ZP operator+(const ZP &x, const ZP &y) {
   return zr;
 }
 
-ZP operator-(const ZP &x, const ZP &y) {
+ZP operator-(const ZP& x, const ZP& y) {
   ASSERT(x.isOrderSet || y.isOrderSet, OpenABE_ERROR_INVALID_INPUT);
   ZP zr;
   if (x.isOrderSet)
@@ -384,14 +382,14 @@ ZP operator-(const ZP &x, const ZP &y) {
   return zr;
 }
 
-ZP operator-(const ZP &x) {
+ZP operator-(const ZP& x) {
   ASSERT(x.isInit && x.isOrderSet, OpenABE_ERROR_INVALID_INPUT);
   ZP zr = x;
   zml_bignum_negate(zr.m_ZP, zr.order);
   return zr;
 }
 
-ZP operator*(const ZP &x, const ZP &y) {
+ZP operator*(const ZP& x, const ZP& y) {
   ASSERT(x.isOrderSet || y.isOrderSet, OpenABE_ERROR_INVALID_INPUT);
   ZP zr;
   if (x.isOrderSet)
@@ -410,7 +408,7 @@ void ZP::multInverse() {
   }
 }
 
-ZP operator/(const ZP &x, const ZP &y) {
+ZP operator/(const ZP& x, const ZP& y) {
   ZP c;
   if (zml_bignum_is_zero(y.m_ZP)) {
     cout << "Divide by zero error!" << endl;
@@ -428,7 +426,7 @@ ZP operator/(const ZP &x, const ZP &y) {
   return r;
 }
 
-ZP power(const ZP &x, unsigned int r) {
+ZP power(const ZP& x, unsigned int r) {
   ZP zr;
   ASSERT(x.isOrderSet, OpenABE_ERROR_INVALID_INPUT);
   zr.setOrder(x.order);
@@ -441,7 +439,7 @@ ZP power(const ZP &x, unsigned int r) {
   return zr;
 }
 
-ZP power(const ZP &x, const ZP &r) {
+ZP power(const ZP& x, const ZP& r) {
   ZP zr;
   ASSERT(x.isOrderSet || r.isOrderSet, OpenABE_ERROR_INVALID_INPUT);
   if (x.isOrderSet)
@@ -457,8 +455,7 @@ bool ZP::ismember(void) {
   ASSERT(isInit && isOrderSet, OpenABE_ERROR_ELEMENT_NOT_INITIALIZED);
   bool result;
   // CMP_LT if a < b, CMP_EQ if a == b and CMP_GT if a > b.
-  result = (zml_bignum_cmp(m_ZP, order) == BN_CMP_LT &&
-            zml_bignum_sign(m_ZP) == BN_POSITIVE);
+  result = (zml_bignum_cmp(m_ZP, order) == BN_CMP_LT && zml_bignum_sign(m_ZP) == BN_POSITIVE);
   return result;
 }
 
@@ -470,7 +467,7 @@ void ZP::setOrder(const bignum_t o) {
   }
 }
 
-void ZP::setRandom(OpenABERNG *rng, bignum_t o) {
+void ZP::setRandom(OpenABERNG* rng, bignum_t o) {
   ASSERT(isInit, OpenABE_ERROR_ELEMENT_NOT_INITIALIZED);
   // 1. get some number of bytes
   if (!this->isOrderSet) {
@@ -485,75 +482,75 @@ void ZP::setRandom(OpenABERNG *rng, bignum_t o) {
   rng->getRandomBytes(buf, length);
   zml_bignum_fromBin(this->m_ZP, buf, length);
 #else
-  rand_seed(&rng_trampoline, (void *)rng);
+  rand_seed(&rng_trampoline, (void*)rng);
   zml_bignum_rand(this->m_ZP, this->order);
 #endif
   zml_bignum_mod(this->m_ZP, this->order);
 }
 
-void ZP::setFrom(ZP &z, uint32_t index) {
+void ZP::setFrom(ZP& z, uint32_t index) {
   // hash z + index?
   ASSERT(isInit, OpenABE_ERROR_ELEMENT_NOT_INITIALIZED);
   zml_bignum_copy(this->m_ZP, z.m_ZP);
   *this = *this + index;
 }
 
-ostream &operator<<(ostream &os, const ZP &zr) {
+ostream& operator<<(ostream& os, const ZP& zr) {
   int len = 0;
-  char *str = zml_bignum_toDec(zr.m_ZP, &len);
+  char* str = zml_bignum_toDec(zr.m_ZP, &len);
   string s0 = string(str, len - 1);
   zml_bignum_safe_free(str);
   os << s0 << " (orderSet: " << (zr.isOrderSet ? "true)" : "false)");
   return os;
 }
 
-bool operator<(const ZP &x, const ZP &y) {
+bool operator<(const ZP& x, const ZP& y) {
   return (zml_bignum_cmp(x.m_ZP, y.m_ZP) == BN_CMP_LT);
 }
 
-bool operator<=(const ZP &x, const ZP &y) {
+bool operator<=(const ZP& x, const ZP& y) {
   return (zml_bignum_cmp(x.m_ZP, y.m_ZP) <= BN_CMP_EQ);
 }
 
-bool operator>(const ZP &x, const ZP &y) {
+bool operator>(const ZP& x, const ZP& y) {
   return (zml_bignum_cmp(x.m_ZP, y.m_ZP) == BN_CMP_GT);
 }
 
-bool operator>=(const ZP &x, const ZP &y) {
+bool operator>=(const ZP& x, const ZP& y) {
   return (zml_bignum_cmp(x.m_ZP, y.m_ZP) >= BN_CMP_EQ);
 }
 
-bool operator==(const ZP &x, const ZP &y) {
+bool operator==(const ZP& x, const ZP& y) {
   ASSERT(x.isOrderSet || y.isOrderSet, OpenABE_ERROR_ELEMENT_NOT_INITIALIZED);
   return (zml_bignum_cmp(x.m_ZP, y.m_ZP) == BN_CMP_EQ);
 }
 
-bool operator!=(const ZP &x, const ZP &y) {
+bool operator!=(const ZP& x, const ZP& y) {
   return (zml_bignum_cmp(x.m_ZP, y.m_ZP) != BN_CMP_EQ);
 }
 
-ZP operator<<(const ZP &a, int b) {
+ZP operator<<(const ZP& a, int b) {
   // left shift
   ZP zr = a;
   zml_bignum_lshift(zr.m_ZP, zr.m_ZP, b);
   return zr;
 }
 
-ZP operator>>(const ZP &a, int b) {
+ZP operator>>(const ZP& a, int b) {
   // right shift
   ZP zr = a;
   zml_bignum_rshift(zr.m_ZP, zr.m_ZP, b);
   return zr;
 }
 
-void ZP::serialize(OpenABEByteString &result) const {
+void ZP::serialize(OpenABEByteString& result) const {
   ASSERT(isInit, OpenABE_ERROR_ELEMENT_NOT_INITIALIZED);
   result.clear();
   result.insertFirstByte(OpenABE_ELEMENT_ZP);
   this->getLengthAndByteString(result);
 }
 
-void ZP::deserialize(OpenABEByteString &input) {
+void ZP::deserialize(OpenABEByteString& input) {
   size_t inputSize = input.size(), hdrLen = 3;
   ASSERT(isInit, OpenABE_ERROR_ELEMENT_NOT_INITIALIZED);
 
@@ -565,7 +562,7 @@ void ZP::deserialize(OpenABEByteString &input) {
     len |= (input.at(1) << 8); // Moves to 0xFF00
     ASSERT(input.size() == (len + hdrLen), OpenABE_ERROR_SERIALIZATION_FAILED);
 
-    uint8_t *bstr = (input.getInternalPtr() + hdrLen);
+    uint8_t* bstr = (input.getInternalPtr() + hdrLen);
     zml_bignum_fromBin(this->m_ZP, bstr, len);
     if (isOrderSet && zml_bignum_cmp(this->m_ZP, this->order) == BN_CMP_GT) {
       zml_bignum_mod(this->m_ZP, this->order);
@@ -573,8 +570,8 @@ void ZP::deserialize(OpenABEByteString &input) {
   }
 }
 
-bool ZP::isEqual(ZObject *z) const {
-  ZP *z1 = dynamic_cast<ZP *>(z);
+bool ZP::isEqual(ZObject* z) const {
+  ZP* z1 = dynamic_cast<ZP*>(z);
   if (z1 != NULL) {
     return *z1 == *this;
   }
@@ -599,7 +596,7 @@ string ZP::getBytesAsString() {
   return z.toHex();
 }
 
-void ZP::getLengthAndByteString(OpenABEByteString &z) const {
+void ZP::getLengthAndByteString(OpenABEByteString& z) const {
   size_t length = zml_bignum_countbytes(this->m_ZP);
 
   uint8_t data[length];
@@ -621,7 +618,7 @@ G1::G1(std::shared_ptr<BPGroup> bgroup) {
   g1_set_to_infinity(GET_BP_GROUP(this->bgroup), &this->m_G1);
 }
 
-G1::G1(const G1 &w) {
+G1::G1(const G1& w) {
   if (w.bgroup != nullptr) {
     this->bgroup = w.bgroup;
   } else {
@@ -632,7 +629,7 @@ G1::G1(const G1 &w) {
   this->isInit = true;
 }
 
-G1 &G1::operator=(const G1 &w) {
+G1& G1::operator=(const G1& w) {
   if (this->isInit) {
     if (w.bgroup != nullptr) {
       this->bgroup = w.bgroup;
@@ -663,7 +660,7 @@ G1::~G1() {
  * @param[in]   - G1 element on lhs
  * @param[in]   - G1 element on rhs
  */
-G1 operator*(const G1 &x, const G1 &y) {
+G1 operator*(const G1& x, const G1& y) {
   G1 z = x;
   g1_add_op(GET_GROUP(z.bgroup), z.m_G1, z.m_G1, y.m_G1);
   // #if defined(BP_WITH_OPENSSL)
@@ -675,7 +672,7 @@ G1 operator*(const G1 &x, const G1 &y) {
   return z;
 }
 
-G1 &G1::operator*=(const G1 &x) {
+G1& G1::operator*=(const G1& x) {
   G1 r(*this);
   *this = r * x;
   return *this;
@@ -687,7 +684,7 @@ G1 &G1::operator*=(const G1 &x) {
  * @param[in]   - G1 element on lhs
  * @param[in]   - G1 element on rhs
  */
-G1 operator/(const G1 &x, const G1 &y) {
+G1 operator/(const G1& x, const G1& y) {
   // z = (x / y) => Point z = y; z = x - z;
   G1 z = y;
   g1_sub_op(GET_BP_GROUP(z.bgroup), z.m_G1, x.m_G1);
@@ -707,7 +704,7 @@ G1 operator/(const G1 &x, const G1 &y) {
  *
  * @param[in]   - G1 element to negate on rhs.
  */
-G1 operator-(const G1 &x) {
+G1 operator-(const G1& x) {
   G1 z = x;
 #if defined(BP_WITH_OPENSSL)
   G1_ELEM_invert(GET_BP_GROUP(z.bgroup), z.m_G1, NULL);
@@ -737,8 +734,7 @@ bool G1::ismember(bignum_t order) {
   bool result;
 #if defined(BP_WITH_OPENSSL)
   // 1 indicates that the element is on the curve
-  result =
-      (G1_ELEM_is_on_curve(GET_BP_GROUP(this->bgroup), this->m_G1, NULL) == 1);
+  result = (G1_ELEM_is_on_curve(GET_BP_GROUP(this->bgroup), this->m_G1, NULL) == 1);
 #else
   g1_t r;
   g1_inits(r);
@@ -758,52 +754,50 @@ bool G1::ismember(bignum_t order) {
  *
  * @param[in]   - an OpenABERNG object.
  */
-void G1::setRandom(OpenABERNG *rng) {
+void G1::setRandom(OpenABERNG* rng) {
   if (this->isInit) {
 // cout << "G1: ";
 #if defined(BP_WITH_OPENSSL)
     int rc = BP_GROUP_get_generator_G1(GET_BP_GROUP(this->bgroup), this->m_G1);
     ASSERT(rc == 1, OpenABE_ERROR_INVALID_INPUT);
 #else
-    rand_seed(&rng_trampoline, (void *)rng);
+    rand_seed(&rng_trampoline, (void*)rng);
     // g1_rand(this->m_G1);
     g1_rand_op(this->m_G1);
 #endif
   }
 }
 
-ostream &operator<<(ostream &os, const G1 &g1) {
+ostream& operator<<(ostream& os, const G1& g1) {
 #if defined(BP_WITH_OPENSSL)
   os << g1_point_to_string(GET_BP_GROUP(g1.bgroup), g1.m_G1);
 #else
-  ep_write_ostream(os, const_cast<G1 &>(g1).m_G1, DEC);
+  ep_write_ostream(os, const_cast<G1&>(g1).m_G1, DEC);
 #endif
   return os;
 }
 
-bool operator==(const G1 &x, const G1 &y) {
+bool operator==(const G1& x, const G1& y) {
   bool result;
 #if defined(BP_WITH_OPENSSL)
-  result =
-      (G1_ELEM_cmp(GET_BP_GROUP(x.bgroup), x.m_G1, y.m_G1, NULL) == G_CMP_EQ);
+  result = (G1_ELEM_cmp(GET_BP_GROUP(x.bgroup), x.m_G1, y.m_G1, NULL) == G_CMP_EQ);
 #else
   result = (g1_cmp(x.m_G1, y.m_G1) == CMP_EQ);
 #endif
   return result;
 }
 
-bool operator!=(const G1 &x, const G1 &y) {
+bool operator!=(const G1& x, const G1& y) {
   bool result;
 #if defined(BP_WITH_OPENSSL)
-  result =
-      (G1_ELEM_cmp(GET_BP_GROUP(x.bgroup), x.m_G1, y.m_G1, NULL) != G_CMP_EQ);
+  result = (G1_ELEM_cmp(GET_BP_GROUP(x.bgroup), x.m_G1, y.m_G1, NULL) != G_CMP_EQ);
 #else
   result = (g1_cmp(x.m_G1, y.m_G1) != CMP_EQ);
 #endif
   return result;
 }
 
-void G1::serialize(OpenABEByteString &result) const {
+void G1::serialize(OpenABEByteString& result) const {
   OpenABEByteString tmp;
 
   if (this->isInit) {
@@ -814,7 +808,7 @@ void G1::serialize(OpenABEByteString &result) const {
   }
 }
 
-void G1::deserialize(OpenABEByteString &input) {
+void G1::deserialize(OpenABEByteString& input) {
   OpenABEByteString g1_bytes;
   size_t index = 0;
 
@@ -836,8 +830,8 @@ void G1::deserialize(OpenABEByteString &input) {
   ASSERT(false, OpenABE_ERROR_SERIALIZATION_FAILED);
 }
 
-bool G1::isEqual(ZObject *z) const {
-  G1 *z1 = dynamic_cast<G1 *>(z);
+bool G1::isEqual(ZObject* z) const {
+  G1* z1 = dynamic_cast<G1*>(z);
   if (z1 != NULL) {
     return *z1 == *this;
   }
@@ -855,7 +849,7 @@ G2::G2(std::shared_ptr<BPGroup> bgroup) {
   g2_set_to_infinity(GET_BP_GROUP(this->bgroup), &this->m_G2);
 }
 
-G2::G2(const G2 &w) {
+G2::G2(const G2& w) {
   if (w.bgroup != nullptr) {
     this->bgroup = w.bgroup;
   } else {
@@ -866,7 +860,7 @@ G2::G2(const G2 &w) {
   this->isInit = true;
 }
 
-G2 &G2::operator=(const G2 &w) {
+G2& G2::operator=(const G2& w) {
   if (this->isInit) {
     if (w.bgroup != nullptr) {
       this->bgroup = w.bgroup;
@@ -892,38 +886,38 @@ G2::~G2() {
 }
 
 /* multiplicative notation for point addition*/
-G2 operator*(const G2 &x, const G2 &y) {
+G2 operator*(const G2& x, const G2& y) {
   G2 z = x;
 #if defined(BP_WITH_OPENSSL)
   G2_ELEM_add(GET_BP_GROUP(z.bgroup), z.m_G2, z.m_G2, y.m_G2, NULL);
 #else
-  g2_add(z.m_G2, z.m_G2, const_cast<G2 &>(y).m_G2);
+  g2_add(z.m_G2, z.m_G2, const_cast<G2&>(y).m_G2);
   g2_norm(z.m_G2, z.m_G2);
 #endif
   return z;
 }
 
-G2 &G2::operator*=(const G2 &x) {
+G2& G2::operator*=(const G2& x) {
   G2 r(*this);
   *this = r * x;
   return *this;
 }
 
 /* multiplicative notation for point subtraction*/
-G2 operator/(const G2 &x, const G2 &y) {
+G2 operator/(const G2& x, const G2& y) {
   G2 z = y;
 #if defined(BP_WITH_OPENSSL)
   int rc = G2_ELEM_invert(GET_BP_GROUP(z.bgroup), z.m_G2, NULL);
   ASSERT(rc == 1, OpenABE_ERROR_INVALID_INPUT);
   G2_ELEM_add(GET_BP_GROUP(z.bgroup), z.m_G2, x.m_G2, z.m_G2, NULL);
 #else
-  g2_sub(z.m_G2, const_cast<G2 &>(x).m_G2, z.m_G2);
+  g2_sub(z.m_G2, const_cast<G2&>(x).m_G2, z.m_G2);
   g2_norm(z.m_G2, z.m_G2);
 #endif
   return z;
 }
 
-G2 operator-(const G2 &x) {
+G2 operator-(const G2& x) {
   G2 z = x;
 #if defined(BP_WITH_OPENSSL)
   G2_ELEM_invert(GET_BP_GROUP(z.bgroup), z.m_G2, NULL);
@@ -943,8 +937,7 @@ bool G2::ismember(bignum_t order) {
   bool result;
 #if defined(BP_WITH_OPENSSL)
   // 1 indicates that the element is on the curve
-  result =
-      (G2_ELEM_is_on_curve(GET_BP_GROUP(this->bgroup), this->m_G2, NULL) == 1);
+  result = (G2_ELEM_is_on_curve(GET_BP_GROUP(this->bgroup), this->m_G2, NULL) == 1);
 #else
   g2_t r;
   fp12_inits(r);
@@ -959,51 +952,50 @@ bool G2::ismember(bignum_t order) {
   return result;
 }
 
-void G2::setRandom(OpenABERNG *rng) {
+void G2::setRandom(OpenABERNG* rng) {
   if (this->isInit) {
     // cout << "G2: ";
 #if defined(BP_WITH_OPENSSL)
     int rc = BP_GROUP_get_generator_G2(GET_BP_GROUP(this->bgroup), this->m_G2);
     ASSERT(rc == 1, OpenABE_ERROR_INVALID_INPUT);
 #else
-    rand_seed(&rng_trampoline, (void *)rng);
+    rand_seed(&rng_trampoline, (void*)rng);
     g2_rand(this->m_G2);
 #endif
   }
 }
 
-ostream &operator<<(ostream &os, const G2 &g2) {
+ostream& operator<<(ostream& os, const G2& g2) {
 #if defined(BP_WITH_OPENSSL)
   os << g2_point_to_string(GET_BP_GROUP(g2.bgroup), g2.m_G2);
 #else
-  g2_write_ostream(os, const_cast<G2 &>(g2).m_G2, DEC);
+  g2_write_ostream(os, const_cast<G2&>(g2).m_G2, DEC);
 #endif
   return os;
 }
 
-bool operator==(const G2 &x, const G2 &y) {
-  return (g2_cmp_op(GET_BP_GROUP(x.bgroup), const_cast<G2 &>(x).m_G2,
-                    const_cast<G2 &>(y).m_G2) == G_CMP_EQ);
+bool operator==(const G2& x, const G2& y) {
+  return (g2_cmp_op(GET_BP_GROUP(x.bgroup), const_cast<G2&>(x).m_G2, const_cast<G2&>(y).m_G2) ==
+          G_CMP_EQ);
 }
 
-bool operator!=(const G2 &x, const G2 &y) {
-  return (g2_cmp_op(GET_BP_GROUP(x.bgroup), const_cast<G2 &>(x).m_G2,
-                    const_cast<G2 &>(y).m_G2) != G_CMP_EQ);
+bool operator!=(const G2& x, const G2& y) {
+  return (g2_cmp_op(GET_BP_GROUP(x.bgroup), const_cast<G2&>(x).m_G2, const_cast<G2&>(y).m_G2) !=
+          G_CMP_EQ);
 }
 
-void G2::serialize(OpenABEByteString &result) const {
+void G2::serialize(OpenABEByteString& result) const {
   OpenABEByteString tmp;
 
   if (this->isInit) {
-    g2_convert_to_bytestring(GET_BP_GROUP(this->bgroup), tmp,
-                             const_cast<G2 *>(this)->m_G2);
+    g2_convert_to_bytestring(GET_BP_GROUP(this->bgroup), tmp, const_cast<G2*>(this)->m_G2);
     result.clear();
     result.insertFirstByte(OpenABE_ELEMENT_G2);
     result.smartPack(tmp);
   }
 }
 
-void G2::deserialize(OpenABEByteString &input) {
+void G2::deserialize(OpenABEByteString& input) {
   OpenABEByteString g2_bytes;
   size_t index = 0;
 
@@ -1023,8 +1015,8 @@ void G2::deserialize(OpenABEByteString &input) {
   ASSERT(false, OpenABE_ERROR_ELEMENT_NOT_INITIALIZED);
 }
 
-bool G2::isEqual(ZObject *z) const {
-  G2 *z1 = dynamic_cast<G2 *>(z);
+bool G2::isEqual(ZObject* z) const {
+  G2* z1 = dynamic_cast<G2*>(z);
   if (z1 != NULL) {
     return *z1 == *this;
   }
@@ -1043,7 +1035,7 @@ GT::GT(std::shared_ptr<BPGroup> bgroup) {
   shouldCompress_ = true;
 }
 
-GT::GT(const GT &w) {
+GT::GT(const GT& w) {
   if (w.bgroup != nullptr) {
     this->bgroup = w.bgroup;
   } else {
@@ -1055,7 +1047,7 @@ GT::GT(const GT &w) {
   this->shouldCompress_ = w.shouldCompress_;
 }
 
-GT &GT::operator=(const GT &w) {
+GT& GT::operator=(const GT& w) {
   if (this->isInit) {
     if (w.bgroup != nullptr) {
       this->bgroup = w.bgroup;
@@ -1080,23 +1072,22 @@ GT::~GT() {
   }
 }
 
-GT operator*(const GT &x, const GT &y) {
+GT operator*(const GT& x, const GT& y) {
   GT z = x; // , y1 = y;
-  gt_mul_op(GET_BP_GROUP(z.bgroup), z.m_GT, z.m_GT, const_cast<GT &>(y).m_GT);
+  gt_mul_op(GET_BP_GROUP(z.bgroup), z.m_GT, z.m_GT, const_cast<GT&>(y).m_GT);
   return z;
 }
 
-GT &GT::operator*=(const GT &x) {
+GT& GT::operator*=(const GT& x) {
   GT r(*this);
   *this = r * x;
   return *this;
 }
 
-GT operator/(const GT &x, const GT &y) {
+GT operator/(const GT& x, const GT& y) {
   GT z = x;
   // z = x * y^-1
-  gt_div_op(GET_BP_GROUP(z.bgroup), z.m_GT, const_cast<GT &>(x).m_GT,
-            const_cast<GT &>(y).m_GT);
+  gt_div_op(GET_BP_GROUP(z.bgroup), z.m_GT, const_cast<GT&>(x).m_GT, const_cast<GT&>(y).m_GT);
   return z;
 }
 
@@ -1111,7 +1102,7 @@ GT GT::exp(ZP z) {
   return gt;
 }
 
-GT operator-(const GT &g) {
+GT operator-(const GT& g) {
   GT gt(g);
 #if defined(BP_WITH_OPENSSL)
   GT_ELEM_inv(GET_BP_GROUP(gt.bgroup), gt.m_GT, gt.m_GT, NULL);
@@ -1144,46 +1135,44 @@ bool GT::ismember(bignum_t order) {
   return result;
 }
 
-ostream &operator<<(ostream &os, const GT &gt) {
+ostream& operator<<(ostream& os, const GT& gt) {
 #if defined(BP_WITH_OPENSSL)
   OpenABEByteString s;
   gt_convert_to_bytestring(GET_BP_GROUP(gt.bgroup), s, gt.m_GT, NO_COMPRESS);
   os << "(" << s.toHex() << ")";
 #else
-  gt_write_ostream(os, const_cast<GT &>(gt).m_GT, DEC);
+  gt_write_ostream(os, const_cast<GT&>(gt).m_GT, DEC);
 #endif
   return os;
 }
 
-bool operator==(const GT &x, const GT &y) {
+bool operator==(const GT& x, const GT& y) {
   bool result;
 #if defined(BP_WITH_OPENSSL)
   result = (GT_ELEM_cmp(x.m_GT, y.m_GT) == G_CMP_EQ);
 #else
-  result =
-      (gt_cmp(const_cast<GT &>(x).m_GT, const_cast<GT &>(y).m_GT) == G_CMP_EQ);
+  result = (gt_cmp(const_cast<GT&>(x).m_GT, const_cast<GT&>(y).m_GT) == G_CMP_EQ);
 #endif
   return result;
 }
 
-bool operator!=(const GT &x, const GT &y) {
+bool operator!=(const GT& x, const GT& y) {
   bool result;
 #if defined(BP_WITH_OPENSSL)
   result = (GT_ELEM_cmp(x.m_GT, y.m_GT) != G_CMP_EQ);
 #else
-  result =
-      (gt_cmp(const_cast<GT &>(x).m_GT, const_cast<GT &>(y).m_GT) != G_CMP_EQ);
+  result = (gt_cmp(const_cast<GT&>(x).m_GT, const_cast<GT&>(y).m_GT) != G_CMP_EQ);
 #endif
   return result;
 }
 
-void GT::serialize(OpenABEByteString &result) const {
+void GT::serialize(OpenABEByteString& result) const {
   OpenABEByteString tmp;
   int compress = shouldCompress_ ? COMPRESS : NO_COMPRESS;
 
   if (this->isInit) {
-    gt_convert_to_bytestring(GET_BP_GROUP(this->bgroup), tmp,
-                             const_cast<GT &>(*this).m_GT, compress);
+    gt_convert_to_bytestring(GET_BP_GROUP(this->bgroup), tmp, const_cast<GT&>(*this).m_GT,
+                             compress);
     // pack the resulting ciphertext in result
     result.clear();
     result.insertFirstByte(OpenABE_ELEMENT_GT);
@@ -1191,7 +1180,7 @@ void GT::serialize(OpenABEByteString &result) const {
   }
 }
 
-void GT::deserialize(OpenABEByteString &input) {
+void GT::deserialize(OpenABEByteString& input) {
   OpenABEByteString gt_bytes;
   size_t index = 0;
 
@@ -1211,8 +1200,8 @@ void GT::deserialize(OpenABEByteString &input) {
   ASSERT(false, OpenABE_ERROR_ELEMENT_NOT_INITIALIZED);
 }
 
-bool GT::isEqual(ZObject *z) const {
-  GT *z1 = dynamic_cast<GT *>(z);
+bool GT::isEqual(ZObject* z) const {
+  GT* z1 = dynamic_cast<GT*>(z);
   if (z1 != NULL) {
     return *z1 == *this;
   }
@@ -1220,7 +1209,7 @@ bool GT::isEqual(ZObject *z) const {
 }
 
 #if !defined(BP_WITH_OPENSSL)
-void fp12_write_ostream(ostream &os, fp12_t a, int radix) {
+void fp12_write_ostream(ostream& os, fp12_t a, int radix) {
   os << "[(";
   fp6_write_ostream(os, a[0], radix);
   os << "),(";
@@ -1228,7 +1217,7 @@ void fp12_write_ostream(ostream &os, fp12_t a, int radix) {
   os << "]";
 }
 
-void fp6_write_ostream(ostream &os, fp6_t a, int radix) {
+void fp6_write_ostream(ostream& os, fp6_t a, int radix) {
   os << "{";
   fp2_write_ostream(os, a[0], radix);
   os << ",";
@@ -1238,7 +1227,7 @@ void fp6_write_ostream(ostream &os, fp6_t a, int radix) {
   os << "}";
 }
 
-void fp2_write_ostream(ostream &os, fp2_t a, int radix) {
+void fp2_write_ostream(ostream& os, fp2_t a, int radix) {
   os << "<";
   fp_write_ostream(os, a[0], radix);
   os << ",";
@@ -1246,13 +1235,13 @@ void fp2_write_ostream(ostream &os, fp2_t a, int radix) {
   os << ">";
 }
 
-void fp_write_ostream(ostream &os, fp_t a, int radix) {
+void fp_write_ostream(ostream& os, fp_t a, int radix) {
   char strBuf[MAX_BYTES];
   fp_write_str(strBuf, MAX_BYTES, a, radix);
   os << strBuf;
 }
 
-void ep2_write_ostream(ostream &os, ep2_t p, int radix) {
+void ep2_write_ostream(ostream& os, ep2_t p, int radix) {
   os << "[";
   fp2_write_ostream(os, p->x, radix);
   os << ",";
@@ -1262,7 +1251,7 @@ void ep2_write_ostream(ostream &os, ep2_t p, int radix) {
   os << "]";
 }
 
-void ep_write_ostream(ostream &os, ep_t p, int radix) {
+void ep_write_ostream(ostream& os, ep_t p, int radix) {
   // base field
   os << "[";
   fp_write_ostream(os, p->x, radix);

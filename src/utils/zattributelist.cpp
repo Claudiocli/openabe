@@ -63,8 +63,7 @@ OpenABEAttributeList::OpenABEAttributeList() : OpenABEFunctionInput() {
  *
  */
 
-OpenABEAttributeList::OpenABEAttributeList(uint32_t numArgs,
-                                           std::vector<string> args)
+OpenABEAttributeList::OpenABEAttributeList(uint32_t numArgs, std::vector<string> args)
     : OpenABEFunctionInput() {
   string c;
   if (numArgs != args.size())
@@ -78,7 +77,7 @@ OpenABEAttributeList::OpenABEAttributeList(uint32_t numArgs,
   this->m_Type = FUNC_ATTRLIST_INPUT;
 }
 
-OpenABEAttributeList::OpenABEAttributeList(const OpenABEAttributeList &copy) {
+OpenABEAttributeList::OpenABEAttributeList(const OpenABEAttributeList& copy) {
   this->m_Type = copy.getFunctionType();
   this->m_Attributes = copy.m_Attributes;
   this->m_OriginalAttributes = copy.m_OriginalAttributes;
@@ -90,14 +89,16 @@ OpenABEAttributeList::OpenABEAttributeList(const OpenABEAttributeList &copy) {
  *
  */
 
-OpenABEAttributeList::~OpenABEAttributeList() { this->m_Attributes.clear(); }
+OpenABEAttributeList::~OpenABEAttributeList() {
+  this->m_Attributes.clear();
+}
 
 /*!
  * Return a copy of the string list.
  *
  */
 
-void OpenABEAttributeList::getStringList(std::vector<string> &attrStrings) {
+void OpenABEAttributeList::getStringList(std::vector<string>& attrStrings) {
   attrStrings = this->m_Attributes;
 }
 
@@ -106,9 +107,9 @@ void OpenABEAttributeList::getStringList(std::vector<string> &attrStrings) {
  *
  */
 
-void OpenABEAttributeList::syncOrigAttributes(const string &prefix,
-                                              OpenABEAttributeList &attrList) {
-  for (auto &it : attrList.m_OriginalAttributes) {
+void OpenABEAttributeList::syncOrigAttributes(const string& prefix,
+                                              OpenABEAttributeList& attrList) {
+  for (auto& it : attrList.m_OriginalAttributes) {
     if (it.find(prefix) != string::npos) {
       this->m_OriginalAttributes.push_back(it);
     }
@@ -120,9 +121,8 @@ void OpenABEAttributeList::syncOrigAttributes(const string &prefix,
  *
  */
 
-bool OpenABEAttributeList::matchAttribute(const string &attribute) {
-  return (std::find(m_Attributes.begin(), m_Attributes.end(), attribute) !=
-          m_Attributes.end());
+bool OpenABEAttributeList::matchAttribute(const string& attribute) {
+  return (std::find(m_Attributes.begin(), m_Attributes.end(), attribute) != m_Attributes.end());
 }
 
 bool OpenABEAttributeList::addAttribute(string attribute) {
@@ -147,12 +147,12 @@ bool OpenABEAttributeList::addAttribute(string attribute) {
     // here
     std::unique_ptr<OpenABEAttributeList> attr_list =
         oabe::createAttributeList(ATTR_SEP + attribute);
-    const vector<string> *m_attrs = attr_list->getAttributeList();
-    const vector<string> *orig_attrs = attr_list->getOriginalAttributeList();
+    const vector<string>* m_attrs = attr_list->getAttributeList();
+    const vector<string>* orig_attrs = attr_list->getOriginalAttributeList();
     if (m_attrs && orig_attrs) {
-      for (auto &a : *m_attrs)
+      for (auto& a : *m_attrs)
         this->m_Attributes.push_back(a);
-      for (auto &b : *orig_attrs)
+      for (auto& b : *orig_attrs)
         this->m_OriginalAttributes.push_back(b);
     }
   }
@@ -160,15 +160,14 @@ bool OpenABEAttributeList::addAttribute(string attribute) {
   return true;
 }
 
-void OpenABEAttributeList::setAttributes(vector<string> &attr_list,
-                                         vector<string> &orig_attr_list,
-                                         set<string> &prefix_list) {
+void OpenABEAttributeList::setAttributes(vector<string>& attr_list, vector<string>& orig_attr_list,
+                                         set<string>& prefix_list) {
   this->m_Attributes = attr_list;
   this->m_OriginalAttributes = orig_attr_list;
   this->m_prefixSet = prefix_list;
 }
 
-ostream &operator<<(ostream &os, const OpenABEAttributeList &attributeList) {
+ostream& operator<<(ostream& os, const OpenABEAttributeList& attributeList) {
   int i = 0;
   OpenABEAttributeList attributeList2 = attributeList;
   for (std::vector<string>::iterator it = attributeList2.m_Attributes.begin();
@@ -196,7 +195,7 @@ std::string OpenABEAttributeList::toString() const {
 std::string OpenABEAttributeList::toCompactString() const {
   string s;
   s.push_back(ATTR_SEP);
-  for (auto &it : this->m_Attributes) {
+  for (auto& it : this->m_Attributes) {
     // if the attribute doesn't contain an expint, then proceed
     if (it.find(EXPINT) == string::npos) {
       s += it;
@@ -205,27 +204,27 @@ std::string OpenABEAttributeList::toCompactString() const {
   }
 
   // add any original attributes to the end
-  for (auto &it : this->m_OriginalAttributes) {
+  for (auto& it : this->m_OriginalAttributes) {
     s += it;
     s.push_back(ATTR_SEP);
   }
   return s;
 }
 
-void OpenABEAttributeList::serialize(OpenABEByteString &result) const {
+void OpenABEAttributeList::serialize(OpenABEByteString& result) const {
   result = this->toCompactString();
 }
 
-void OpenABEAttributeList::deserialize(const OpenABEByteString &input) {}
+void OpenABEAttributeList::deserialize(const OpenABEByteString& input) {}
 
-bool OpenABEAttributeList::isEqual(ZObject *z) const {
-  OpenABEAttributeList *z1 = dynamic_cast<OpenABEAttributeList *>(z);
+bool OpenABEAttributeList::isEqual(ZObject* z) const {
+  OpenABEAttributeList* z1 = dynamic_cast<OpenABEAttributeList*>(z);
   if (z1 != NULL) {
     vector<string> list(z1->m_Attributes.size() + this->m_Attributes.size());
     // order does not matter. verify the same attributes are present
-    vector<string>::iterator iter = std::set_difference(
-        z1->m_Attributes.begin(), z1->m_Attributes.end(),
-        this->m_Attributes.begin(), this->m_Attributes.end(), list.begin());
+    vector<string>::iterator iter =
+        std::set_difference(z1->m_Attributes.begin(), z1->m_Attributes.end(),
+                            this->m_Attributes.begin(), this->m_Attributes.end(), list.begin());
     return iter->size() == 0; // > 0 means false
   }
   // return false;
@@ -241,8 +240,7 @@ bool OpenABEAttributeList::isEqual(ZObject *z) const {
 //   return true;
 // }
 
-std::unique_ptr<OpenABEAttributeList>
-createAttributeList(const std::string &s) {
+std::unique_ptr<OpenABEAttributeList> createAttributeList(const std::string& s) {
   oabe::Driver driver(false);
   if (s.size() == 0) {
     return nullptr;
@@ -251,7 +249,7 @@ createAttributeList(const std::string &s) {
   try {
     driver.parse_string(ATTRLIST_PREFIX, s);
     return driver.getAttributeList();
-  } catch (OpenABE_ERROR &error) {
+  } catch (OpenABE_ERROR& error) {
     cerr << "caught exception: " << OpenABE_errorToString(error) << endl;
     return nullptr;
   }

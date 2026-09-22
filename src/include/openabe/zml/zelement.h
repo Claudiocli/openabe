@@ -63,7 +63,7 @@
 
 /* BEGIN OpenSSL macro definitions */
 
-typedef BIGNUM *bignum_t;
+typedef BIGNUM* bignum_t;
 
 #define zml_bignum_free(b) BN_free(b)
 #define zml_bignum_safe_free(b) OPENSSL_free(b)
@@ -98,8 +98,8 @@ typedef BIGNUM *bignum_t;
 typedef bn_t bignum_t;
 
 #define zml_bignum_free(b) bn_free(b)
-#define zml_bignum_safe_free(b)                                                \
-  if (b != NULL)                                                               \
+#define zml_bignum_safe_free(b)                                                                    \
+  if (b != NULL)                                                                                   \
   free(b)
 
 #define zml_bignum_fromHex(b, str, len) bn_read_str(b, str, len, 16)
@@ -132,8 +132,8 @@ void zml_bignum_rand(bignum_t a, bignum_t o);
 
 /* BEGIN OpenSSL macro definitions */
 
-typedef EC_POINT *ec_point_t;
-typedef EC_GROUP *ec_group_t;
+typedef EC_POINT* ec_point_t;
+typedef EC_GROUP* ec_group_t;
 
 /* Elliptic curve operations */
 #define ec_point_free(e) EC_POINT_clear_free(e)
@@ -153,7 +153,7 @@ typedef EC_GROUP *ec_group_t;
  * EC_WITH_OPENSSL above, but it is not a RELIC type for the reasons detailed
  * above */
 typedef ec_relic_point_t ec_point_t;
-typedef void *ec_group_t;
+typedef void* ec_group_t;
 
 #define ec_point_free(e) ec_relic_point_free(e)
 #define ec_group_free(g) g = NULL
@@ -183,7 +183,7 @@ void zml_init();
 void zml_clean();
 
 // abstract bignum operations
-void zml_bignum_init(bignum_t *a);
+void zml_bignum_init(bignum_t* a);
 void zml_bignum_copy(bignum_t to, const bignum_t from);
 int zml_bignum_sign(const bignum_t a);
 int zml_bignum_cmp(const bignum_t a, const bignum_t b);
@@ -192,17 +192,12 @@ int zml_bignum_countbytes(const bignum_t a);
 int zml_bignum_mod_inv(bignum_t a, const bignum_t b, const bignum_t o);
 void zml_bignum_mod(bignum_t x, const bignum_t o);
 void zml_bignum_negate(bignum_t b, const bignum_t o);
-void zml_bignum_add(bignum_t r, const bignum_t x, const bignum_t y,
-                    const bignum_t o);
+void zml_bignum_add(bignum_t r, const bignum_t x, const bignum_t y, const bignum_t o);
 void zml_bignum_sub(bignum_t r, const bignum_t x, const bignum_t y);
-void zml_bignum_sub_order(bignum_t r, const bignum_t x, const bignum_t y,
-                          const bignum_t o);
-void zml_bignum_mul(bignum_t r, const bignum_t x, const bignum_t y,
-                    const bignum_t o);
-void zml_bignum_div(bignum_t r, const bignum_t x, const bignum_t y,
-                    const bignum_t o);
-void zml_bignum_exp(bignum_t r, const bignum_t x, const bignum_t y,
-                    const bignum_t o);
+void zml_bignum_sub_order(bignum_t r, const bignum_t x, const bignum_t y, const bignum_t o);
+void zml_bignum_mul(bignum_t r, const bignum_t x, const bignum_t y, const bignum_t o);
+void zml_bignum_div(bignum_t r, const bignum_t x, const bignum_t y, const bignum_t o);
+void zml_bignum_exp(bignum_t r, const bignum_t x, const bignum_t y, const bignum_t o);
 
 // logical operators for bignums
 void zml_bignum_lshift(bignum_t r, const bignum_t a, int n);
@@ -210,30 +205,27 @@ void zml_bignum_rshift(bignum_t r, const bignum_t a, int n);
 
 // NOTE: must free the memory that is returned from bignum_toHex and
 // bignum_toDec using bignum_safe_free
-char *zml_bignum_toHex(const bignum_t b, int *length);
-char *zml_bignum_toDec(const bignum_t b, int *length);
+char* zml_bignum_toHex(const bignum_t b, int* length);
+char* zml_bignum_toDec(const bignum_t b, int* length);
 
 // abstract elliptic curve operations
-int ec_group_init(ec_group_t *group, uint8_t id);
+int ec_group_init(ec_group_t* group, uint8_t id);
 void ec_get_order(ec_group_t group, bignum_t order);
-void ec_point_init(ec_group_t group, ec_point_t *e);
+void ec_point_init(ec_group_t group, ec_point_t* e);
 void ec_point_copy(ec_point_t to, const ec_point_t from);
 void ec_point_set_inf(ec_group_t group, ec_point_t p);
 int ec_point_cmp(ec_group_t group, const ec_point_t a, const ec_point_t b);
 int ec_point_is_inf(ec_group_t group, ec_point_t p);
 void ec_get_generator(ec_group_t group, ec_point_t p);
-void ec_get_coordinates(ec_group_t group, bignum_t x, bignum_t y,
-                        const ec_point_t p);
-int ec_convert_to_point(ec_group_t group, ec_point_t p, uint8_t *xstr, int len);
+void ec_get_coordinates(ec_group_t group, bignum_t x, bignum_t y, const ec_point_t p);
+int ec_convert_to_point(ec_group_t group, ec_point_t p, uint8_t* xstr, int len);
 int ec_point_is_on_curve(ec_group_t group, ec_point_t p);
-void ec_point_add(ec_group_t g, ec_point_t r, const ec_point_t x,
-                  const ec_point_t y);
-void ec_point_mul(ec_group_t g, ec_point_t r, const ec_point_t x,
-                  const bignum_t y);
+void ec_point_add(ec_group_t g, ec_point_t r, const ec_point_t x, const ec_point_t y);
+void ec_point_mul(ec_group_t g, ec_point_t r, const ec_point_t x, const bignum_t y);
 
 size_t ec_point_elem_len(const ec_point_t g);
-void ec_point_elem_in(ec_point_t g, uint8_t *in, size_t len);
-void ec_point_elem_out(const ec_point_t g, uint8_t *out, size_t len);
+void ec_point_elem_in(ec_point_t g, uint8_t* in, size_t len);
+void ec_point_elem_out(const ec_point_t g, uint8_t* out, size_t len);
 
 /*************************** BP Definitions *********************/
 
@@ -241,12 +233,12 @@ void ec_point_elem_out(const ec_point_t g, uint8_t *out, size_t len);
 
 /* BEGIN OpenSSL macro definitions */
 
-typedef BP_GROUP *bp_group_t;
+typedef BP_GROUP* bp_group_t;
 #define bp_group_free(g) BP_GROUP_free(g);
 
-typedef G1_ELEM *g1_ptr;
-typedef G2_ELEM *g2_ptr;
-typedef GT_ELEM *gt_ptr;
+typedef G1_ELEM* g1_ptr;
+typedef G2_ELEM* g2_ptr;
+typedef GT_ELEM* gt_ptr;
 
 #define g_set_null(g) g = nullptr;
 #define g1_copy_const G1_ELEM_copy
@@ -266,20 +258,20 @@ typedef GT_ELEM *gt_ptr;
 /* BEGIN RELIC macro definitions */
 
 // ZTK-specific macros for RELIC
-#define bn_inits(b)                                                            \
-  bn_null(b);                                                                  \
+#define bn_inits(b)                                                                                \
+  bn_null(b);                                                                                      \
   bn_new(b);
 
-#define g1_inits(g)                                                            \
-  ep_null(g);                                                                  \
+#define g1_inits(g)                                                                                \
+  ep_null(g);                                                                                      \
   ep_new(g);
 
-#define ep2_inits(g)                                                           \
-  ep2_null(g);                                                                 \
+#define ep2_inits(g)                                                                               \
+  ep2_null(g);                                                                                     \
   ep2_new(g);
 
-#define fp12_inits(g)                                                          \
-  fp12_null(g);                                                                \
+#define fp12_inits(g)                                                                              \
+  fp12_null(g);                                                                                    \
   fp12_new(g);
 
 #define g1_copy_const RLC_CAT(RLC_G1_LOWER, copy_const)
@@ -303,16 +295,16 @@ void fp6_copy_const(fp6_t c, const fp6_t a);
 
 int bn_cmp_const(bn_t a, const bn_t b);
 int bn_cmp_abs_const(const bn_t a, const bn_t b);
-int bn_cmpn_low_const(const dig_t *a, const dig_t *b, const int size);
+int bn_cmpn_low_const(const dig_t* a, const dig_t* b, const int size);
 int ep_cmp_const(ep_t p, const ep_t q);
 int ep2_cmp_const(ep2_t p, const ep2_t q);
 int fp12_cmp_const(fp12_t a, const fp12_t b);
 int fp6_cmp_const(fp6_t a, const fp6_t b);
 int fp2_cmp_const(fp2_t a, const fp2_t b);
 int fp_cmp_const(fp_t a, const fp_t b);
-int fp_cmpn_low_const(dig_t *a, const dig_t *b);
+int fp_cmpn_low_const(dig_t* a, const dig_t* b);
 
-typedef void *bp_group_t;
+typedef void* bp_group_t;
 #define bp_group_free(g) g = nullptr;
 
 typedef ep_t g1_ptr;
@@ -329,39 +321,39 @@ typedef fp12_t gt_ptr;
 #endif
 
 // C helper functions to handle (OpenSSL/RELIC)
-int bp_group_init(bp_group_t *group, uint8_t id);
+int bp_group_init(bp_group_t* group, uint8_t id);
 void bp_get_order(bp_group_t group, bignum_t order);
 
 // ZML abstract methods for G1
-void g1_init(bp_group_t group, g1_ptr *e);
-void g1_set_to_infinity(bp_group_t group, g1_ptr *e);
+void g1_init(bp_group_t group, g1_ptr* e);
+void g1_set_to_infinity(bp_group_t group, g1_ptr* e);
 void g1_add_op(bp_group_t group, g1_ptr z, const g1_ptr x, const g1_ptr y);
 void g1_sub_op(bp_group_t group, g1_ptr z, const g1_ptr x);
 void g1_mul_op(bp_group_t group, g1_ptr z, const g1_ptr x, const bignum_t r);
 void g1_rand_op(g1_ptr g);
-void g1_map_op(const bp_group_t group, g1_ptr g, uint8_t *msg, int msg_len);
+void g1_map_op(const bp_group_t group, g1_ptr g, uint8_t* msg, int msg_len);
 
 #if !defined(BP_WITH_OPENSSL)
 size_t g1_elem_len(const g1_ptr g);
-void g1_elem_in(g1_ptr g, uint8_t *in, size_t len);
-void g1_elem_out(const g1_ptr g, uint8_t *out, size_t len);
+void g1_elem_in(g1_ptr g, uint8_t* in, size_t len);
+void g1_elem_out(const g1_ptr g, uint8_t* out, size_t len);
 size_t g2_elem_len(g2_ptr g);
-void g2_elem_in(g2_ptr g, uint8_t *in, size_t len);
-void g2_elem_out(g2_ptr g, uint8_t *out, size_t len);
+void g2_elem_in(g2_ptr g, uint8_t* in, size_t len);
+void g2_elem_out(g2_ptr g, uint8_t* out, size_t len);
 size_t gt_elem_len(gt_ptr g, int should_compress);
-void gt_elem_in(gt_ptr g, uint8_t *in, size_t len);
-void gt_elem_out(gt_ptr g, uint8_t *out, size_t len, int should_compress);
+void gt_elem_in(gt_ptr g, uint8_t* in, size_t len);
+void gt_elem_out(gt_ptr g, uint8_t* out, size_t len, int should_compress);
 #endif
 
 // ZML abstract methods for G2
-void g2_init(bp_group_t group, g2_ptr *e);
-void g2_set_to_infinity(bp_group_t group, g2_ptr *e);
+void g2_init(bp_group_t group, g2_ptr* e);
+void g2_set_to_infinity(bp_group_t group, g2_ptr* e);
 int g2_cmp_op(bp_group_t group, g2_ptr x, g2_ptr y);
 void g2_mul_op(bp_group_t group, g2_ptr z, g2_ptr x, bignum_t r);
 
 // ZML abstract methods for GT
-void gt_init(const bp_group_t group, gt_ptr *e);
-void gt_set_to_infinity(bp_group_t group, gt_ptr *e);
+void gt_init(const bp_group_t group, gt_ptr* e);
+void gt_set_to_infinity(bp_group_t group, gt_ptr* e);
 void gt_mul_op(const bp_group_t group, gt_ptr z, gt_ptr x, gt_ptr y);
 void gt_div_op(const bp_group_t group, gt_ptr z, gt_ptr x, gt_ptr y);
 void gt_exp_op(const bp_group_t group, gt_ptr y, gt_ptr x, bignum_t r);

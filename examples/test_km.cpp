@@ -39,7 +39,7 @@ using namespace std;
 using namespace oabe;
 using namespace oabe::crypto;
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
 
   InitializeOpenABE();
 
@@ -47,16 +47,15 @@ int main(int argc, char **argv) {
 
   OpenABECryptoContext kpabe("KP-ABE");
 
-  string pt1 = "hello world!", pt2 = "another hello!",
-         pt3 = "this should fail!";
+  string pt1 = "hello world!", pt2 = "another hello!", pt3 = "this should fail!";
   string rpt1, rpt2, rpt3, ct1, ct2, ct3;
 
   kpabe.generateParams();
 
   map<string, string> keyBlobs;
   string tmp;
-  vector<string> key_inputs = {"(attr1 or attr2) and attr3", "attr1 and attr2",
-                               "attr2 and attr3", "attr3 and attr4"};
+  vector<string> key_inputs = {"(attr1 or attr2) and attr3", "attr1 and attr2", "attr2 and attr3",
+                               "attr3 and attr4"};
   // generate keys and delete from context (we will load later)
   for (size_t i = 0; i < key_inputs.size(); i++) {
     const string keyID = "key" + to_string(i + 1);
@@ -94,7 +93,7 @@ int main(int argc, char **argv) {
 
   try {
     result = kpabe.decrypt(ct3, rpt3);
-  } catch (oabe::ZCryptoBoxException &ex) {
+  } catch (oabe::ZCryptoBoxException& ex) {
     cout << "Correctly failed to recover message 3!" << endl;
   }
   ShutdownOpenABE();

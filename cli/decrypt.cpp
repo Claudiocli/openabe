@@ -36,19 +36,19 @@
 using namespace std;
 using namespace oabe;
 
-#define USAGE                                                                  \
-  "usage: [ -s scheme ] [ -p prefix ] [ -k key ] [ -i ciphertext ] [ -o "      \
-  "output ] -v\n\n"                                                            \
-  "\t-v : turn on verbosity\n"                                                 \
-  "\t-s : scheme types are 'PK', 'CP' or 'KP'\n"                               \
-  "\t-k : recipient key Id for 'PK' and secret key file for 'CP'/'KP'\n"       \
-  "\t-e : sender key Id for 'PK'\n"                                            \
-  "\t-i : ciphertext file \n"                                                  \
-  "\t-o : output file for plaintext\n"                                         \
-  "\t-p : prefix for generated authority public and secret parameter files "   \
+#define USAGE                                                                                      \
+  "usage: [ -s scheme ] [ -p prefix ] [ -k key ] [ -i ciphertext ] [ -o "                          \
+  "output ] -v\n\n"                                                                                \
+  "\t-v : turn on verbosity\n"                                                                     \
+  "\t-s : scheme types are 'PK', 'CP' or 'KP'\n"                                                   \
+  "\t-k : recipient key Id for 'PK' and secret key file for 'CP'/'KP'\n"                           \
+  "\t-e : sender key Id for 'PK'\n"                                                                \
+  "\t-i : ciphertext file \n"                                                                      \
+  "\t-o : output file for plaintext\n"                                                             \
+  "\t-p : prefix for generated authority public and secret parameter files "                       \
   "(optional)\n\n"
 
-bool getPublicKey(OpenABEByteString &publicKey, string &id, string &suffix) {
+bool getPublicKey(OpenABEByteString& publicKey, string& id, string& suffix) {
   const string pubKeyFile = id + ".pk" + suffix;
   publicKey = ReadFile(pubKeyFile.c_str());
   if (publicKey.size() == 0) {
@@ -58,7 +58,7 @@ bool getPublicKey(OpenABEByteString &publicKey, string &id, string &suffix) {
   return true;
 }
 
-bool getPrivateKey(OpenABEByteString &privateKey, string &id, string &suffix) {
+bool getPrivateKey(OpenABEByteString& privateKey, string& id, string& suffix) {
   const string privKeyFile = id + ".sk" + suffix;
   privateKey = ReadFile(privKeyFile.c_str());
   if (privateKey.size() == 0) {
@@ -68,8 +68,8 @@ bool getPrivateKey(OpenABEByteString &privateKey, string &id, string &suffix) {
   return true;
 }
 
-int runPkDecrypt(string &suffix, string &sender_id, string &recipient_id,
-                 string &ciphertextFile, string &outputFile, bool verbose) {
+int runPkDecrypt(string& suffix, string& sender_id, string& recipient_id, string& ciphertextFile,
+                 string& outputFile, bool verbose) {
   OpenABE_ERROR result = OpenABE_NOERROR;
   int err_code = 0;
   // load public key file for the recipient
@@ -85,8 +85,7 @@ int runPkDecrypt(string &suffix, string &sender_id, string &recipient_id,
       return -1;
     }
 
-    ctBlob = ReadBlockFromFile(CT2_BEGIN_HEADER, CT2_END_HEADER,
-                               ciphertextFile.c_str());
+    ctBlob = ReadBlockFromFile(CT2_BEGIN_HEADER, CT2_END_HEADER, ciphertextFile.c_str());
     if (ctBlob.size() == 0) {
       cerr << "ciphertext not encoded properly." << endl;
       return -1;
@@ -100,47 +99,38 @@ int runPkDecrypt(string &suffix, string &sender_id, string &recipient_id,
     }
 
     // Generate a set of parameters for an ABE authority
-    if ((result = schemeContext->generateParams(DEFAULT_NIST_PARAM_STRING)) !=
-        OpenABE_NOERROR) {
-      cerr << "unable to generate curve parameters: "
-           << DEFAULT_NIST_PARAM_STRING << endl;
+    if ((result = schemeContext->generateParams(DEFAULT_NIST_PARAM_STRING)) != OpenABE_NOERROR) {
+      cerr << "unable to generate curve parameters: " << DEFAULT_NIST_PARAM_STRING << endl;
       throw result;
     }
 
     string sen_pkID = "public_" + sender_id;
     string rec_skID = "private_" + recipient_id;
-    if ((result = schemeContext->loadPublicKey(sen_pkID, send_PublicKey)) !=
-        OpenABE_NOERROR) {
+    if ((result = schemeContext->loadPublicKey(sen_pkID, send_PublicKey)) != OpenABE_NOERROR) {
       cerr << "unable to load the sender's public key: " << sen_pkID << endl;
       throw result;
     }
 
-    if ((result = schemeContext->loadPrivateKey(rec_skID, recp_PrivateKey)) !=
-        OpenABE_NOERROR) {
-      cerr << "unable to load the recipient's private key: " << rec_skID
-           << endl;
+    if ((result = schemeContext->loadPrivateKey(rec_skID, recp_PrivateKey)) != OpenABE_NOERROR) {
+      cerr << "unable to load the recipient's private key: " << rec_skID << endl;
       throw result;
     }
 
     unique_ptr<OpenABECiphertext> ciphertext(new OpenABECiphertext);
     ciphertext->loadFromBytes(ctBlob);
-    if ((result = schemeContext->decrypt(sen_pkID, rec_skID, plaintext,
-                                         ciphertext.get())) !=
+    if ((result = schemeContext->decrypt(sen_pkID, rec_skID, plaintext, ciphertext.get())) !=
         OpenABE_NOERROR) {
-      cerr << "error while decrypting PK-encrypted object: " << ciphertextFile
-           << endl;
+      cerr << "error while decrypting PK-encrypted object: " << ciphertextFile << endl;
       throw result;
     }
 
     err_code = 0;
     if (verbose) {
-      cout << "writing " << plaintext.size() << " bytes to " << outputFile
-           << endl;
+      cout << "writing " << plaintext.size() << " bytes to " << outputFile << endl;
     }
-    WriteBinaryFile(outputFile.c_str(), (uint8_t *)plaintext.c_str(),
-                    plaintext.size());
+    WriteBinaryFile(outputFile.c_str(), (uint8_t*)plaintext.c_str(), plaintext.size());
 
-  } catch (OpenABE_ERROR &error) {
+  } catch (OpenABE_ERROR& error) {
     cout << "caught exception: " << OpenABE_errorToString(error) << endl;
     err_code = error;
   }
@@ -148,13 +138,11 @@ int runPkDecrypt(string &suffix, string &sender_id, string &recipient_id,
   return err_code;
 }
 
-int runAbeDecrypt(OpenABE_SCHEME scheme_type, string &prefix, string &suffix,
-                  string &skFile, string &ciphertextFile, string &outputFile,
-                  bool verbose) {
+int runAbeDecrypt(OpenABE_SCHEME scheme_type, string& prefix, string& suffix, string& skFile,
+                  string& ciphertextFile, string& outputFile, bool verbose) {
   OpenABE_ERROR result = OpenABE_NOERROR;
   std::unique_ptr<OpenABEContextSchemeCCA> schemeContext = nullptr;
-  std::unique_ptr<OpenABECiphertext> ciphertext1 = nullptr,
-                                     ciphertext2 = nullptr;
+  std::unique_ptr<OpenABECiphertext> ciphertext1 = nullptr, ciphertext2 = nullptr;
 
   int err_code = 0;
   string mpkID = MPK_ID, skID = skFile;
@@ -181,8 +169,7 @@ int runAbeDecrypt(OpenABE_SCHEME scheme_type, string &prefix, string &suffix,
       return -1;
     }
 
-    if ((result = schemeContext->loadMasterPublicParams(mpkID, mpkBlob)) !=
-        OpenABE_NOERROR) {
+    if ((result = schemeContext->loadMasterPublicParams(mpkID, mpkBlob)) != OpenABE_NOERROR) {
       cerr << "unable to load the master public parameters" << endl;
       throw result;
     }
@@ -193,8 +180,7 @@ int runAbeDecrypt(OpenABE_SCHEME scheme_type, string &prefix, string &suffix,
       return -1;
     }
 
-    ct1Blob = ReadBlockFromFile(CT1_BEGIN_HEADER, CT1_END_HEADER,
-                                ciphertextFile.c_str());
+    ct1Blob = ReadBlockFromFile(CT1_BEGIN_HEADER, CT1_END_HEADER, ciphertextFile.c_str());
     if (ct1Blob.size() == 0) {
       cerr << "ABE ciphertext not encoded properly." << endl;
       return -1;
@@ -204,8 +190,7 @@ int runAbeDecrypt(OpenABE_SCHEME scheme_type, string &prefix, string &suffix,
     ciphertext1.reset(new OpenABECiphertext);
     ciphertext1->loadFromBytes(ct1Blob);
 
-    ct2Blob = ReadBlockFromFile(CT2_BEGIN_HEADER, CT2_END_HEADER,
-                                ciphertextFile.c_str());
+    ct2Blob = ReadBlockFromFile(CT2_BEGIN_HEADER, CT2_END_HEADER, ciphertextFile.c_str());
     if (ct2Blob.size() == 0) {
       cerr << "AEAD ciphertext not encoded properly." << endl;
     }
@@ -214,7 +199,7 @@ int runAbeDecrypt(OpenABE_SCHEME scheme_type, string &prefix, string &suffix,
       cout << "read " << ct1Blob.size() << " bytes" << endl;
       cout << "read " << ct2Blob.size() << " bytes" << endl;
     }
-  } catch (OpenABE_ERROR &error) {
+  } catch (OpenABE_ERROR& error) {
     cout << "caught exception: " << OpenABE_errorToString(error) << endl;
     err_code = error;
     return err_code;
@@ -222,8 +207,7 @@ int runAbeDecrypt(OpenABE_SCHEME scheme_type, string &prefix, string &suffix,
 
   try {
     // now we can load the user's secret key
-    if ((result = schemeContext->loadUserSecretParams(skID, skBlob)) !=
-        OpenABE_NOERROR) {
+    if ((result = schemeContext->loadUserSecretParams(skID, skBlob)) != OpenABE_NOERROR) {
       cerr << "Unable to load user's decryption key" << endl;
       throw result;
     }
@@ -232,20 +216,17 @@ int runAbeDecrypt(OpenABE_SCHEME scheme_type, string &prefix, string &suffix,
     ciphertext2->loadFromBytesWithoutHeader(ct2Blob);
 
     // now we can decrypt
-    if ((result =
-             schemeContext->decrypt(mpkID, skID, plaintext, ciphertext1.get(),
-                                    ciphertext2.get())) != OpenABE_NOERROR) {
+    if ((result = schemeContext->decrypt(mpkID, skID, plaintext, ciphertext1.get(),
+                                         ciphertext2.get())) != OpenABE_NOERROR) {
       throw result;
     }
 
     err_code = 0;
     if (verbose) {
-      cout << "writing " << plaintext.size() << " bytes to " << outputFile
-           << endl;
+      cout << "writing " << plaintext.size() << " bytes to " << outputFile << endl;
     }
-    WriteBinaryFile(outputFile.c_str(), (uint8_t *)plaintext.c_str(),
-                    plaintext.size());
-  } catch (OpenABE_ERROR &error) {
+    WriteBinaryFile(outputFile.c_str(), (uint8_t*)plaintext.c_str(), plaintext.size());
+  } catch (OpenABE_ERROR& error) {
     cout << "caught exception: " << OpenABE_errorToString(error) << endl;
     err_code = error;
   }
@@ -253,10 +234,10 @@ int runAbeDecrypt(OpenABE_SCHEME scheme_type, string &prefix, string &suffix,
   return err_code;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   if (argc <= 1) {
-    cout << OpenABE_CLI_STRING << "decryption utility, v"
-         << (OpenABE_LIBRARY_VERSION / 100.) << endl;
+    cout << OpenABE_CLI_STRING << "decryption utility, v" << (OpenABE_LIBRARY_VERSION / 100.)
+         << endl;
     fprintf(stderr, USAGE);
     exit(-1);
   }
@@ -322,16 +303,14 @@ int main(int argc, char **argv) {
   int err_code = 0;
   if (scheme_type == OpenABE_SCHEME_PK_OPDH) {
     if (sender_id == "" || recipient_id == "") {
-      cerr << "missing sender ID (-e option) and/or recipient ID (-r option)"
-           << endl;
+      cerr << "missing sender ID (-e option) and/or recipient ID (-r option)" << endl;
       goto cleanup;
     }
-    err_code = runPkDecrypt(suffix, sender_id, recipient_id, ciphertext_file,
-                            out_file, verbose);
+    err_code = runPkDecrypt(suffix, sender_id, recipient_id, ciphertext_file, out_file, verbose);
   } else {
     cout << "user's SK file: " << key_file << endl;
-    err_code = runAbeDecrypt(scheme_type, prefix, suffix, key_file,
-                             ciphertext_file, out_file, verbose);
+    err_code =
+        runAbeDecrypt(scheme_type, prefix, suffix, key_file, ciphertext_file, out_file, verbose);
   }
 
 cleanup:

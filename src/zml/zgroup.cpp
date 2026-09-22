@@ -57,9 +57,11 @@ ZGroup::ZGroup(OpenABECurveID id) {
 
 ZGroup::~ZGroup() {}
 
-OpenABECurveID ZGroup::getCurveID() { return id; }
+OpenABECurveID ZGroup::getCurveID() {
+  return id;
+}
 
-std::ostream &operator<<(std::ostream &os, const ZGroup &z) {
+std::ostream& operator<<(std::ostream& os, const ZGroup& z) {
   os << z.group_param << " : " << z.id;
   return os;
 }

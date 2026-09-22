@@ -49,9 +49,13 @@ struct ec_relic_point_st {
   ep_t p;
 };
 
-int ec_relic_core_init(void) { return core_init(); }
+int ec_relic_core_init(void) {
+  return core_init();
+}
 
-int ec_relic_core_clean(void) { return core_clean(); }
+int ec_relic_core_clean(void) {
+  return core_clean();
+}
 
 int ec_relic_param_set(int curve_bits) {
   switch (curve_bits) {
@@ -70,7 +74,7 @@ int ec_relic_param_set(int curve_bits) {
   return 0;
 }
 
-size_t ec_relic_order_bin(uint8_t *out, size_t outlen) {
+size_t ec_relic_order_bin(uint8_t* out, size_t outlen) {
   bn_t order;
   size_t len = 0;
 
@@ -87,7 +91,9 @@ size_t ec_relic_order_bin(uint8_t *out, size_t outlen) {
   return len;
 }
 
-size_t ec_relic_field_bytes(void) { return RLC_FP_BYTES; }
+size_t ec_relic_field_bytes(void) {
+  return RLC_FP_BYTES;
+}
 
 ec_relic_point_t ec_relic_point_new(void) {
   ec_relic_point_t h = calloc(1, sizeof(struct ec_relic_point_st));
@@ -111,7 +117,9 @@ void ec_relic_point_copy(ec_relic_point_t to, const ec_relic_point_t from) {
   ep_copy(to->p, from->p);
 }
 
-void ec_relic_point_set_inf(ec_relic_point_t p) { ep_set_infty(p->p); }
+void ec_relic_point_set_inf(ec_relic_point_t p) {
+  ep_set_infty(p->p);
+}
 
 int ec_relic_point_is_inf(const ec_relic_point_t p) {
   /* 1 if the point is at infinity, 0 otherwise. */
@@ -126,14 +134,13 @@ int ec_relic_point_cmp(const ec_relic_point_t a, const ec_relic_point_t b) {
   return ep_cmp(a->p, b->p);
 }
 
-void ec_relic_point_add(ec_relic_point_t r, const ec_relic_point_t a,
-                        const ec_relic_point_t b) {
+void ec_relic_point_add(ec_relic_point_t r, const ec_relic_point_t a, const ec_relic_point_t b) {
   ep_add(r->p, a->p, b->p);
   ep_norm(r->p, r->p);
 }
 
-void ec_relic_point_mul(ec_relic_point_t r, const ec_relic_point_t a,
-                        const uint8_t *k, size_t klen) {
+void ec_relic_point_mul(ec_relic_point_t r, const ec_relic_point_t a, const uint8_t* k,
+                        size_t klen) {
   bn_t scalar;
 
   bn_null(scalar);
@@ -143,19 +150,19 @@ void ec_relic_point_mul(ec_relic_point_t r, const ec_relic_point_t a,
   bn_free(scalar);
 }
 
-void ec_relic_generator(ec_relic_point_t g) { ep_curve_get_gen(g->p); }
+void ec_relic_generator(ec_relic_point_t g) {
+  ep_curve_get_gen(g->p);
+}
 
 size_t ec_relic_point_size_bin(const ec_relic_point_t p, int pack) {
   return ep_size_bin(p->p, pack);
 }
 
-void ec_relic_point_write_bin(uint8_t *out, size_t len,
-                              const ec_relic_point_t p, int pack) {
+void ec_relic_point_write_bin(uint8_t* out, size_t len, const ec_relic_point_t p, int pack) {
   ep_write_bin(out, len, p->p, pack);
 }
 
-void ec_relic_point_read_bin(ec_relic_point_t p, const uint8_t *in,
-                             size_t len) {
+void ec_relic_point_read_bin(ec_relic_point_t p, const uint8_t* in, size_t len) {
   ep_read_bin(p->p, in, len);
   /* ep_read_bin leaves a decompressed point in affine form; mark it so by
    * setting the projective z coordinate to one */
@@ -163,8 +170,7 @@ void ec_relic_point_read_bin(ec_relic_point_t p, const uint8_t *in,
   fp_set_dig(p->p->z, 1);
 }
 
-int ec_relic_point_coord_bin(uint8_t *xout, uint8_t *yout, size_t len,
-                             const ec_relic_point_t p) {
+int ec_relic_point_coord_bin(uint8_t* xout, uint8_t* yout, size_t len, const ec_relic_point_t p) {
   ep_t affine;
 
   /* fp_write_bin throws ERR_NO_BUFFER unless len is exactly RLC_FP_BYTES. */

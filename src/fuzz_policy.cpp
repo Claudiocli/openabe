@@ -43,7 +43,7 @@
 using namespace std;
 using namespace oabe;
 
-void getFile(std::string &result, const std::string &filename) {
+void getFile(std::string& result, const std::string& filename) {
   result.clear();
 
   fstream fs(filename, fstream::in);
@@ -63,8 +63,8 @@ void getFile(std::string &result, const std::string &filename) {
   fs.close();
 }
 
-size_t getFileLen(const std::string &filename) {
-  FILE *f = fopen(filename.c_str(), "r");
+size_t getFileLen(const std::string& filename) {
+  FILE* f = fopen(filename.c_str(), "r");
   if (!f) {
     string msg("Could not open file: ");
     msg += filename;
@@ -83,7 +83,7 @@ size_t getFileLen(const std::string &filename) {
   return (size_t)result;
 }
 
-void putFile(const std::string &contents, const std::string &filename) {
+void putFile(const std::string& contents, const std::string& filename) {
   fstream fs(filename, fstream::out | fstream::trunc);
 
   if (fs.fail()) {
@@ -97,7 +97,7 @@ void putFile(const std::string &contents, const std::string &filename) {
   fs.close();
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   // check that we have appropriate # of args
   if (argc < 2) {
     cerr << "Usage " << argv[0] << ": [ input file ]" << endl;
@@ -123,7 +123,7 @@ int main(int argc, char **argv) {
       cout << endl;
     }
     err_code = 0;
-  } catch (const std::ios_base::failure &e) {
+  } catch (const std::ios_base::failure& e) {
     // invalid input file specified
     cerr << e.what() << endl;
   }

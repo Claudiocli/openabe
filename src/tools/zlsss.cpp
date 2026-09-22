@@ -50,7 +50,7 @@ using namespace std;
  ********************************************************************************/
 namespace oabe {
 
-OpenABELSSSElement::OpenABELSSSElement(std::string label, ZP &element)
+OpenABELSSSElement::OpenABELSSSElement(std::string label, ZP& element)
     : m_Label(label), m_Element(element) {
   std::pair<std::string, std::string> pr = check_attribute(label);
   this->m_Prefix = pr.first;
@@ -61,8 +61,7 @@ OpenABELSSSElement::OpenABELSSSElement(std::string label, ZP &element)
  *
  */
 
-OpenABELSSS::OpenABELSSS(OpenABEPairing *pairing, OpenABERNG *rng)
-    : ZObject(), m_Pairing(pairing) {
+OpenABELSSS::OpenABELSSS(OpenABEPairing* pairing, OpenABERNG* rng) : ZObject(), m_Pairing(pairing) {
   this->debug = false;
   this->m_Pairing->addRef();
   this->m_RNG = rng;
@@ -74,7 +73,9 @@ OpenABELSSS::OpenABELSSS(OpenABEPairing *pairing, OpenABERNG *rng)
  *
  */
 
-OpenABELSSS::~OpenABELSSS() { this->m_Pairing->deRef(); }
+OpenABELSSS::~OpenABELSSS() {
+  this->m_Pairing->deRef();
+}
 
 /*!
  * Given a secret (an element of ZP) and a OpenABEFunctionInput describing
@@ -95,12 +96,11 @@ OpenABELSSS::~OpenABELSSS() { this->m_Pairing->deRef(); }
  * @throw               - an exception if there is a problem sharing the element
  */
 
-void OpenABELSSS::shareSecret(const OpenABEFunctionInput *input, ZP &elt) {
+void OpenABELSSS::shareSecret(const OpenABEFunctionInput* input, ZP& elt) {
   // Verify that the input is a supported type (OpenABEPolicy)
-  const OpenABEPolicy *policy = dynamic_cast<const OpenABEPolicy *>(input);
+  const OpenABEPolicy* policy = dynamic_cast<const OpenABEPolicy*>(input);
   if (policy == nullptr) {
-    OpenABE_LOG_AND_THROW("Sharing input must be a Policy",
-                          OpenABE_ERROR_INVALID_INPUT);
+    OpenABE_LOG_AND_THROW("Sharing input must be a Policy", OpenABE_ERROR_INVALID_INPUT);
   }
   // Clear any existing results
   this->clearExistingResults();
@@ -128,8 +128,7 @@ void OpenABELSSS::shareSecret(const OpenABEFunctionInput *input, ZP &elt) {
  * @throw               - an exception if there is a problem with recovery
  */
 
-bool OpenABELSSS::recoverCoefficients(OpenABEPolicy *policy,
-                                      OpenABEAttributeList *attrList) {
+bool OpenABELSSS::recoverCoefficients(OpenABEPolicy* policy, OpenABEAttributeList* attrList) {
   ASSERT_NOTNULL(policy);
   ASSERT_NOTNULL(attrList);
   // Clear any existing results
@@ -159,8 +158,8 @@ bool OpenABELSSS::recoverCoefficients(OpenABEPolicy *policy,
  * @throw               - an exception if there is a problem sharing the element
  */
 
-void OpenABELSSS::performSecretSharing(const OpenABEPolicy *policy, ZP &elt) {
-  OpenABETreeNode *node = NULL;
+void OpenABELSSS::performSecretSharing(const OpenABEPolicy* policy, ZP& elt) {
+  OpenABETreeNode* node = NULL;
 
   if (policy->hasDuplicateNodes()) {
     policy->getDuplicateInfo(this->m_AttrCount);
@@ -182,9 +181,9 @@ void OpenABELSSS::performSecretSharing(const OpenABEPolicy *policy, ZP &elt) {
  * @throw               - an exception if there is a problem sharing the element
  */
 
-bool OpenABELSSS::performCoefficientRecovery(OpenABEPolicy *policy,
-                                             OpenABEAttributeList *attrList) {
-  OpenABETreeNode *node = NULL;
+bool OpenABELSSS::performCoefficientRecovery(OpenABEPolicy* policy,
+                                             OpenABEAttributeList* attrList) {
+  OpenABETreeNode* node = NULL;
 
   if (policy->hasDuplicateNodes()) {
     policy->getDuplicateInfo(this->m_AttrCount);
@@ -222,10 +221,10 @@ bool OpenABELSSS::performCoefficientRecovery(OpenABEPolicy *policy,
  * element
  */
 
-void OpenABELSSS::iterativeShareSecret(OpenABETreeNode *treeNode, ZP &elt) {
-  std::stack<OpenABETreeNode *> nodes;
+void OpenABELSSS::iterativeShareSecret(OpenABETreeNode* treeNode, ZP& elt) {
+  std::stack<OpenABETreeNode*> nodes;
   std::stack<ZP> eltList;
-  OpenABETreeNode *visitedNode = NULL;
+  OpenABETreeNode* visitedNode = NULL;
   ZP theSecret, coefficient;
   this->m_Pairing->initZP(theSecret, 0);
   this->m_Pairing->initZP(coefficient, 0);
@@ -292,11 +291,10 @@ void OpenABELSSS::iterativeShareSecret(OpenABETreeNode *treeNode, ZP &elt) {
  * element
  */
 
-bool OpenABELSSS::iterativeCoefficientRecover(OpenABETreeNode *treeNode,
-                                              ZP &inCoeff) {
-  std::stack<OpenABETreeNode *> nodes;
+bool OpenABELSSS::iterativeCoefficientRecover(OpenABETreeNode* treeNode, ZP& inCoeff) {
+  std::stack<OpenABETreeNode*> nodes;
   std::stack<ZP> coeffs;
-  OpenABETreeNode *visitedNode = NULL;
+  OpenABETreeNode* visitedNode = NULL;
   ZP tmpInCoeff, coefficient;
   this->m_Pairing->initZP(tmpInCoeff, 0);
   this->m_Pairing->initZP(coefficient, 0);
@@ -347,9 +345,7 @@ bool OpenABELSSS::iterativeCoefficientRecover(OpenABETreeNode *treeNode,
       for (uint32_t i = 0; i < numSubnodes; i++) {
         if (visitedNode->getSubnode(i)->getMark() == true) {
           // compute coefficient for this node
-          coefficient =
-              tmpInCoeff *
-              calculateCoefficient(visitedNode, i, threshold, numSubnodes);
+          coefficient = tmpInCoeff * calculateCoefficient(visitedNode, i, threshold, numSubnodes);
           nodes.push(visitedNode->getSubnode(i));
           coeffs.push(coefficient);
           result = true;
@@ -373,8 +369,8 @@ bool OpenABELSSS::iterativeCoefficientRecover(OpenABETreeNode *treeNode,
  * element
  */
 
-ZP OpenABELSSS::calculateCoefficient(OpenABETreeNode *treeNode, uint32_t index,
-                                     uint32_t threshold, uint32_t total) {
+ZP OpenABELSSS::calculateCoefficient(OpenABETreeNode* treeNode, uint32_t index, uint32_t threshold,
+                                     uint32_t total) {
   ZP result;
   this->m_Pairing->initZP(result, 1);
   this->m_Pairing->initZP(this->indexPlusOne, index + 1);
@@ -386,8 +382,7 @@ ZP OpenABELSSS::calculateCoefficient(OpenABETreeNode *treeNode, uint32_t index,
     this->m_Pairing->initZP(this->iPlusOne, i + 1);
     if (treeNode->getSubnode(i)->getMark() == true) {
       if (i != index) {
-        result *= result * ((this->zero - this->iPlusOne) /
-                            (this->indexPlusOne - this->iPlusOne));
+        result *= result * ((this->zero - this->iPlusOne) / (this->indexPlusOne - this->iPlusOne));
       }
     }
   }
@@ -406,7 +401,7 @@ ZP OpenABELSSS::calculateCoefficient(OpenABETreeNode *treeNode, uint32_t index,
  * element
  */
 
-void OpenABELSSS::addShareToResults(OpenABETreeNode *treeNode, ZP &elt) {
+void OpenABELSSS::addShareToResults(OpenABETreeNode* treeNode, ZP& elt) {
   OpenABELSSSElement lsssElement(treeNode->getCompleteLabel(), elt);
   this->m_ResultMap[this->makeUniqueLabel(treeNode)] = lsssElement;
   // JAA: uncomment to debug labels
@@ -425,8 +420,7 @@ void OpenABELSSS::addShareToResults(OpenABETreeNode *treeNode, ZP &elt) {
  * @throw                       - an exception if there is a problem
  */
 
-ZP OpenABELSSS::evaluatePolynomial(OpenABEElementList &coefficients,
-                                   uint32_t x) {
+ZP OpenABELSSS::evaluatePolynomial(OpenABEElementList& coefficients, uint32_t x) {
   // Make sure the coefficients vector is non-trivial
   assert(coefficients.size() > 0);
   //  {
@@ -439,8 +433,7 @@ ZP OpenABELSSS::evaluatePolynomial(OpenABEElementList &coefficients,
   this->m_Pairing->initZP(xpow, x);
   unsigned int i = 0;
 
-  for (OpenABEElementListIterator it = coefficients.begin();
-       it != coefficients.end(); ++it) {
+  for (OpenABEElementListIterator it = coefficients.begin(); it != coefficients.end(); ++it) {
     share += (*it * power(xpow, i));
     // JAA cout << "coeff = " << *it << " at x = " << xpow << ", i = " << i <<
     // endl;
@@ -461,7 +454,7 @@ ZP OpenABELSSS::evaluatePolynomial(OpenABEElementList &coefficients,
  * @return                  - unique label
  */
 
-string OpenABELSSS::makeUniqueLabel(const OpenABETreeNode *treeNode) {
+string OpenABELSSS::makeUniqueLabel(const OpenABETreeNode* treeNode) {
   // get the label
   string label = treeNode->getCompleteLabel();
   // if the label is duplicated in the policy tree, then add index
@@ -481,11 +474,10 @@ string OpenABELSSS::makeUniqueLabel(const OpenABETreeNode *treeNode) {
  * subtree
  */
 
-bool iterativeScanTree(OpenABETreeNode *treeNode,
-                       OpenABEAttributeList *attributeList) {
+bool iterativeScanTree(OpenABETreeNode* treeNode, OpenABEAttributeList* attributeList) {
   uint32_t threshold;
-  std::stack<OpenABETreeNode *> nodes;
-  OpenABETreeNode *topNode = NULL;
+  std::stack<OpenABETreeNode*> nodes;
+  OpenABETreeNode* topNode = NULL;
   bool isInternalNode, allSubnodesVisited;
 
   nodes.push(treeNode);
@@ -515,8 +507,7 @@ bool iterativeScanTree(OpenABETreeNode *treeNode,
       break;
     default:
       // Unrecognized node type
-      OpenABE_LOG_AND_THROW("Unrecognized node type",
-                            OpenABE_ERROR_SECRET_SHARING_FAILED);
+      OpenABE_LOG_AND_THROW("Unrecognized node type", OpenABE_ERROR_SECRET_SHARING_FAILED);
       break;
     }
 
@@ -535,8 +526,7 @@ bool iterativeScanTree(OpenABETreeNode *treeNode,
       // cout << "Find attribute: " << topNode->getLabel() << " in " <<
       // attributeList->toString() << endl; cout << "Result: " <<
       // attributeList->matchAttribute(topNode->getLabel()) << endl;
-      bool leaf_matched =
-          attributeList->matchAttribute(topNode->getCompleteLabel());
+      bool leaf_matched = attributeList->matchAttribute(topNode->getCompleteLabel());
       topNode->setMark(leaf_matched, leaf_matched ? 1 : 0);
       // mark this node as visited then pop from the stack
       topNode->m_Visited = true;
@@ -563,13 +553,12 @@ bool iterativeScanTree(OpenABETreeNode *treeNode,
 
 // comparator for pair of integers
 struct less_than {
-  bool operator()(const std::pair<int, int> &left,
-                  const std::pair<int, int> &right) {
+  bool operator()(const std::pair<int, int>& left, const std::pair<int, int>& right) {
     return (left.second < right.second);
   }
 };
 
-bool determineIfNodeShouldBeMarked(uint32_t threshold, OpenABETreeNode *node) {
+bool determineIfNodeShouldBeMarked(uint32_t threshold, OpenABETreeNode* node) {
   vector<pair<int, int>> list;
   uint32_t enough_nodes = threshold, cnt = 0;
   bool result;
@@ -635,8 +624,7 @@ bool determineIfNodeShouldBeMarked(uint32_t threshold, OpenABETreeNode *node) {
   return result;
 }
 
-pair<bool, int> checkIfSatisfied(OpenABEPolicy *policy,
-                                 OpenABEAttributeList *attr_list,
+pair<bool, int> checkIfSatisfied(OpenABEPolicy* policy, OpenABEAttributeList* attr_list,
                                  bool reset_flags) {
   ASSERT_NOTNULL(policy);
   ASSERT_NOTNULL(attr_list);
@@ -657,18 +645,17 @@ pair<bool, int> checkIfSatisfied(OpenABEPolicy *policy,
 // Used for testing only
 //
 
-ZP OpenABELSSS::LSSStestSecretRecovery(const OpenABELSSSRowMap &coefficients,
-                                       const OpenABELSSSRowMap &shares) {
+ZP OpenABELSSS::LSSStestSecretRecovery(const OpenABELSSSRowMap& coefficients,
+                                       const OpenABELSSSRowMap& shares) {
   // Set 'result' to zero
   ZP result;
   this->m_Pairing->initZP(result, 0);
 
   // For each share, find the matching coefficient
-  for (OpenABELSSSRowMap::const_iterator shareIt = shares.begin();
-       shareIt != shares.end(); ++shareIt) {
+  for (OpenABELSSSRowMap::const_iterator shareIt = shares.begin(); shareIt != shares.end();
+       ++shareIt) {
     // First identify the coefficient that matches this share
-    OpenABELSSSRowMap::const_iterator coeffIt =
-        coefficients.find(shareIt->first);
+    OpenABELSSSRowMap::const_iterator coeffIt = coefficients.find(shareIt->first);
     if (coeffIt == coefficients.end()) {
       // OpenABE_LOG_AND_THROW("Could not find a matching coefficient in the
       // list", OpenABE_ERROR_SECRET_SHARING_FAILED); Note: this condition

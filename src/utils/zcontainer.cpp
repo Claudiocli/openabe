@@ -53,7 +53,9 @@ namespace oabe {
  *
  */
 
-OpenABEContainer::OpenABEContainer() : ZObject() { this->group = nullptr; }
+OpenABEContainer::OpenABEContainer() : ZObject() {
+  this->group = nullptr;
+}
 
 OpenABEContainer::OpenABEContainer(std::shared_ptr<ZGroup> group) : ZObject() {
   this->group = group;
@@ -65,7 +67,7 @@ OpenABEContainer::OpenABEContainer(std::shared_ptr<ZGroup> group) : ZObject() {
  */
 
 OpenABEContainer::~OpenABEContainer() {
-  std::map<std::string, ZObject *>::iterator iter;
+  std::map<std::string, ZObject*>::iterator iter;
   for (iter = this->val.begin(); iter != this->val.end(); iter++) {
     delete iter->second;
   }
@@ -79,9 +81,8 @@ OpenABEContainer::~OpenABEContainer() {
  * @param Object containing the component
  */
 
-void OpenABEContainer::setComponent(const string &name,
-                                    const ZObject *component) {
-  ZObject *copy = component->clone();
+void OpenABEContainer::setComponent(const string& name, const ZObject* component) {
+  ZObject* copy = component->clone();
 
   this->val[name] = copy;
 }
@@ -93,8 +94,8 @@ void OpenABEContainer::setComponent(const string &name,
  * @return Number of components in the ciphertext
  */
 
-ZObject *OpenABEContainer::getComponent(const string &name) {
-  ZObject *result = this->val[name];
+ZObject* OpenABEContainer::getComponent(const string& name) {
+  ZObject* result = this->val[name];
 
   if (result == nullptr) {
     cerr << "OpenABEContainer::getComponent: missing '" << name << "'" << endl;
@@ -105,7 +106,7 @@ ZObject *OpenABEContainer::getComponent(const string &name) {
 }
 
 OpenABE_ERROR OpenABEContainer::deleteComponent(const string name) {
-  map<string, ZObject *>::iterator iter1 = this->val.find(name);
+  map<string, ZObject*>::iterator iter1 = this->val.find(name);
   if (iter1 != this->val.end()) {
     this->val.erase(iter1);
     return OpenABE_NOERROR;
@@ -119,7 +120,9 @@ OpenABE_ERROR OpenABEContainer::deleteComponent(const string name) {
  * @return Number of components in the ciphertext
  */
 
-uint32_t OpenABEContainer::numComponents() { return this->val.size(); }
+uint32_t OpenABEContainer::numComponents() {
+  return this->val.size();
+}
 
 OpenABE_ERROR OpenABEContainer::zeroize() {
   return OpenABE_ERROR_NOT_IMPLEMENTED;
@@ -130,9 +133,9 @@ OpenABE_ERROR OpenABEContainer::zeroize() {
  *
  * @return Byte vector containing the result
  */
-void OpenABEContainer::serialize(OpenABEByteString &result) const {
+void OpenABEContainer::serialize(OpenABEByteString& result) const {
   OpenABEByteString res, key, bytes;
-  std::map<std::string, ZObject *>::const_iterator it;
+  std::map<std::string, ZObject*>::const_iterator it;
   std::stringstream ss;
   for (it = this->val.begin(); it != this->val.end(); ++it) {
     it->second->serialize(bytes);
@@ -142,8 +145,7 @@ void OpenABEContainer::serialize(OpenABEByteString &result) const {
   }
 }
 
-void OpenABEContainer::deserializeElement(std::string key,
-                                          OpenABEByteString &value) {
+void OpenABEContainer::deserializeElement(std::string key, OpenABEByteString& value) {
   if (value.size() == 0) {
     throw OpenABE_ERROR_INVALID_INPUT;
   }
@@ -216,7 +218,7 @@ void OpenABEContainer::deserializeElement(std::string key,
   return;
 }
 
-void OpenABEContainer::deserialize(OpenABEByteString &blob) {
+void OpenABEContainer::deserialize(OpenABEByteString& blob) {
   OpenABEByteString result, key, value;
   result = blob;
   size_t index = 0;
@@ -229,7 +231,7 @@ void OpenABEContainer::deserialize(OpenABEByteString &blob) {
   return;
 }
 
-void OpenABEContainer::deserialize(string &blob) {
+void OpenABEContainer::deserialize(string& blob) {
   OpenABEByteString result;
   result = blob;
   return this->deserialize(result);
@@ -237,7 +239,7 @@ void OpenABEContainer::deserialize(string &blob) {
 
 std::vector<std::string> OpenABEContainer::getKeys() {
   std::vector<std::string> keyList;
-  std::map<std::string, ZObject *>::iterator iter;
+  std::map<std::string, ZObject*>::iterator iter;
   for (iter = this->val.begin(); iter != this->val.end(); iter++) {
     keyList.push_back(iter->first);
   }
@@ -245,26 +247,22 @@ std::vector<std::string> OpenABEContainer::getKeys() {
   return keyList;
 }
 
-bool operator==(const OpenABEContainer &c1, const OpenABEContainer &c2) {
+bool operator==(const OpenABEContainer& c1, const OpenABEContainer& c2) {
   // check that the 'keys' of the containers are equal
-  std::vector<std::string> keyList1 =
-      const_cast<OpenABEContainer &>(c1).getKeys();
-  std::vector<std::string> keyList2 =
-      const_cast<OpenABEContainer &>(c2).getKeys();
+  std::vector<std::string> keyList1 = const_cast<OpenABEContainer&>(c1).getKeys();
+  std::vector<std::string> keyList2 = const_cast<OpenABEContainer&>(c2).getKeys();
   std::vector<std::string> keyList3(keyList1.size() + keyList2.size());
-  std::vector<std::string>::iterator iter =
-      std::set_difference(keyList1.begin(), keyList1.end(), keyList2.begin(),
-                          keyList2.end(), keyList3.begin());
+  std::vector<std::string>::iterator iter = std::set_difference(
+      keyList1.begin(), keyList1.end(), keyList2.begin(), keyList2.end(), keyList3.begin());
   size_t keydiff = iter->size();
   if (keydiff > 0) {
     return false;
   }
 
   // check that 'values' of container are equal
-  for (std::vector<std::string>::iterator it = keyList1.begin();
-       it != keyList1.end(); ++it) {
-    ZObject *lhs = const_cast<OpenABEContainer &>(c1).getComponent(*it);
-    ZObject *rhs = const_cast<OpenABEContainer &>(c2).getComponent(*it);
+  for (std::vector<std::string>::iterator it = keyList1.begin(); it != keyList1.end(); ++it) {
+    ZObject* lhs = const_cast<OpenABEContainer&>(c1).getComponent(*it);
+    ZObject* rhs = const_cast<OpenABEContainer&>(c2).getComponent(*it);
     if (lhs->isEqual(rhs)) {
       continue;
     } else {

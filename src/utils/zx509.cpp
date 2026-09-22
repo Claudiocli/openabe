@@ -50,30 +50,28 @@ DistinguishedName::~DistinguishedName() = default;
 
 class DistinguishedName::Impl {
 public:
-  Impl(const vector<pair<string, string>> &myRdnPairs) : rdnPairs(myRdnPairs) {}
+  Impl(const vector<pair<string, string>>& myRdnPairs) : rdnPairs(myRdnPairs) {}
 
   vector<pair<string, string>> rdnPairs;
 };
 
-void DistinguishedName::makeDistinguishedName(
-    DistinguishedName &dn, const vector<pair<string, string>> &rdnPairs) {
+void DistinguishedName::makeDistinguishedName(DistinguishedName& dn,
+                                              const vector<pair<string, string>>& rdnPairs) {
   dn.ptr_.reset(new Impl(rdnPairs));
 }
 
-bool KeyCertifier::addDnToX509Name(const DistinguishedName &dn,
-                                   X509_NAME *name) {
+bool KeyCertifier::addDnToX509Name(const DistinguishedName& dn, X509_NAME* name) {
   int rc;
 
   if (!name) {
     return false;
   }
 
-  for (auto &rdn : dn.ptr_->rdnPairs) {
-    const char *label = (char *)rdn.first.c_str();
-    const string &value_str = rdn.second;
-    const unsigned char *value = (unsigned char *)value_str.c_str();
-    rc = X509_NAME_add_entry_by_txt(name, label, MBSTRING_ASC, value,
-                                    value_str.size(), -1, 0);
+  for (auto& rdn : dn.ptr_->rdnPairs) {
+    const char* label = (char*)rdn.first.c_str();
+    const string& value_str = rdn.second;
+    const unsigned char* value = (unsigned char*)value_str.c_str();
+    rc = X509_NAME_add_entry_by_txt(name, label, MBSTRING_ASC, value, value_str.size(), -1, 0);
     if (rc != 1) {
       return false;
     }
@@ -82,8 +80,7 @@ bool KeyCertifier::addDnToX509Name(const DistinguishedName &dn,
   return true;
 }
 
-void KeyCertifier::fromKeyString(KeyCertifier &certifier,
-                                 const string &privateKey) {
+void KeyCertifier::fromKeyString(KeyCertifier& certifier, const string& privateKey) {
   stringToPkey(&certifier.privateKey_, privateKey, 1);
   if (!certifier.privateKey_) {
     throw CryptoException("Key misformatted");
@@ -94,16 +91,16 @@ void KeyCertifier::fromKeyString(KeyCertifier &certifier,
 // matching subject DN to issuer DN.  As a result, we need to add a
 // distinguished name to the certificates we issue and the CA cert,
 // but it doesn't need to signify anything.
-static void getBogusDistinguishedName(DistinguishedName &dn) {
+static void getBogusDistinguishedName(DistinguishedName& dn) {
   vector<pair<string, string>> rdns;
   rdns.push_back(make_pair("C", "XX"));
 
   DistinguishedName::makeDistinguishedName(dn, rdns);
 }
 
-static bool setCertificateSerialNumber(X509 *cert) {
-  ASN1_INTEGER *sno = ASN1_INTEGER_new();
-  BIGNUM *bn = nullptr;
+static bool setCertificateSerialNumber(X509* cert) {
+  ASN1_INTEGER* sno = ASN1_INTEGER_new();
+  BIGNUM* bn = nullptr;
   bool result = false;
 
   if (!sno) {
@@ -122,8 +119,7 @@ static bool setCertificateSerialNumber(X509 *cert) {
 
   // random for now, but will switch to SHA256(subject, notBefore, notAfter,
   // PK?)
-  if (BN_pseudo_rand(bn, SERIAL_BITS, 0, 0) == 1 &&
-      (sno = BN_to_ASN1_INTEGER(bn, sno)) != NULL &&
+  if (BN_pseudo_rand(bn, SERIAL_BITS, 0, 0) == 1 && (sno = BN_to_ASN1_INTEGER(bn, sno)) != NULL &&
       X509_set_serialNumber(cert, sno) == 1)
     result = true;
   else
@@ -138,7 +134,7 @@ out:
 // OpenSSL checks the validity of certificates based on their period
 // of validity.  Thus we need to adjust the period of validity for
 // certificates to use them.
-static bool setDaysValid(X509 *cert, int daysValid) {
+static bool setDaysValid(X509* cert, int daysValid) {
   bool result = false;
   const long seconds_in_day = 60 * 60 * 24;
 
@@ -150,8 +146,7 @@ static bool setDaysValid(X509 *cert, int daysValid) {
   if (!X509_gmtime_adj(X509_get_notBefore(cert), (long)-seconds_in_day)) {
     goto out;
   }
-  if (!X509_gmtime_adj(X509_get_notAfter(cert),
-                       (long)seconds_in_day * daysValid)) {
+  if (!X509_gmtime_adj(X509_get_notAfter(cert), (long)seconds_in_day * daysValid)) {
     goto out;
   }
 
@@ -161,9 +156,8 @@ out:
   return result;
 }
 
-void KeyCertifier::generateCertificate(string &cert, const string &publicKey,
-                                       const string &commonName,
-                                       int daysValid) {
+void KeyCertifier::generateCertificate(string& cert, const string& publicKey,
+                                       const string& commonName, int daysValid) {
   vector<pair<string, string>> subjectRdns;
   subjectRdns.push_back(make_pair("CN", commonName));
   DistinguishedName subjectDn;
@@ -174,13 +168,12 @@ void KeyCertifier::generateCertificate(string &cert, const string &publicKey,
   generateCertificate(cert, publicKey, issuerDn, subjectDn, daysValid);
 }
 
-void KeyCertifier::generateCertificate(string &cert, const string &publicKey,
-                                       const DistinguishedName &issuerDn,
-                                       const DistinguishedName &subjectDn,
-                                       int daysValid) {
-  X509 *x509_cert = nullptr;
+void KeyCertifier::generateCertificate(string& cert, const string& publicKey,
+                                       const DistinguishedName& issuerDn,
+                                       const DistinguishedName& subjectDn, int daysValid) {
+  X509* x509_cert = nullptr;
   X509_NAME *issuer_name, *subject_name;
-  EVP_PKEY *pkey = nullptr;
+  EVP_PKEY* pkey = nullptr;
   string error_msg("");
   bool rc;
 
@@ -259,8 +252,7 @@ KeyCertifier::~KeyCertifier() {
   }
 }
 
-void certifyKeyAsCA(std::string &cert, const std::string &privateKey,
-                    int daysValid) {
+void certifyKeyAsCA(std::string& cert, const std::string& privateKey, int daysValid) {
   KeyCertifier kc;
   KeyCertifier::fromKeyString(kc, privateKey);
 
@@ -272,23 +264,23 @@ void certifyKeyAsCA(std::string &cert, const std::string &privateKey,
   kc.generateCertificate(cert, publicKey, bogusDn, bogusDn);
 }
 
-int getFirstSubjectCommonName(std::string &out, X509 *cert) {
-  X509_NAME *name = X509_get_subject_name(cert);
+int getFirstSubjectCommonName(std::string& out, X509* cert) {
+  X509_NAME* name = X509_get_subject_name(cert);
   int idx = X509_NAME_get_index_by_NID(name, NID_commonName, -1);
   if (idx == -1) {
     return 0;
   }
   int rc = -1;
-  X509_NAME_ENTRY *entry = X509_NAME_get_entry(name, idx);
-  ASN1_STRING *commonName = X509_NAME_ENTRY_get_data(entry);
+  X509_NAME_ENTRY* entry = X509_NAME_get_entry(name, idx);
+  ASN1_STRING* commonName = X509_NAME_ENTRY_get_data(entry);
 
-  unsigned char *utf8 = nullptr;
+  unsigned char* utf8 = nullptr;
   int size = ASN1_STRING_to_UTF8(&utf8, commonName);
   if (size < 0) {
     goto out;
   }
 
-  out.assign((char *)utf8, size);
+  out.assign((char*)utf8, size);
   rc = 1;
 
 out:
@@ -298,25 +290,24 @@ out:
   return rc;
 }
 
-static inline void BN_to_ByteString(const BIGNUM *bn,
-                                    OpenABEByteString &serial) {
+static inline void BN_to_ByteString(const BIGNUM* bn, OpenABEByteString& serial) {
   serial.clear();
   int to_len = BN_num_bytes(bn);
   uint8_t to[to_len];
   BN_bn2bin(bn, to);
 
   // return the serial number
-  serial.appendArray((uint8_t *)to, to_len);
+  serial.appendArray((uint8_t*)to, to_len);
   return;
 }
 
-int getSerialNumber(OpenABEByteString &serial, X509 *cert) {
+int getSerialNumber(OpenABEByteString& serial, X509* cert) {
   assert(cert != nullptr);
   string error_msg = "";
   int rv = -1;
-  BIGNUM *bn_serial = nullptr;
+  BIGNUM* bn_serial = nullptr;
 
-  ASN1_INTEGER *_serial = X509_get_serialNumber(cert);
+  ASN1_INTEGER* _serial = X509_get_serialNumber(cert);
   if (!_serial) {
     cerr << "get serial number failed" << endl;
     return rv;
@@ -337,7 +328,7 @@ int getSerialNumber(OpenABEByteString &serial, X509 *cert) {
   return rv;
 }
 
-CertRevList::CertRevList(const string &crl_path) {
+CertRevList::CertRevList(const string& crl_path) {
   crl_path_ = crl_path;
   crl_ = nullptr;
   crlNumber_ = -1;
@@ -350,16 +341,15 @@ CertRevList::~CertRevList() {
   }
 }
 
-void CertRevList::createNewCrl(const std::string &ca_cert,
-                               const string &ca_privKey) {
+void CertRevList::createNewCrl(const std::string& ca_cert, const string& ca_privKey) {
   assert(crl_ == nullptr);
   string error_msg = "";
-  EVP_PKEY *pkey = nullptr;
-  X509 *cert = nullptr;
+  EVP_PKEY* pkey = nullptr;
+  X509* cert = nullptr;
   //    X509_CRL_INFO *ci = nullptr;
   long version;
-  ASN1_TIME *lastUpdate = ASN1_UTCTIME_new();
-  ASN1_TIME *nextUpdate = ASN1_UTCTIME_new();
+  ASN1_TIME* lastUpdate = ASN1_UTCTIME_new();
+  ASN1_TIME* nextUpdate = ASN1_UTCTIME_new();
 
   stringToPkey(&pkey, ca_privKey, true);
   if (!pkey) {
@@ -450,7 +440,7 @@ bool CertRevList::loadCrlFile() {
   if (crl_ != nullptr)
     return result; // already loaded
 
-  BIO *io = BIO_new_file((const char *)crl_path_.c_str(), "r");
+  BIO* io = BIO_new_file((const char*)crl_path_.c_str(), "r");
   assert(io != nullptr);
   crl_ = PEM_read_bio_X509_CRL(io, NULL, NULL, NULL);
 
@@ -463,15 +453,15 @@ bool CertRevList::loadCrlFile() {
   return result;
 }
 
-bool CertRevList::revokeCertificate(const string &client_cert) {
+bool CertRevList::revokeCertificate(const string& client_cert) {
   bool result = false;
   string error_msg = "";
-  X509_REVOKED *xr = nullptr;
-  X509 *cert = nullptr;
+  X509_REVOKED* xr = nullptr;
+  X509* cert = nullptr;
   OpenABEByteString serial;
   // BIGNUM *bn_serial = nullptr;
-  ASN1_INTEGER *_serial = nullptr;
-  ASN1_TIME *revDate = ASN1_TIME_new();
+  ASN1_INTEGER* _serial = nullptr;
+  ASN1_TIME* revDate = ASN1_TIME_new();
 
   if (!crl_) {
     error_msg = "Need to load or create a CRL list";
@@ -528,7 +518,7 @@ out:
 }
 
 void CertRevList::writeCrlFile() {
-  BIO *io = BIO_new_file((const char *)crl_path_.c_str(), "w");
+  BIO* io = BIO_new_file((const char*)crl_path_.c_str(), "w");
   assert(io != nullptr);
   PEM_write_bio_X509_CRL(io, crl_);
   if (io)
@@ -536,8 +526,8 @@ void CertRevList::writeCrlFile() {
   return;
 }
 
-bool CertRevList::isRevoked(const std::string &client_cert) {
-  X509 *cert = nullptr;
+bool CertRevList::isRevoked(const std::string& client_cert) {
+  X509* cert = nullptr;
   bool result = false;
   string error_msg = "";
 
@@ -559,15 +549,15 @@ out:
   return result;
 }
 
-bool CertRevList::isRevoked(X509 *cert) {
+bool CertRevList::isRevoked(X509* cert) {
   assert(cert != nullptr);
   string byte_str, error_msg = "";
   bool revoked_status = false;
-  STACK_OF(X509_REVOKED) *rev = nullptr;
-  X509_REVOKED *r = nullptr;
-  ASN1_INTEGER *serial = nullptr;
+  STACK_OF(X509_REVOKED)* rev = nullptr;
+  X509_REVOKED* r = nullptr;
+  ASN1_INTEGER* serial = nullptr;
   OpenABEByteString byte;
-  BIGNUM *bn = nullptr;
+  BIGNUM* bn = nullptr;
   // BIO *out = nullptr;
 
   if (!crl_) {
@@ -603,7 +593,7 @@ bool CertRevList::isRevoked(X509 *cert) {
 
   for (int i = 0; i < sk_X509_REVOKED_num(rev); i++) {
     r = sk_X509_REVOKED_value(rev, i);
-    const ASN1_INTEGER *serialNumber = X509_REVOKED_get0_serialNumber(r);
+    const ASN1_INTEGER* serialNumber = X509_REVOKED_get0_serialNumber(r);
     BIO_printf(out, "    Serial Number: ");
     i2a_ASN1_INTEGER(out, serialNumber);
     if (ASN1_INTEGER_cmp(serialNumber, serial) == 0) {
@@ -625,11 +615,11 @@ out:
 }
 
 bool CertRevList::loadRevokedList() {
-  STACK_OF(X509_REVOKED) *rev = nullptr;
-  X509_REVOKED *r = nullptr;
+  STACK_OF(X509_REVOKED)* rev = nullptr;
+  X509_REVOKED* r = nullptr;
   bool status = false;
   OpenABEByteString serial;
-  BIGNUM *bn_serial = nullptr;
+  BIGNUM* bn_serial = nullptr;
 
   if (!crl_) {
     cerr << "Need to load or create a CRL list" << endl;
@@ -647,7 +637,7 @@ bool CertRevList::loadRevokedList() {
     // get the X509_REVOKED structure
     r = sk_X509_REVOKED_value(rev, i);
     // get serial number from this structure
-    const ASN1_INTEGER *serialNumber = X509_REVOKED_get0_serialNumber(r);
+    const ASN1_INTEGER* serialNumber = X509_REVOKED_get0_serialNumber(r);
     bn_serial = ASN1_INTEGER_to_BN(serialNumber, NULL);
     BN_to_ByteString(bn_serial, serial);
     revList_.push_back(serial.toString());
