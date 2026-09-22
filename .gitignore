@@ -5,7 +5,7 @@
 # Project build and install directories
 /build/
 /build-*/
- /root/
+/root/
 /bin/
 /out/
 /output/
