@@ -88,9 +88,28 @@ void addFileExtension(string& filename, string ext) {
   return;
 }
 
+// Drop the carriage return a CRLF line ending leaves behind.
+//
+// getline() splits on '\n' only. On Windows the text-mode reader used to
+// hide this by translating CRLF to LF, but that translation never happened
+// on Linux or macOS - so a file written by a Windows build kept a trailing
+// '\r' on every line when read anywhere else. Calling this after each
+// getline() makes every build read every build's files.
+static void stripCR(string& line) {
+  if (!line.empty() && line.back() == '\r') {
+    line.pop_back();
+  }
+}
+
 void WriteToFile(const char* filename, string outputStr) {
   ofstream file;
-  file.open(filename);
+  // Binary, deliberately: these artifacts are a byte format that happens to
+  // be printable, not a text file. Opening in text mode made a Windows build
+  // expand every '\n' in the header/base64/footer to "\r\n", producing a
+  // file three bytes larger than the same artifact written anywhere else and
+  // - for a ciphertext, whose header ReadBlockFromFile() matches with an
+  // exact compare() - one that no other platform's build could read.
+  file.open(filename, ios::out | ios::binary);
   file << outputStr;
   file.close();
 }
@@ -101,6 +120,7 @@ string ReadFile(const char* filename) {
   // read everthing between the headers
   if (input.is_open()) {
     while (getline(input, line)) {
+      stripCR(line);
       /* finish this
       if(line.compare(begin_header) == 0)
          continue;
@@ -122,6 +142,7 @@ string ReadBlockFromFile(const char* begin_header, const char* end_header, const
   // read everthing between the headers
   if (input.is_open()) {
     while (getline(input, line)) {
+      stripCR(line);
       if (line.compare(begin_header) == 0) {
         found_header = true;
         continue;
